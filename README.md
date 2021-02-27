@@ -1,9 +1,4 @@
-# Cortside.Common
-
-convert json to c# classes
-http://json2csharp.com
-
-## Cortside.Common.DomainEvents
+## Cortside.DomainEvent
 Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 protocol).
 ### Azure ServiceBus
 #### General
@@ -57,3 +52,10 @@ Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 
       - Listen - off
   - a subscription to topic.TestEvent named subscription.TestEvent
     - The "Forward To" setting for this subscription needs to be set to queue.TestReceive
+
+
+## Outbox Pattern using Cortside.DomainEvent.EntityFramework
+
+todo:
+* will probably want to set deduplication at the message broker since same messageId will be used
+* 
