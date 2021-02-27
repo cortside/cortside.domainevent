@@ -5,7 +5,7 @@ using Amqp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.Common.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests {
     public class TestReceiver : DomainEventReceiver {
 
         public TestReceiver(ServiceBusReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventComms> logger) : base(settings, provider, logger) {

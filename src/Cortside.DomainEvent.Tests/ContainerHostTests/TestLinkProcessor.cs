@@ -1,7 +1,7 @@
 ﻿using System;
 using Amqp.Listener;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class BaseHostTest {
         public class TestLinkProcessor : ILinkProcessor {
             Func<AttachContext, bool> attachHandler;

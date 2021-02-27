@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{335B1379-6C95-4DCE-8D89-6602C387C26D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{335B1379-6C95-4DCE-8D89-6602C387C26D}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		..\appveyor.yml = ..\appveyor.yml
@@ -18,9 +18,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.IntegrationTests", "Cortside.DomainEvent.IntegrationTests\Cortside.DomainEvent.IntegrationTests.csproj", "{3CB9A0AB-5B9A-4C7F-BA81-8411D8F677D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cortside.DomainEvent.EntityFramework", "Cortside.DomainEvent.Outbox\Cortside.DomainEvent.EntityFramework.csproj", "{E55E3551-EFCB-43CF-91DA-9F6147B904BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.EntityFramework", "Cortside.DomainEvent.Outbox\Cortside.DomainEvent.EntityFramework.csproj", "{E55E3551-EFCB-43CF-91DA-9F6147B904BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cortside.DomainEvent.EntityFramework.IntegrationTests", "Cortside.DomainEvent.EntityFramework.IntegrationTests\Cortside.DomainEvent.EntityFramework.IntegrationTests.csproj", "{6D6CD084-0E0E-48C5-A848-5DF2506DE6A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.EntityFramework.IntegrationTests", "Cortside.DomainEvent.EntityFramework.IntegrationTests\Cortside.DomainEvent.EntityFramework.IntegrationTests.csproj", "{6D6CD084-0E0E-48C5-A848-5DF2506DE6A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{BD4EE72E-6A6C-4F4D-8A60-95820744CE45}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Outbox", "Outbox", "{4BE176EB-A10A-415E-97EB-BE7D1862DA56}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +55,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F0FB9FE9-C5F2-4514-B4A9-0A90DA07D36B} = {BD4EE72E-6A6C-4F4D-8A60-95820744CE45}
+		{1E370B56-A7EF-481C-86D3-70F4AE5C87DE} = {BD4EE72E-6A6C-4F4D-8A60-95820744CE45}
+		{3CB9A0AB-5B9A-4C7F-BA81-8411D8F677D6} = {BD4EE72E-6A6C-4F4D-8A60-95820744CE45}
+		{E55E3551-EFCB-43CF-91DA-9F6147B904BA} = {4BE176EB-A10A-415E-97EB-BE7D1862DA56}
+		{6D6CD084-0E0E-48C5-A848-5DF2506DE6A1} = {4BE176EB-A10A-415E-97EB-BE7D1862DA56}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DD00D9E8-8D42-40AE-9315-0D447B0C5275}

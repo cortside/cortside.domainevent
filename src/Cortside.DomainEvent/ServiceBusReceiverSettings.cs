@@ -1,4 +1,4 @@
-﻿namespace Cortside.Common.DomainEvent {
+﻿namespace Cortside.DomainEvent {
     public class ServiceBusReceiverSettings : ServiceBusSettings {
     }
 }

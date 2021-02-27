@@ -2,10 +2,11 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Cortside.Common.DomainEvent.Tests {
+namespace Cortside.DomainEvent.IntegrationTests {
     public class E2E : E2EBase {
 
         [Fact]

@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
+using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Cortside.Common.DomainEvent.Tests {
+namespace Cortside.DomainEvent.IntegrationTests {
     public class E2ETransactionTest : E2EBase {
 
         [Fact]

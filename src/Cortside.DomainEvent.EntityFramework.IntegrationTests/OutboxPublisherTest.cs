@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Cortside.Common.DomainEvent;
+using Cortside.DomainEvent.EntityFramework.IntegrationTests.Database;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

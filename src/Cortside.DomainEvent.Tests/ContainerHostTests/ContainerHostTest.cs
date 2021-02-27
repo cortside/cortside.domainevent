@@ -6,7 +6,7 @@ using Amqp;
 using Amqp.Framing;
 using Xunit;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public class ContainerHostTest : BaseHostTest {
 
         [Fact(Skip = "tx error")]

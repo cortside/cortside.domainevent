@@ -2,7 +2,7 @@
 using Amqp;
 using Amqp.Listener;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class BaseHostTest {
         public class TestMessageProcessor : IMessageProcessor {
             public TestMessageProcessor()

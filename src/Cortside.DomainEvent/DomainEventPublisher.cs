@@ -7,7 +7,7 @@ using Amqp.Types;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Cortside.Common.DomainEvent {
+namespace Cortside.DomainEvent {
     public class DomainEventPublisher : DomainEventComms, IDomainEventPublisher {
         public event PublisherClosedCallback Closed;
 

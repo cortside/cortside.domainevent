@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Cortside.Common.DomainEvent {
+namespace Cortside.DomainEvent {
     /// <summary>
     /// Settings for the ReceiverHostedService
     /// </summary>

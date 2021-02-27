@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Cortside.Common.DomainEvent;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

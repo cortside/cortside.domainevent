@@ -6,7 +6,7 @@ using System.Xml;
 using Amqp;
 using Newtonsoft.Json;
 
-namespace Cortside.Common.DomainEvent {
+namespace Cortside.DomainEvent {
 
     public class DomainEventMessage {
 

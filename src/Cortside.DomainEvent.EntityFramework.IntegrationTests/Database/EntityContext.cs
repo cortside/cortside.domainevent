@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
+namespace Cortside.DomainEvent.EntityFramework.IntegrationTests.Database {
     public class EntityContext : DbContext {
         public EntityContext(DbContextOptions<EntityContext> options) : base(options) { }
 

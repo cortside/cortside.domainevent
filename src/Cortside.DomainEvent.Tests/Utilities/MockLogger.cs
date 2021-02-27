@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.Common.TestingUtilities {
+namespace Cortside.DomainEvent.Tests.Utilities {
     public class MockLogger<T> : ILogger<T> {
         public List<LogEvent> LogEvents { get; }
 

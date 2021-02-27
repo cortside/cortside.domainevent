@@ -2,7 +2,7 @@
 using Amqp;
 using Amqp.Listener;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class BaseHostTest {
         public class TestRequestProcessor : IRequestProcessor {
             int totalCount;

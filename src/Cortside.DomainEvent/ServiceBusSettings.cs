@@ -1,4 +1,4 @@
-namespace Cortside.Common.DomainEvent {
+namespace Cortside.DomainEvent {
     public abstract class ServiceBusSettings {
         /// <summary>
         /// Gets or sets the name of the application.

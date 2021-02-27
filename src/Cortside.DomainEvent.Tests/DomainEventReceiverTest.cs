@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using System.Xml;
 using Amqp;
 using Amqp.Framing;
-using Cortside.Common.TestingUtilities;
+using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace Cortside.Common.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests {
     public class DomainEventReceiverTest {
 
         private readonly IServiceProvider serviceProvider;

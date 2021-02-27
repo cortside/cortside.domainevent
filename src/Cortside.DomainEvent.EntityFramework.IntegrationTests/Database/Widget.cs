@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
+namespace Cortside.DomainEvent.EntityFramework.IntegrationTests.Database {
     [Table("Widget")]
     public class Widget {
         [Key]

@@ -6,7 +6,7 @@ using System.Net.NetworkInformation;
 using Amqp;
 using Amqp.Listener;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class BaseHostTest : IDisposable {
         public const string MESSAGE_TYPE_KEY = "Message.Type.FullName";
         public const string SCHEDULED_ENQUEUE_TIME_UTC = "x-opt-scheduled-enqueue-time";

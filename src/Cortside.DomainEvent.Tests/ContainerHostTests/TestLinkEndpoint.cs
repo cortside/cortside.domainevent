@@ -1,7 +1,7 @@
 ﻿using Amqp;
 using Amqp.Listener;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class BaseHostTest {
         public class TestLinkEndpoint : LinkEndpoint {
             public override void OnMessage(MessageContext messageContext) {

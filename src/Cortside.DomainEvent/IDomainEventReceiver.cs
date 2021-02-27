@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Amqp;
 
-namespace Cortside.Common.DomainEvent {
+namespace Cortside.DomainEvent {
     public delegate void ReceiverClosedCallback(IDomainEventReceiver receiver, DomainEventError error);
     public interface IDomainEventReceiver {
         event ReceiverClosedCallback Closed;

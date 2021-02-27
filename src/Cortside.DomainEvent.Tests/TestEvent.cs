@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Cortside.Common.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests {
     public class TestEvent {
         public static Dictionary<string, TestEvent> Instances { get; } = new Dictionary<string, TestEvent>();
 

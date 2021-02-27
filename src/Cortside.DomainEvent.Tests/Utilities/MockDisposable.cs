@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cortside.Common.TestingUtilities {
+namespace Cortside.DomainEvent.Tests.Utilities {
     public class MockDisposable : IDisposable {
         bool _disposed = false;
 

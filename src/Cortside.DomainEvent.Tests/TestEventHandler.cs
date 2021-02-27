@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Cortside.Common.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests {
     public class TestEventHandler : IDomainEventHandler<TestEvent> {
         public async Task<HandlerResult> HandleAsync(DomainEventMessage<TestEvent> @event) {
             TestEvent.Instances.Add(@event.CorrelationId, @event.Data);

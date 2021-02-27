@@ -8,7 +8,7 @@ using Amqp;
 using Amqp.Framing;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.Common.DomainEvent {
+namespace Cortside.DomainEvent {
     public class DomainEventReceiver : DomainEventComms, IDomainEventReceiver, IDisposable {
         public event ReceiverClosedCallback Closed;
         public IServiceProvider Provider { get; protected set; }

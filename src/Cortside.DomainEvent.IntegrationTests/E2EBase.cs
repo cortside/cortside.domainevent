@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using Cortside.Common.TestingUtilities;
+using Cortside.DomainEvent.Tests;
+using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cortside.Common.DomainEvent.Tests {
+namespace Cortside.DomainEvent.IntegrationTests {
     public class E2EBase {
         protected readonly IServiceProvider serviceProvider;
         protected readonly Dictionary<string, Type> eventTypes;
