@@ -27,7 +27,7 @@ assembly_info:
   assembly_informational_version: '{version}'
 
 before_build:
-- appveyor-retry dotnet restore src/Cortside.Common.sln -v Minimal
+- appveyor-retry dotnet restore src/Cortside.DomainEvent.sln -v Minimal
 - set DNX_BUILD_VERSION=%APPVEYOR_BUILD_NUMBER%
 - dotnet --info
 - choco install opencover.portable
@@ -40,8 +40,8 @@ build:
   verbosity: minimal
 
 build_script:
-- dotnet build src/Cortside.Common.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
-- OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --no-build --logger:trx;LogFileName=results.trx /p:DebugType=full src/Cortside.Common.DomainEvent.Tests/Cortside.Common.DomainEvent.Tests.csproj" -filter:"+[*]* -[RsvpScheduler.Tests*]*" -output:".\results.xml" -oldStyle
+- dotnet build src/Cortside.DomainEvent.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
+- OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --no-build --logger:trx;LogFileName=results.trx /p:DebugType=full src/Cortside.DomainEvent.Tests/Cortside.DomainEvent.Tests.csproj" -filter:"+[*]* -[RsvpScheduler.Tests*]*" -output:".\results.xml" -oldStyle
 - codecov -f .\Results.xml -t $(codecov_token)
 #- dotnet test src/Cortside.Common.DomainEvent.Tests/Cortside.Common.DomainEvent.Tests.csproj --no-build
 
@@ -53,7 +53,7 @@ after_build:
         $fileVersion = "${fileVersion}-${branch}"; 
     }
     
-    dotnet pack src/cortside.common.sln --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
+    dotnet pack src/cortside.domainevent.sln --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
     
     #gci -include *.nuspec -Recurse | %{ 
     #    $csproj = ($_.Fullname).Replace('.nuspec','.csproj')
