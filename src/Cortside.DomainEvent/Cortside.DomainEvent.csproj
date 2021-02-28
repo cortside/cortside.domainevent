@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -11,12 +11,7 @@
     <Copyright>Copyright (c) 2017 Cortside Consulting and Contributors</Copyright>
     <Summary>Library for sending and receiving AMQP 1.0 messages</Summary>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageLicenseFile>..\..\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md" Pack="true" PackagePath=""/>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.4.1" />
