@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.IntegrationTests", "Cortside.DomainEvent.IntegrationTests\Cortside.DomainEvent.IntegrationTests.csproj", "{3CB9A0AB-5B9A-4C7F-BA81-8411D8F677D6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.EntityFramework", "Cortside.DomainEvent.Outbox\Cortside.DomainEvent.EntityFramework.csproj", "{E55E3551-EFCB-43CF-91DA-9F6147B904BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.EntityFramework", "Cortside.DomainEvent.EntityFramework\Cortside.DomainEvent.EntityFramework.csproj", "{E55E3551-EFCB-43CF-91DA-9F6147B904BA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.EntityFramework.IntegrationTests", "Cortside.DomainEvent.EntityFramework.IntegrationTests\Cortside.DomainEvent.EntityFramework.IntegrationTests.csproj", "{6D6CD084-0E0E-48C5-A848-5DF2506DE6A1}"
 EndProject

@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cortside.DomainEvent.Outbox\Cortside.DomainEvent.EntityFramework.csproj" />
+    <ProjectReference Include="..\Cortside.DomainEvent.EntityFramework\Cortside.DomainEvent.EntityFramework.csproj" />
   </ItemGroup>
 
 </Project>
