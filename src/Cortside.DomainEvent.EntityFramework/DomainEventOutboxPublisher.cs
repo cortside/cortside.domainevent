@@ -72,7 +72,7 @@ namespace Cortside.DomainEvent.EntityFramework {
         private async Task InnerSendAsync(string eventType, string address, string data, string correlationId, string messageId) {
             var messageIdentifier = messageId ?? Guid.NewGuid().ToString();
 
-            Logger.LogDebug($"Queueing message {messageId} with body: {data}");
+            Logger.LogDebug($"Queueing message {messageIdentifier} with body: {data}");
             await context.Set<Outbox>().AddAsync(new Outbox() {
                 MessageId = messageIdentifier,
                 CorrelationId = correlationId,

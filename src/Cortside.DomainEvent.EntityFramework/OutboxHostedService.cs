@@ -31,7 +31,7 @@ namespace Cortside.DomainEvent.EntityFramework {
                         var messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync();
                         logger.LogInformation($"message count: {messages.Count}");
                         foreach (var message in messages) {
-                            await publisher.SendAsync(message.EventType, message.EventType, message.Body, message.CorrelationId, message.MessageId);
+                            await publisher.SendAsync(message.EventType, message.Address, message.Body, message.CorrelationId, message.MessageId);
                             message.Status = OutboxStatus.Published;
                             message.PublishedDate = DateTime.UtcNow;
                             message.LockId = null;
