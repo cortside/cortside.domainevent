@@ -25,3 +25,5 @@ src/packages/
 *.ncrunchproject
 config.user.json
 
+coverage.opencover.xml
+coverage.json
