@@ -8,9 +8,13 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests.Database {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int WidgetId { get; set; }
 
+        [Required]
+        [StringLength(100)]
         public string Text { get; set; }
 
+        [Required]
         public int Width { get; set; }
+        [Required]
         public int Height { get; set; }
     }
 }
