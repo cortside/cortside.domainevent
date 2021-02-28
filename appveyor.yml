@@ -31,8 +31,8 @@ before_build:
 - appveyor-retry dotnet restore src/Cortside.DomainEvent.sln -v Minimal
 - set DNX_BUILD_VERSION=%APPVEYOR_BUILD_NUMBER%
 - dotnet --info
-- choco install opencover.portable
-- choco install codecov
+#- choco install opencover.portable
+#- choco install codecov
 
 build:
   publish_nuget: true
@@ -45,7 +45,7 @@ build_script:
 - dotnet tool install --global dotnet-sonarscanner --version 5.0.4
 - dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.domainevent" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
 - dotnet build src/Cortside.DomainEvent.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
-- dotnet test src/Cortside.DomainEvent.sln --no-build
+- dotnet test src/Cortside.DomainEvent.sln --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 - dotnet sonarscanner end /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
 #- OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --no-build --logger:trx;LogFileName=results.trx /p:DebugType=full src/Cortside.DomainEvent.Tests/Cortside.DomainEvent.Tests.csproj" -filter:"+[*]* -[RsvpScheduler.Tests*]*" -output:".\results.xml" -oldStyle
 #- codecov -f .\Results.xml -t $(codecov_token)
