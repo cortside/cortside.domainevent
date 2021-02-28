@@ -4,6 +4,20 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>Cortside.DomainEvent</PackageId>
+    <Company>Cortside Consulting</Company>
+    <Description>Library for sending and receiving AMQP 1.0 messages</Description>
+    <Copyright>Copyright (c) 2017 Cortside Consulting and Contributors</Copyright>
+    <Summary>Library for sending and receiving AMQP 1.0 messages</Summary>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>..\..\LICENSE.md</PackageLicenseFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.4.1" />
     <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.1" />
