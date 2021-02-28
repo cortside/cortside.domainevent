@@ -11,6 +11,10 @@ namespace System {
             return (type.IsValueType & type.IsPrimitive);
         }
 
+        public static T Copy<T>(this T original) {
+            return (T)Copy((Object)original);
+        }
+
         public static Object Copy(this Object originalObject) {
             return InternalCopy(originalObject, new Dictionary<Object, Object>(new ReferenceEqualityComparer()));
         }
@@ -27,7 +31,7 @@ namespace System {
             var cloneObject = CloneMethod.Invoke(originalObject, null);
             if (typeToReflect.IsArray) {
                 var arrayType = typeToReflect.GetElementType();
-                if (IsPrimitive(arrayType) == false) {
+                if (!IsPrimitive(arrayType)) {
                     Array clonedArray = (Array)cloneObject;
                     clonedArray.ForEach((array, indices) => array.SetValue(InternalCopy(clonedArray.GetValue(indices), visited), indices));
                 }
@@ -48,7 +52,7 @@ namespace System {
 
         private static void CopyFields(object originalObject, IDictionary<object, object> visited, object cloneObject, Type typeToReflect, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy, Func<FieldInfo, bool> filter = null) {
             foreach (FieldInfo fieldInfo in typeToReflect.GetFields(bindingFlags)) {
-                if (filter != null && filter(fieldInfo) == false)
+                if (filter != null && !filter(fieldInfo))
                     continue;
                 if (IsPrimitive(fieldInfo.FieldType))
                     continue;
@@ -56,9 +60,6 @@ namespace System {
                 var clonedFieldValue = InternalCopy(originalFieldValue, visited);
                 fieldInfo.SetValue(cloneObject, clonedFieldValue);
             }
-        }
-        public static T Copy<T>(this T original) {
-            return (T)Copy((Object)original);
         }
     }
 
