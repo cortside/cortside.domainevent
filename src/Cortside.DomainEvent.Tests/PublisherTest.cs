@@ -10,8 +10,8 @@ namespace Cortside.DomainEvent.Tests {
     public class PublisherTest : BaseHostTest {
 
         [Fact]
-        public async Task ContainerHostMessageProcessorTest() {
-            string name = "ContainerHostMessageProcessorTest";
+        public async Task ShouldPublishEventWithObject() {
+            string name = "ShouldPublishEventWithObject";
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(name + "TestEvent", processor);
 
