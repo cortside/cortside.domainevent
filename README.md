@@ -1,3 +1,5 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cortside_cortside.common&metric=alert_status)](https://sonarcloud.io/dashboard?id=cortside_cortside.domainevent)
+
 ## Cortside.DomainEvent
 Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 protocol).
 ### Azure ServiceBus
@@ -58,4 +60,16 @@ Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 
 
 todo:
 * will probably want to set deduplication at the message broker since same messageId will be used
+* will need to generate ef migration after adding following to OnModelCreating method in dbcontext class:
+  * modelBuilder.AddDomainEventOutbox();
+  * https://github.com/cortside/cortside.webapistarter/blob/outbox/src/Cortside.WebApiStarter.Data/Migrations/20210228035338_DomainEventOutbox.cs
+
+## migration from cortside.common.domainevent
+
+## examples
+* https://github.com/cortside/cortside.webapistarter
+
+## todo:
+* complete implementation in DomainEventOutboxPublisher
+* publisher should return published message information -- at least messageId -- would make debugging easier
 * 

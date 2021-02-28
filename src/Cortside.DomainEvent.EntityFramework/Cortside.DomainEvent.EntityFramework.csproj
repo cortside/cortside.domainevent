@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -11,6 +11,8 @@
     <Copyright>Copyright (c) 2017 Cortside Consulting and Contributors</Copyright>
     <Summary>Library for sending AMQP 1.0 messages using Outbox Pattern and EntityFramework</Summary>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/cortside/cortside.domainevent.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
