@@ -25,7 +25,8 @@ namespace Cortside.DomainEvent.EntityFramework {
                 await using (var tx = await db.Database.BeginTransactionAsync()) {
                     try {
                         // TODO: top needs to be configurable
-                        await db.Database.ExecuteSqlRawAsync($"UPDATE top (5) Outbox WITH (XLOCK) SET LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'  WHERE LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate");
+                        var sql = $";with cte as (select top (5) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
+                        await db.Database.ExecuteSqlRawAsync(sql);
 
                         var messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync();
                         logger.LogInformation($"message count: {messages.Count}");

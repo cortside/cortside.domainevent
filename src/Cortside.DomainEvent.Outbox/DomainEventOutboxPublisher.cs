@@ -16,7 +16,8 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         protected ILogger<DomainEventOutboxPublisher<TDbContext>> Logger { get; }
 
-        public DomainEventOutboxPublisher(TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
+        public DomainEventOutboxPublisher(ServiceBusPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
+            this.Settings = settings;
             this.context = context;
             Logger = logger;
         }
@@ -28,8 +29,7 @@ namespace Cortside.DomainEvent.EntityFramework {
         public async Task SendAsync<T>(T @event) where T : class {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
-            //var address = Settings.Address + @event.GetType().Name;
-            var address = @event.GetType().Name;
+            var address = Settings.Address + @event.GetType().Name;
             await SendAsync(eventType, address, data, null, null);
         }
 
