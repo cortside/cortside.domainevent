@@ -1,13 +1,41 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Transactions;
 using Amqp;
 using Amqp.Framing;
+using Microsoft.Extensions.Logging.Abstractions;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public class ContainerHostTest : BaseHostTest {
+
+        [Fact]
+        public async Task ShouldPublishEventWithObject() {
+            string name = "ShouldPublishEventWithObject";
+            var processor = new TestMessageProcessor();
+            this.host.RegisterMessageProcessor(name + "TestEvent", processor);
+
+            var settings = this.settings.Copy();
+            settings.Address = name;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+
+            int count = 500;
+
+            for (int i = 0; i < count; i++) {
+                var @event = new TestEvent() { IntValue = i, StringValue = i.ToString() };
+                await publisher.SendAsync(@event);
+            }
+
+            Assert.Equal(count, processor.Messages.Count);
+            for (int i = 0; i < count; i++) {
+                var message = processor.Messages[i];
+                Assert.Equal(i, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
+                Assert.Equal(i.ToString(), JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
+            }
+        }
 
         [Fact(Skip = "tx error")]
         public void Retry() {
@@ -124,7 +152,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
         }
 
-        [Fact(Skip = "hung appveyor build")]
+        [Fact]
         public void ContainerHostMessageSourceTest() {
             string name = "ContainerHostMessageSourceTest";
             int count = 100;
