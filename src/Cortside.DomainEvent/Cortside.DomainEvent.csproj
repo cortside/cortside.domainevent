@@ -13,6 +13,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/cortside/cortside.domainevent.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
