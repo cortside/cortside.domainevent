@@ -14,6 +14,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
         protected ILinkProcessor linkProcessor;
+        protected readonly ServiceBusPublisherSettings settings;
 
         protected Address Address {
             get;
@@ -25,7 +26,15 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 
-            this.Address = new Address($"amqp://guest:guest@localhost:{port}");
+            this.settings = new ServiceBusPublisherSettings() {
+                Protocol = "amqp",
+                PolicyName = "guest",
+                Key = "guest",
+                Namespace = $"localhost:{ port}",
+                Address = "/exchange/test/",
+                AppName = "unittest"
+            };
+            this.Address = new Address(settings.ConnectionString);
 
             this.host = new ContainerHost(this.Address);
             this.host.Listeners[0].SASL.EnableExternalMechanism = true;

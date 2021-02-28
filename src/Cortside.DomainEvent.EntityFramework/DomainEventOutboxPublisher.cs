@@ -1,3 +1,5 @@
+#pragma warning disable CS0067
+
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;

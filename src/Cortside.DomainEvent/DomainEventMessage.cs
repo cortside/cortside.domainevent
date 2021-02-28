@@ -33,7 +33,7 @@ namespace Cortside.DomainEvent {
             return domainEvent;
         }
 
-        internal static string GetBody(Message message) {
+        public static string GetBody(Message message) {
             string body = null;
             // Get the body
             if (message.Body is string) {

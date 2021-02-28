@@ -164,8 +164,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             connection.Close();
 
             Thread.Sleep(500);
-            Assert.Equal(released + ignored, source.Count); //, string.Join(",", messages.Select(m => m.Properties.MessageId)));
-            Assert.Equal(rejected, source.DeadLetterCount); //, string.Join(",", source.DeadletterMessage.Select(m => m.Properties.MessageId)));
+            Assert.Equal(released + ignored, source.Count);
+            Assert.Equal(rejected, source.DeadLetterCount);
         }
 
         [Fact]

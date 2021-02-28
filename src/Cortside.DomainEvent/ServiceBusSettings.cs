@@ -76,5 +76,7 @@ namespace Cortside.DomainEvent {
         /// setting is.
         /// </remarks>
         public uint Durable { set; get; } = 0;
+
+        public string ConnectionString => $"{Protocol}://{PolicyName}:{Key}@{Namespace}";
     }
 }

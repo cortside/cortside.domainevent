@@ -1,3 +1,5 @@
+#pragma warning disable S1199
+
 using System;
 using System.Collections.Generic;
 using System.Transactions;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Amqp;
 using Amqp.Framing;
+using Amqp.Types;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -195,7 +196,7 @@ namespace Cortside.DomainEvent.Tests {
             var body = JsonConvert.SerializeObject(@event);
             Message message = CreateMessage(eventType, body);
 
-            //receiverLink.Setup(x => x.Modify(message, true, false, It.IsAny<Fields>()));
+            receiverLink.Setup(x => x.Modify(message, true, false, It.IsAny<Fields>()));
             receiverLink.Setup(x => x.Accept(message));
 
             // act
