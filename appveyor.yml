@@ -42,12 +42,8 @@ build:
   verbosity: minimal
 
 build_script:
-
-- dotnet build src/Cortside.Common.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%	- dotnet build src/Cortside.Common.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
-
-
 - dotnet tool install --global dotnet-sonarscanner --version 5.0.4
-- dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.common" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
+- dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.domainevent" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
 - dotnet build src/Cortside.DomainEvent.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
 - dotnet test src/Cortside.DomainEvent.sln --no-build
 - dotnet sonarscanner end /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
