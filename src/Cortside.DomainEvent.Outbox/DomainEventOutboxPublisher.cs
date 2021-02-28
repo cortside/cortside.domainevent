@@ -46,7 +46,7 @@ namespace Cortside.DomainEvent.EntityFramework {
         }
 
         public async Task SendAsync(string eventType, string address, string data, string correlationId, string messageId) {
-            await InnerSendAsync(eventType, data, correlationId, messageId);
+            await InnerSendAsync(eventType, address, data, correlationId, messageId);
         }
 
         public Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
@@ -69,14 +69,15 @@ namespace Cortside.DomainEvent.EntityFramework {
             throw new NotImplementedException();
         }
 
-        private async Task InnerSendAsync(string eventType, string data, string correlationId, string messageId) {
+        private async Task InnerSendAsync(string eventType, string address, string data, string correlationId, string messageId) {
             var messageIdentifier = messageId ?? Guid.NewGuid().ToString();
 
-            await context.AddAsync(new Outbox() {
+            Logger.LogDebug($"Queueing message {messageId} with body: {data}");
+            await context.Set<Outbox>().AddAsync(new Outbox() {
                 MessageId = messageIdentifier,
                 CorrelationId = correlationId,
                 EventType = eventType,
-                Address = eventType, //this is wrong
+                Address = address,
                 Body = data,
                 CreatedDate = DateTime.UtcNow,
                 ScheduledDate = DateTime.UtcNow,
