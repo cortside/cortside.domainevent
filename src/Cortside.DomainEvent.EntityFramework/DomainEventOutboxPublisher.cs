@@ -24,7 +24,7 @@ namespace Cortside.DomainEvent.EntityFramework {
             Logger = logger;
         }
 
-        public DomainEventError Error { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DomainEventError Error { get; set; }
 
         public event PublisherClosedCallback Closed;
 
@@ -39,45 +39,59 @@ namespace Cortside.DomainEvent.EntityFramework {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
             var address = Settings.Address + @event.GetType().Name;
-            await SendAsync(eventType, address, data, correlationId, null);
+            await InnerSendAsync(eventType, address, data, correlationId, null);
         }
 
         public async Task SendAsync<T>(T @event, string correlationId, string messageId) where T : class {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
             var address = Settings.Address + @event.GetType().Name;
-            await SendAsync(eventType, address, data, correlationId, messageId);
+            await InnerSendAsync(eventType, address, data, correlationId, messageId);
         }
 
-        public Task SendAsync<T>(T @event, string eventType, string address, string correlationId) where T : class {
-            throw new NotImplementedException();
+        public async Task SendAsync<T>(T @event, string eventType, string address, string correlationId) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            await InnerSendAsync(eventType, address, data, correlationId, null);
         }
 
         public async Task SendAsync(string eventType, string address, string data, string correlationId, string messageId) {
             await InnerSendAsync(eventType, address, data, correlationId, messageId);
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
+        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+            await InnerSendAsync(eventType, address, data, null, null, scheduledEnqueueTimeUtc);
+
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
+        public async Task ScheduleMessageAsync<T>(T @event, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+            await InnerSendAsync(eventType, address, data, correlationId, null, scheduledEnqueueTimeUtc);
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
+        public async Task ScheduleMessageAsync<T>(T @event, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+            await InnerSendAsync(eventType, address, data, correlationId, messageId, scheduledEnqueueTimeUtc);
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, string eventType, string address, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
+        public async Task ScheduleMessageAsync<T>(T @event, string eventType, string address, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            await InnerSendAsync(eventType, address, data, correlationId, null, scheduledEnqueueTimeUtc);
+
         }
 
-        public Task ScheduleMessageAsync(string data, string eventType, string address, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) {
-            throw new NotImplementedException();
+        public async Task ScheduleMessageAsync(string data, string eventType, string address, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) {
+            await InnerSendAsync(eventType, address, data, correlationId, null, scheduledEnqueueTimeUtc);
         }
 
-        private async Task InnerSendAsync(string eventType, string address, string data, string correlationId, string messageId) {
+        private async Task InnerSendAsync(string eventType, string address, string data, string correlationId, string messageId, DateTime? scheduledEnqueueTimeUtc = null) {
+            var date = DateTime.UtcNow;
             var messageIdentifier = messageId ?? Guid.NewGuid().ToString();
 
             Logger.LogDebug($"Queueing message {messageIdentifier} with body: {data}");
@@ -87,8 +101,8 @@ namespace Cortside.DomainEvent.EntityFramework {
                 EventType = eventType,
                 Address = address,
                 Body = data,
-                CreatedDate = DateTime.UtcNow,
-                ScheduledDate = DateTime.UtcNow,
+                CreatedDate = date,
+                ScheduledDate = scheduledEnqueueTimeUtc ?? date,
                 Status = OutboxStatus.Queued
             });
         }
