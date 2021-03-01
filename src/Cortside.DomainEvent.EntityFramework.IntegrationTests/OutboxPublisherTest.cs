@@ -54,7 +54,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent() {
+        public async Task ShouldPublishEvent1() {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -68,5 +68,44 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
         }
+
+        [Fact]
+        public async Task ShouldPublishEvent2() {
+            // arrange
+            var publisher = provider.GetService<IDomainEventOutboxPublisher>();
+            var db = provider.GetService<EntityContext>();
+            var correlationId = Guid.NewGuid().ToString();
+
+            // act
+            var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
+            await publisher.SendAsync(@event, correlationId);
+            await db.SaveChangesAsync();
+
+            // assert
+            var messages = await db.Set<Outbox>().ToListAsync();
+            Assert.Single(messages);
+            Assert.Equal(correlationId, messages[0].CorrelationId);
+        }
+
+        [Fact]
+        public async Task ShouldPublishEvent3() {
+            // arrange
+            var publisher = provider.GetService<IDomainEventOutboxPublisher>();
+            var db = provider.GetService<EntityContext>();
+            var correlationId = Guid.NewGuid().ToString();
+            var messageId = Guid.NewGuid().ToString();
+
+            // act
+            var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
+            await publisher.SendAsync(@event, correlationId, messageId);
+            await db.SaveChangesAsync();
+
+            // assert
+            var messages = await db.Set<Outbox>().ToListAsync();
+            Assert.Single(messages);
+            Assert.Equal(correlationId, messages[0].CorrelationId);
+            Assert.Equal(messageId, messages[0].MessageId);
+        }
+
     }
 }

@@ -35,12 +35,18 @@ namespace Cortside.DomainEvent.EntityFramework {
             await SendAsync(eventType, address, data, null, null);
         }
 
-        public Task SendAsync<T>(T @event, string correlationId) where T : class {
-            throw new NotImplementedException();
+        public async Task SendAsync<T>(T @event, string correlationId) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+            await SendAsync(eventType, address, data, correlationId, null);
         }
 
-        public Task SendAsync<T>(T @event, string correlationId, string messageId) where T : class {
-            throw new NotImplementedException();
+        public async Task SendAsync<T>(T @event, string correlationId, string messageId) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+            await SendAsync(eventType, address, data, correlationId, messageId);
         }
 
         public Task SendAsync<T>(T @event, string eventType, string address, string correlationId) where T : class {

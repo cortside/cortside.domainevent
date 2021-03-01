@@ -24,20 +24,16 @@ namespace Cortside.DomainEvent {
             this.settings = settings;
         }
 
-        public override Task StartAsync(CancellationToken ct) {
-            return base.StartAsync(ct);
-        }
-
         /// <summary>
         /// Interface method to start service
         /// </summary>
-        protected async override Task ExecuteAsync(CancellationToken cancellationToken) {
-            if (settings.Disabled) {
-                logger.LogInformation("Receiverhostedservice is disabled");
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken) {
+            if (!settings.Enabled) {
+                logger.LogInformation("ReceiverHostedService is not enabled");
             } else if (settings.MessageTypes == null) {
                 logger.LogError("Configuration error:  No event types have been configured for the receiverhostedeservice");
             } else {
-                while (!cancellationToken.IsCancellationRequested) {
+                while (!stoppingToken.IsCancellationRequested) {
                     if (receiver == null || receiver.Link == null || receiver.Link.IsClosed) {
                         DisposeReceiver();
                         receiver = services.GetService<IDomainEventReceiver>();

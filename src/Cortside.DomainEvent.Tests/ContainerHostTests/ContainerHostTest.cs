@@ -14,12 +14,12 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public async Task ShouldPublishEventWithObject() {
-            string name = "ShouldPublishEventWithObject";
+            string topic = "ShouldPublishEventWithObject";
             var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor(name + "TestEvent", processor);
+            this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
             var settings = this.settings.Copy();
-            settings.Address = name;
+            settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
 
             int count = 500;

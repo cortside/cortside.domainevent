@@ -10,9 +10,11 @@ using Microsoft.Extensions.Logging;
 namespace Cortside.DomainEvent.EntityFramework {
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
         private readonly IServiceProvider serviceProvider;
+        private readonly OutboxHostedServiceConfiguration config;
 
         public OutboxHostedService(ILogger<OutboxHostedService<T>> logger, OutboxHostedServiceConfiguration config, IServiceProvider serviceProvider) : base(logger, config.Enabled, config.Interval, true) {
             this.serviceProvider = serviceProvider;
+            this.config = config;
         }
 
         protected override async Task ExecuteIntervalAsync() {
@@ -24,8 +26,7 @@ namespace Cortside.DomainEvent.EntityFramework {
 
                 await using (var tx = await db.Database.BeginTransactionAsync()) {
                     try {
-                        // TODO: top needs to be configurable
-                        var sql = $";with cte as (select top (5) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
+                        var sql = $";with cte as (select top ({config.Interval}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
                         await db.Database.ExecuteSqlRawAsync(sql);
 
                         var messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync();
