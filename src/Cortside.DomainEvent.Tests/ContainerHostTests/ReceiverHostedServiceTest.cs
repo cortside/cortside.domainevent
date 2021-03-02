@@ -7,8 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Moq;
 using Xunit;
 
-namespace Cortside.DomainEvent.Tests {
-    public class ReceiverHostedServiceTest {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests {
+    public partial class ContainerHostTest : BaseHostTest {
         [Fact]
         public async Task Verify_Hosted_Service_Executes_Task() {
             IServiceCollection services = new ServiceCollection();
