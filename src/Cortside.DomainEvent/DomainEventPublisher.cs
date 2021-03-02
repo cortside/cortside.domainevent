@@ -140,5 +140,24 @@ namespace Cortside.DomainEvent {
             }
             Closed?.Invoke(this, Error);
         }
+
+        public async Task SendAsync<T>(T @event, MessageOptions options) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+
+            var message = CreateMessage(eventType, data, options.CorrelationId, options.MessageId);
+            await InnerSendAsync(address, message);
+        }
+
+        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, MessageOptions options) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+
+            var message = CreateMessage(eventType, data, options.CorrelationId, options.MessageId);
+            message.MessageAnnotations[new Symbol(SCHEDULED_ENQUEUE_TIME_UTC)] = scheduledEnqueueTimeUtc;
+            await InnerSendAsync(address, message);
+        }
     }
 }

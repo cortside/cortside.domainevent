@@ -21,10 +21,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         protected readonly ServiceProvider provider;
         protected readonly Dictionary<string, Type> eventTypes;
 
-        protected Address Address {
-            get;
-            set;
-        }
+        protected Address Address { get; set; }
 
         public BaseHostTest() {
             this.random = new Random();

@@ -8,6 +8,9 @@ namespace Cortside.DomainEvent {
     public interface IDomainEventPublisher {
         event PublisherClosedCallback Closed;
 
+        Task SendAsync<T>(T @event, MessageOptions options) where T : class;
+        Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, MessageOptions options) where T : class;
+
         Task SendAsync<T>(T @event) where T : class;
         Task SendAsync<T>(T @event, string correlationId) where T : class;
         Task SendAsync<T>(T @event, string correlationId, string messageId) where T : class;

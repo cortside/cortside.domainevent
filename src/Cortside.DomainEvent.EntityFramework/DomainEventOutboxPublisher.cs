@@ -106,5 +106,19 @@ namespace Cortside.DomainEvent.EntityFramework {
                 Status = OutboxStatus.Queued
             });
         }
+
+        public async Task SendAsync<T>(T @event, MessageOptions options) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+            await InnerSendAsync(eventType, address, data, options.CorrelationId, options.MessageId, null);
+        }
+
+        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, MessageOptions options) where T : class {
+            var data = JsonConvert.SerializeObject(@event);
+            var eventType = @event.GetType().FullName;
+            var address = Settings.Address + @event.GetType().Name;
+            await InnerSendAsync(eventType, address, data, options.CorrelationId, options.MessageId, scheduledEnqueueTimeUtc);
+        }
     }
 }
