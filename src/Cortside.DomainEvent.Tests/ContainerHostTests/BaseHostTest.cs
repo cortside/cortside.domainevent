@@ -15,6 +15,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         protected ContainerHost host;
         protected ILinkProcessor linkProcessor;
         protected readonly ServiceBusPublisherSettings settings;
+        protected readonly Random random;
 
         protected Address Address {
             get;
@@ -22,7 +23,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         public BaseHostTest() {
-            var random = new Random();
+            this.random = new Random();
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 

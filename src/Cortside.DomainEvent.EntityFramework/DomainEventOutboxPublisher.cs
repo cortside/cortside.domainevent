@@ -32,7 +32,7 @@ namespace Cortside.DomainEvent.EntityFramework {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
             var address = Settings.Address + @event.GetType().Name;
-            await SendAsync(eventType, address, data, null, null);
+            await InnerSendAsync(eventType, address, data, null, null);
         }
 
         public async Task SendAsync<T>(T @event, string correlationId) where T : class {
@@ -87,7 +87,7 @@ namespace Cortside.DomainEvent.EntityFramework {
         }
 
         public async Task ScheduleMessageAsync(string data, string eventType, string address, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) {
-            await InnerSendAsync(eventType, address, data, correlationId, null, scheduledEnqueueTimeUtc);
+            await InnerSendAsync(eventType, address, data, correlationId, messageId, scheduledEnqueueTimeUtc);
         }
 
         private async Task InnerSendAsync(string eventType, string address, string data, string correlationId, string messageId, DateTime? scheduledEnqueueTimeUtc = null) {

@@ -5,6 +5,7 @@ using Cortside.DomainEvent.EntityFramework.IntegrationTests.Events;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
@@ -128,27 +129,27 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal("bar", messages[0].Address);
         }
 
-        //[Fact]
-        //public async Task ShouldPublishEvent5() {
-        //    // arrange
-        //    var publisher = provider.GetService<IDomainEventOutboxPublisher>();
-        //    var db = provider.GetService<EntityContext>();
-        //    var correlationId = Guid.NewGuid().ToString();
-        //    var messageId = Guid.NewGuid().ToString();
+        [Fact]
+        public async Task ShouldPublishEvent5() {
+            // arrange
+            var publisher = provider.GetService<IDomainEventOutboxPublisher>();
+            var db = provider.GetService<EntityContext>();
+            var correlationId = Guid.NewGuid().ToString();
+            var messageId = Guid.NewGuid().ToString();
 
-        //    // act
-        //    var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-        //    await publisher.SendAsync<WidgetStateChangedEvent>(@event, "foo", "bar", correlationId, messageId);
-        //    await db.SaveChangesAsync();
+            // act
+            var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
+            await publisher.SendAsync("foo", "bar", JsonConvert.SerializeObject(@event), correlationId, messageId);
+            await db.SaveChangesAsync();
 
-        //    // assert
-        //    var messages = await db.Set<Outbox>().ToListAsync();
-        //    Assert.Single(messages);
-        //    Assert.Equal(correlationId, messages[0].CorrelationId);
-        //    Assert.Equal(messageId, messages[0].MessageId);
-        //    Assert.Equal("foo", messages[0].EventType);
-        //    Assert.Equal("bar", messages[0].Address);
-        //}
+            // assert
+            var messages = await db.Set<Outbox>().ToListAsync();
+            Assert.Single(messages);
+            Assert.Equal(correlationId, messages[0].CorrelationId);
+            Assert.Equal(messageId, messages[0].MessageId);
+            Assert.Equal("foo", messages[0].EventType);
+            Assert.Equal("bar", messages[0].Address);
+        }
 
         [Fact]
         public async Task ShouldScheduleEvent1() {
@@ -210,28 +211,52 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal(scheduleDate, messages[0].ScheduledDate);
         }
 
-        //[Fact]
-        //public async Task ShouldScheduleEvent4() {
-        //    // arrange
-        //    var publisher = provider.GetService<IDomainEventOutboxPublisher>();
-        //    var db = provider.GetService<EntityContext>();
-        //    var correlationId = Guid.NewGuid().ToString();
-        //    var messageId = Guid.NewGuid().ToString();
-        //    var scheduleDate = DateTime.UtcNow.AddDays(1);
+        [Fact]
+        public async Task ShouldScheduleEvent4() {
+            // arrange
+            var publisher = provider.GetService<IDomainEventOutboxPublisher>();
+            var db = provider.GetService<EntityContext>();
+            var correlationId = Guid.NewGuid().ToString();
+            var messageId = Guid.NewGuid().ToString();
+            var scheduleDate = DateTime.UtcNow.AddDays(1);
 
-        //    // act
-        //    var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-        //    await publisher.ScheduleMessageAsync(@event, "foo", "bar", correlationId, messageId, scheduleDate);
-        //    await db.SaveChangesAsync();
+            // act
+            var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
+            await publisher.ScheduleMessageAsync(@event, "foo", "bar", correlationId, scheduleDate);
+            await db.SaveChangesAsync();
 
-        //    // assert
-        //    var messages = await db.Set<Outbox>().ToListAsync();
-        //    Assert.Single(messages);
-        //    Assert.Equal(correlationId, messages[0].CorrelationId);
-        //    Assert.Equal(messageId, messages[0].MessageId);
-        //    Assert.Equal("foo", messages[0].EventType);
-        //    Assert.Equal("bar", messages[0].Address);
-        //    Assert.Equal(scheduleDate, messages[0].ScheduledDate);
-        //}
+            // assert
+            var messages = await db.Set<Outbox>().ToListAsync();
+            Assert.Single(messages);
+            Assert.Equal(correlationId, messages[0].CorrelationId);
+            Assert.Equal("foo", messages[0].EventType);
+            Assert.Equal("bar", messages[0].Address);
+            Assert.Equal(scheduleDate, messages[0].ScheduledDate);
+        }
+
+        [Fact]
+        public async Task ShouldScheduleEvent5() {
+            // arrange
+            var publisher = provider.GetService<IDomainEventOutboxPublisher>();
+            var db = provider.GetService<EntityContext>();
+            var correlationId = Guid.NewGuid().ToString();
+            var messageId = Guid.NewGuid().ToString();
+            var scheduleDate = DateTime.UtcNow.AddDays(1);
+
+            // act
+            var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
+            await publisher.ScheduleMessageAsync(JsonConvert.SerializeObject(@event), "foo", "bar", correlationId, messageId, scheduleDate);
+            await db.SaveChangesAsync();
+
+            // assert
+            var messages = await db.Set<Outbox>().ToListAsync();
+            Assert.Single(messages);
+            Assert.Equal(correlationId, messages[0].CorrelationId);
+            Assert.Equal(messageId, messages[0].MessageId);
+            Assert.Equal("foo", messages[0].EventType);
+            Assert.Equal("bar", messages[0].Address);
+            Assert.Equal(scheduleDate, messages[0].ScheduledDate);
+        }
+
     }
 }

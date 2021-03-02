@@ -10,33 +10,7 @@ using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    public class ContainerHostTest : BaseHostTest {
-
-        [Fact]
-        public async Task ShouldPublishEventWithObject() {
-            string topic = "ShouldPublishEventWithObject";
-            var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
-
-            var settings = this.settings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
-
-            int count = 500;
-
-            for (int i = 0; i < count; i++) {
-                var @event = new TestEvent() { IntValue = i, StringValue = i.ToString() };
-                await publisher.SendAsync(@event);
-            }
-
-            Assert.Equal(count, processor.Messages.Count);
-            for (int i = 0; i < count; i++) {
-                var message = processor.Messages[i];
-                Assert.Equal(i, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
-                Assert.Equal(i.ToString(), JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            }
-        }
-
+    public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "tx error")]
         public void Retry() {
             string name = "Retry";
