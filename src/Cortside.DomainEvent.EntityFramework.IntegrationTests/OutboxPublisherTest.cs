@@ -233,6 +233,5 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         //    Assert.Equal("bar", messages[0].Address);
         //    Assert.Equal(scheduleDate, messages[0].ScheduledDate);
         //}
-
     }
 }
