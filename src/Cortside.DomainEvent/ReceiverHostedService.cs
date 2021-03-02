@@ -24,6 +24,11 @@ namespace Cortside.DomainEvent {
             this.settings = settings;
         }
 
+        public override async Task StartAsync(CancellationToken cancellationToken) {
+            logger.LogInformation($"ReceiverHostedService StartAsync() entered.");
+            await base.StartAsync(cancellationToken);
+        }
+
         /// <summary>
         /// Interface method to start service
         /// </summary>

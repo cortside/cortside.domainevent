@@ -9,8 +9,8 @@ using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
-        [Fact(Skip = "hangs in appveyor but not local")]
-        public async Task Verify_Hosted_Service_Executes_Task() {
+        [Fact]
+        public async Task ReceiverHostedService() {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
             services.AddHostedService<ReceiverHostedService>();
