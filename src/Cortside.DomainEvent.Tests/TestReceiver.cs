@@ -9,11 +9,6 @@ namespace Cortside.DomainEvent.Tests {
     public class TestReceiver : DomainEventReceiver {
 
         public TestReceiver(ServiceBusReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventComms> logger) : base(settings, provider, logger) {
-            //var connStr = "amqp://user:pass@127.0.0.1/";
-            //var address = new Address(connStr);
-            //var conn = new Mock<Connection>(address);
-            //var session = new Mock<Session>(conn.Object);
-            //Link = new Mock<ReceiverLink>(session.Object, String.Empty, String.Empty).Object;
         }
 
         public void Setup(IDictionary<string, Type> eventTypeLookup) {

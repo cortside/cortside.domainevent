@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using Amqp;
 using Amqp.Framing;
-using Amqp.Types;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -188,7 +187,7 @@ namespace Cortside.DomainEvent.Tests {
             Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
         }
 
-        [Fact(Skip = "need to find way to mock session")]
+        [Fact(Skip = "no tx handling with containerhost")]
         public async Task ShouldHandleRetryResult() {
             // arrange
             var @event = new TestEvent() { IntValue = 0 };
@@ -196,7 +195,7 @@ namespace Cortside.DomainEvent.Tests {
             var body = JsonConvert.SerializeObject(@event);
             Message message = CreateMessage(eventType, body);
 
-            receiverLink.Setup(x => x.Modify(message, true, false, It.IsAny<Fields>()));
+            //receiverLink.Setup(x => x.Modify(message, true, false, It.IsAny<Fields>()));
             receiverLink.Setup(x => x.Accept(message));
 
             // act

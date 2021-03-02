@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using Amqp;
 using Amqp.Listener;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public class BaseHostTest : IDisposable {
@@ -14,8 +15,11 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
         protected ILinkProcessor linkProcessor;
-        protected readonly ServiceBusPublisherSettings settings;
+        protected readonly ServiceBusReceiverSettings receiverSettings;
+        protected readonly ServiceBusPublisherSettings publisterSettings;
         protected readonly Random random;
+        protected readonly ServiceProvider provider;
+        protected readonly Dictionary<string, Type> eventTypes;
 
         protected Address Address {
             get;
@@ -27,20 +31,36 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 
-            this.settings = new ServiceBusPublisherSettings() {
+            this.receiverSettings = new ServiceBusReceiverSettings() {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
-                Namespace = $"localhost:{ port}",
+                Namespace = $"localhost:{port}",
+                Address = "queue",
+                AppName = "unittest"
+            };
+
+            this.publisterSettings = new ServiceBusPublisherSettings() {
+                Protocol = "amqp",
+                PolicyName = "guest",
+                Key = "guest",
+                Namespace = $"localhost:{port}",
                 Address = "/exchange/test/",
                 AppName = "unittest"
             };
-            this.Address = new Address(settings.ConnectionString);
+            this.Address = new Address(publisterSettings.ConnectionString);
 
             this.host = new ContainerHost(this.Address);
             this.host.Listeners[0].SASL.EnableExternalMechanism = true;
             this.host.Listeners[0].SASL.EnableAnonymousMechanism = true;
             this.host.Open();
+
+            eventTypes = new Dictionary<string, Type> {
+                { typeof(TestEvent).FullName, typeof(TestEvent) }
+            };
+
+            var services = new ServiceCollection();
+            provider = services.BuildServiceProvider();
         }
 
         public void Dispose() {

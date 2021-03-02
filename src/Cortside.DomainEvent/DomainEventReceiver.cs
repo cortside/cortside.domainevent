@@ -163,6 +163,7 @@ namespace Cortside.DomainEvent {
                             var delay = 10 * deliveryCount;
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
+                            //var isTestReceiver = this.GetType().Name.StartsWith("Test");
                             using (var ts = new TransactionScope()) {
                                 var sender = new SenderLink(Link.Session, base.Settings.AppName + "-retry", base.Settings.Address);
                                 // create a new message to be queued with scheduled delivery time

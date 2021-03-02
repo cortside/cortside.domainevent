@@ -16,7 +16,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
 
@@ -39,7 +39,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
@@ -64,7 +64,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
@@ -91,7 +91,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
@@ -117,7 +117,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
@@ -144,7 +144,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var scheduleDate = DateTime.UtcNow.AddDays(1);
@@ -169,7 +169,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
@@ -196,7 +196,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
@@ -225,7 +225,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
@@ -252,7 +252,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
-            var settings = this.settings.Copy();
+            var settings = this.publisterSettings.Copy();
             settings.Address = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
             var correlationId = Guid.NewGuid().ToString();
