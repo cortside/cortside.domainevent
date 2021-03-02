@@ -28,6 +28,8 @@ namespace Cortside.DomainEvent {
         /// Interface method to start service
         /// </summary>
         protected async override Task ExecuteAsync(CancellationToken stoppingToken) {
+            await Task.Yield();
+
             if (!settings.Enabled) {
                 logger.LogInformation("ReceiverHostedService is not enabled");
             } else if (settings.MessageTypes == null) {
