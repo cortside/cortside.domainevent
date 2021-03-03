@@ -57,7 +57,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(correlationId, message.Properties.CorrelationId);
         }
 
-        [Fact(Skip = "hangs build")]
+        [Fact]
         public async Task ShouldPublishEvent3() {
             // arange
             string topic = Guid.NewGuid().ToString();
