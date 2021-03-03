@@ -19,7 +19,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             services.AddLogging();
 
             var options = new DbContextOptionsBuilder<EntityContext>()
-                    .UseInMemoryDatabase("DomainEventOutbox")
+                    .UseInMemoryDatabase($"DomainEventOutbox-{Guid.NewGuid()}")
                     .Options;
             var context = new EntityContext(options);
             Seed(context);
