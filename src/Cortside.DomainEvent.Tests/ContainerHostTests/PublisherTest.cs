@@ -12,7 +12,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldPublishEvent1() {
             // arrange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
@@ -35,7 +35,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldPublishEvent2() {
             // arange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
@@ -60,7 +60,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldPublishEvent3() {
             // arange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
@@ -87,7 +87,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldPublishEvent4() {
             // arange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
@@ -113,7 +113,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldPublishEvent5() {
             // arange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
@@ -140,7 +140,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldScheduleEvent1() {
             // arrange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
@@ -165,7 +165,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldScheduleEvent2() {
             // arrange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
@@ -192,7 +192,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldScheduleEvent3() {
             // arrange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
@@ -221,7 +221,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldScheduleEvent4() {
             // arrange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
@@ -248,7 +248,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         [Fact]
         public async Task ShouldScheduleEvent5() {
             // arrange
-            string topic = "ShouldPublishEventWithObject";
+            string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
             this.host.RegisterMessageProcessor("bar", processor);
 
