@@ -19,7 +19,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             services.AddHostedService<OutboxHostedService<EntityContext>>();
 
             var options = new DbContextOptionsBuilder<EntityContext>()
-                .UseInMemoryDatabase("DomainEventOutbox")
+                .UseInMemoryDatabase($"OutboxHostedService-{Guid.NewGuid()}")
                 .Options;
             var context = new EntityContext(options);
             var outbox = new Outbox() { EventType = "foo", Address = "bar", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = Guid.NewGuid().ToString() };

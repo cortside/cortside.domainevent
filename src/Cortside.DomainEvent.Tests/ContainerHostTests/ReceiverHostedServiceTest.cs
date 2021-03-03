@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
-        [Fact(Skip = "hangs appveyor build")]
+        [Fact]
         public async Task ReceiverHostedService() {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
