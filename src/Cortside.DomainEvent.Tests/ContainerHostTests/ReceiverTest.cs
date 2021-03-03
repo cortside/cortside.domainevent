@@ -7,7 +7,6 @@ using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
-
         [Fact]
         public async Task ShouldReceiveMessage_Accept() {
             receiverSettings.Address = Guid.NewGuid().ToString();

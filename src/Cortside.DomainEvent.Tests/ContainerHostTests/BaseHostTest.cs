@@ -6,8 +6,10 @@ using System.Net.NetworkInformation;
 using Amqp;
 using Amqp.Listener;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
+    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
     public class BaseHostTest : IDisposable {
         public const string MESSAGE_TYPE_KEY = "Message.Type.FullName";
         public const string SCHEDULED_ENQUEUE_TIME_UTC = "x-opt-scheduled-enqueue-time";

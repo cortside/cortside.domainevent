@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Transactions;
 using Amqp;
 using Amqp.Framing;
-using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
+    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
+
     public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "tx error")]
         public void Retry() {

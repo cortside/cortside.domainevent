@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
-    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
     public class OutboxPublisherTest {
         private readonly IServiceProvider provider;
 
