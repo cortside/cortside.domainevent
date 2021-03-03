@@ -107,6 +107,10 @@ namespace Cortside.DomainEvent.EntityFramework {
             });
         }
 
+        public async Task SendAsync(string body, MessageOptions options) {
+            await InnerSendAsync(options.EventType, options.Address, body, options.CorrelationId, options.MessageId, null);
+        }
+
         public async Task SendAsync<T>(T @event, MessageOptions options) where T : class {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;

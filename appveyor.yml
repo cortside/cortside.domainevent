@@ -31,8 +31,6 @@ before_build:
 - appveyor-retry dotnet restore src/Cortside.DomainEvent.sln -v Minimal
 - set DNX_BUILD_VERSION=%APPVEYOR_BUILD_NUMBER%
 - dotnet --info
-#- choco install opencover.portable
-#- choco install codecov
 
 build:
   publish_nuget: true
@@ -45,11 +43,8 @@ build_script:
 - dotnet tool install --global dotnet-sonarscanner --version 5.0.4
 - dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.domainevent" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 - dotnet build src/Cortside.DomainEvent.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
-- dotnet test src/Cortside.DomainEvent.sln --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+- ps: gci -filter *tests.csproj -recurse | %{ dotnet test $_.FullName --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover }
 - dotnet sonarscanner end /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
-#- OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --no-build --logger:trx;LogFileName=results.trx /p:DebugType=full src/Cortside.DomainEvent.Tests/Cortside.DomainEvent.Tests.csproj" -filter:"+[*]* -[RsvpScheduler.Tests*]*" -output:".\results.xml" -oldStyle
-#- codecov -f .\Results.xml -t $(codecov_token)
-#- dotnet test src/Cortside.Common.DomainEvent.Tests/Cortside.Common.DomainEvent.Tests.csproj --no-build
 
 after_build:
 - ps: >-
@@ -57,16 +52,8 @@ after_build:
     $fileVersion = $env:APPVEYOR_BUILD_VERSION;
     if($branch -ne 'master') {
         $fileVersion = "${fileVersion}-${branch}"; 
-    }
-    
+    }   
     dotnet pack src/cortside.domainevent.sln --include-symbols -p:SymbolPackageFormat=snupkg --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
-    
-    #gci -include *.nuspec -Recurse | %{ 
-    #    $csproj = ($_.Fullname).Replace('.nuspec','.csproj')
-    #    if((Test-Path -path $_.Fullname) -and (Test-Path -path $csproj )) { 
-    #        dotnet pack $csproj --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
-    #    }
-    #}
     
 artifacts:
 - path: artifacts\**\*.*

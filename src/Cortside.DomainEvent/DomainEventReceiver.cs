@@ -149,7 +149,7 @@ namespace Cortside.DomainEvent {
                         result = await dhandler.HandleAsync(domainEvent);
                     } catch (Exception ex) {
                         Logger.LogError(ex, $"Message {message.Properties.MessageId} caught unhandled exception {ex.Message}");
-                        result = HandlerResult.Release;
+                        result = HandlerResult.Failed;
                     }
                     Logger.LogInformation($"Handler executed for message {message.Properties.MessageId} and returned result of {result}");
 
