@@ -27,32 +27,12 @@ Param(
 #$ErrorActionPreference = 'Stop'
 
 echo "build: Build started"
-
-if(Test-Path .\artifacts) {
-	echo "build: Cleaning .\artifacts"
-	Remove-Item .\artifacts -Force -Recurse
-}
-
-Invoke-Exe -cmd dotnet -args restore
-
-#$branch = @{ $true = $env:APPVEYOR_REPO_BRANCH; $false = $(git symbolic-ref --short -q HEAD) }[$env:APPVEYOR_REPO_BRANCH -ne $NULL];
-#$revision = @{ $true = "{0:00000}" -f [convert]::ToInt32("0" + $env:APPVEYOR_BUILD_NUMBER, 10); $false = "local" }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
-#$suffix = @{ $true = ""; $false = "$($branch.Substring(0, [math]::Min(10,$branch.Length)))-$revision"}[$branch -eq "master" -and $revision -ne "local"]
-
 $version = @{ $true = $env:APPVEYOR_BUILD_VERSION; $false = "1.0.0" }[$env:APPVEYOR_BUILD_VERSION -ne $NULL];
 
-echo "build: Version suffix is $suffix"
+# build
+$args = "clean $PSScriptRoot\src\Cortside.DomainEvent.sln"
+Invoke-Exe -cmd dotnet -args $args
+$args = "build src/Cortside.DomainEvent.sln --configuration Debug /property:Version=$version"
+Invoke-Exe -cmd dotnet -args $args
 
-Get-ChildItem -include project.json -Recurse | Resolve-Path -Relative |
-ForEach-Object{
-	$path = (Get-Item $_).DirectoryName
-	Write-Host "Found: $_ in $path"
-	
-#	Push-Location -Path $path
-#	Invoke-Exe -cmd dotnet -args "version $version"
-#	Pop-Location
-	
-	Invoke-Exe -cmd dotnet -args "build $path"
-}
-	
-		
+gci -filter *tests.csproj -recurse | %{ dotnet test $_.FullName --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover }

@@ -40,7 +40,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             CancellationTokenSource source = new CancellationTokenSource();
             await service.StartAsync(source.Token);
 
-            await Task.Delay(6000);
+            await Task.Delay(1000);
 
             var messages = await context.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
