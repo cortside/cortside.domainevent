@@ -53,7 +53,7 @@ namespace Cortside.DomainEvent.Hosting {
                         }
                         receiver.Closed += OnReceiverClosed;
                     }
-                    await Task.Delay(settings.TimedInterval);
+                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval));
                 }
             }
         }

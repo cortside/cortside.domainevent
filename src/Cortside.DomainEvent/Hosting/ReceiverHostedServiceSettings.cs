@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Cortside.DomainEvent.Hosting {
     /// <summary>
@@ -18,7 +17,7 @@ namespace Cortside.DomainEvent.Hosting {
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Frequency which the receiver attempts to connect to the message broker
+        /// Frequency which the receiver attempts to connect to the message broker in seconds
         /// </summary>
         public int TimedInterval { get; set; }
     }
