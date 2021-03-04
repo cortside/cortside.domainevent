@@ -3,6 +3,7 @@ namespace Cortside.DomainEvent {
         public string CorrelationId { get; set; }
         public string MessageId { get; set; }
         public string EventType { get; set; }
-        public string Address { get; set; }
+        public string Topic { get; set; }
+        public string RoutingKey { get; set; }
     }
 }

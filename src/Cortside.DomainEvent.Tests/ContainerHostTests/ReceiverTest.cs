@@ -9,16 +9,16 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
         [Fact]
         public async Task ShouldReceiveMessage_Accept() {
-            receiverSettings.Address = Guid.NewGuid().ToString();
+            receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(receiverSettings.Address + "TestEvent", new TestMessageProcessor(50, messages));
+            this.host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
             this.linkProcessor = new TestLinkProcessor();
             this.host.RegisterLinkProcessor(this.linkProcessor);
 
             int count = 1;
-            publisterSettings.Address = receiverSettings.Address;
-            var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventComms>());
+            publisterSettings.Topic = receiverSettings.Queue;
+            var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
@@ -26,8 +26,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
-            this.host.RegisterMessageSource(receiverSettings.Address, source);
-            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventComms>())) {
+            this.host.RegisterMessageSource(receiverSettings.Queue, source);
+            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
                     var message = receiver.Receive(TimeSpan.FromSeconds(1));
@@ -41,16 +41,16 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact(Skip = "flake")]
         public async Task ShouldReceiveMessage_Reject() {
-            receiverSettings.Address = Guid.NewGuid().ToString();
+            receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(receiverSettings.Address + "TestEvent", new TestMessageProcessor(50, messages));
+            this.host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
             this.linkProcessor = new TestLinkProcessor();
             this.host.RegisterLinkProcessor(this.linkProcessor);
 
             int count = 1;
-            publisterSettings.Address = receiverSettings.Address;
-            var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventComms>());
+            publisterSettings.Topic = receiverSettings.Queue;
+            var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
@@ -58,8 +58,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
-            this.host.RegisterMessageSource(receiverSettings.Address, source);
-            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventComms>())) {
+            this.host.RegisterMessageSource(receiverSettings.Queue, source);
+            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
                     var message = receiver.Receive(TimeSpan.FromSeconds(1));
@@ -73,16 +73,16 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact(Skip = "flake")]
         public async Task ShouldReceiveMessage_Release() {
-            receiverSettings.Address = Guid.NewGuid().ToString();
+            receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(receiverSettings.Address + "TestEvent", new TestMessageProcessor(50, messages));
+            this.host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
             this.linkProcessor = new TestLinkProcessor();
             this.host.RegisterLinkProcessor(this.linkProcessor);
 
             int count = 1;
-            publisterSettings.Address = receiverSettings.Address;
-            var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventComms>());
+            publisterSettings.Topic = receiverSettings.Queue;
+            var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
@@ -90,8 +90,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
-            this.host.RegisterMessageSource(receiverSettings.Address, source);
-            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventComms>())) {
+            this.host.RegisterMessageSource(receiverSettings.Queue, source);
+            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
                     var message = receiver.Receive(TimeSpan.FromSeconds(1));

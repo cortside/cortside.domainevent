@@ -14,7 +14,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
         public E2EAmqpTransactionTest() : base() {
             address = new Amqp.Address($"{base.publisherSettings.Protocol}://{base.publisherSettings.PolicyName}:{base.publisherSettings.Key}@{base.publisherSettings.Namespace}");
-            path = base.publisherSettings.Address;
+            path = base.publisherSettings.Topic;
         }
 
         [Fact]

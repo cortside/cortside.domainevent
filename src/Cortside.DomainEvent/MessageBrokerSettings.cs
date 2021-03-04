@@ -1,5 +1,5 @@
 namespace Cortside.DomainEvent {
-    public abstract class ServiceBusSettings {
+    public abstract class MessageBrokerSettings {
         /// <summary>
         /// Gets or sets the name of the application.
         /// </summary>
@@ -7,21 +7,7 @@ namespace Cortside.DomainEvent {
         /// The name of the application.
         /// </value>
         public string AppName { set; get; }
-        /// <summary>
-        /// Gets or sets the address. Topic (azure SB) or exchange/queue (RabbitMQ)
-        /// </summary>
-        /// <value>
-        /// The address.
-        /// </value>
-        /// <remarks>
-        /// When used in the Publisher, this is used as a prefix
-        /// where the type name of the event class is appended to the Address.
-        /// Topics and exchange keys should be named appropriately.
-        /// When used in the Receiver
-        /// Azure SB {topic}/Subscriptions/{subscription}
-        /// RabbitMQ {queue}
-        /// </remarks>
-        public string Address { set; get; }
+
         /// <summary>
         /// Gets or sets the protocol, amqp or ampqs.
         /// </summary>
@@ -29,6 +15,7 @@ namespace Cortside.DomainEvent {
         /// The protocol.
         /// </value>
         public string Protocol { set; get; }
+
         /// <summary>
         /// Gets or sets the name of the shared access policy (Azure SB) or username (RabbitMQ).
         /// </summary>
@@ -36,6 +23,7 @@ namespace Cortside.DomainEvent {
         /// The name of the policy.
         /// </value>
         public string PolicyName { set; get; }
+
         /// <summary>
         /// Gets or sets the key (Azure SB) or password (RabbitMQ).
         /// </summary>
@@ -47,6 +35,7 @@ namespace Cortside.DomainEvent {
         /// Amqpnetlite will not accept a '/' in the key
         /// </remarks>
         public string Key { set; get; }
+
         /// <summary>
         /// Gets or sets the namespace url (Azure SB) or host (RabbitMQ)
         /// </summary>
@@ -54,6 +43,7 @@ namespace Cortside.DomainEvent {
         /// The namespace.
         /// </value>
         public string Namespace { set; get; }
+
         /// <summary>
         /// Gets or sets the credits. 
         /// </summary>
@@ -64,6 +54,7 @@ namespace Cortside.DomainEvent {
         /// This is only used in the Receiver, to limit the number of simultaneous retrievals of messages.
         /// </remarks>
         public int Credits { set; get; } = 10;
+
         /// <summary>
         /// Set durability of queues and messages
         /// </summary>

@@ -17,8 +17,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
@@ -29,7 +29,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
         }
 
         [Fact]
@@ -40,8 +40,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
 
             // act
@@ -53,7 +53,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
         }
 
@@ -65,8 +65,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
             var messageId = Guid.NewGuid().ToString();
 
@@ -79,7 +79,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
         }
@@ -92,8 +92,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor("bar", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
             var messageId = Guid.NewGuid().ToString();
 
@@ -106,7 +106,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
         }
 
@@ -118,8 +118,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor("bar", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
             var messageId = Guid.NewGuid().ToString();
 
@@ -132,7 +132,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
         }
@@ -145,8 +145,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var scheduleDate = DateTime.UtcNow.AddDays(1);
 
             // act
@@ -158,8 +158,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[MESSAGE_TYPE_KEY]);
-            ((DateTime)message.MessageAnnotations[new Symbol(SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
         }
 
         [Fact]
@@ -170,8 +170,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
             var scheduleDate = DateTime.UtcNow.AddDays(1);
 
@@ -184,9 +184,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
-            ((DateTime)message.MessageAnnotations[new Symbol(SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
         }
 
         [Fact]
@@ -197,8 +197,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
             var messageId = Guid.NewGuid().ToString();
             var scheduleDate = DateTime.UtcNow.AddDays(1);
@@ -212,10 +212,10 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
-            ((DateTime)message.MessageAnnotations[new Symbol(SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
         }
 
         [Fact]
@@ -226,8 +226,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor("bar", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
             var scheduleDate = DateTime.UtcNow.AddDays(1);
 
@@ -240,9 +240,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
-            ((DateTime)message.MessageAnnotations[new Symbol(SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
         }
 
         [Fact]
@@ -253,8 +253,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             this.host.RegisterMessageProcessor("bar", processor);
 
             var settings = this.publisterSettings.Copy();
-            settings.Address = topic;
-            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventComms>());
+            settings.Topic = topic;
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
             var messageId = Guid.NewGuid().ToString();
             var scheduleDate = DateTime.UtcNow.AddDays(1);
@@ -268,10 +268,10 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
-            ((DateTime)message.MessageAnnotations[new Symbol(SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
@@ -68,7 +69,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
             var tokenSource = new CancellationTokenSource();
             var start = DateTime.Now;
 
-            using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, mockLogger)) {
+            using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Closed += (r, e) => tokenSource.Cancel();
                 receiver.StartAndListen(eventTypes);
 

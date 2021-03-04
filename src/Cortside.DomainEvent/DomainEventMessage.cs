@@ -57,7 +57,7 @@ namespace Cortside.DomainEvent {
         internal Message Message { get; set; }
         public string MessageId => Message.Properties.MessageId;
         public string CorrelationId => Message.Properties.CorrelationId;
-        public string MessageTypeName => Message.ApplicationProperties[DomainEventComms.MESSAGE_TYPE_KEY] as string;
+        public string MessageTypeName => Message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
         public object Data { get; internal set; }
     }
 

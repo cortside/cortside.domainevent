@@ -7,15 +7,27 @@ using Amqp.Framing;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
-    public class DomainEventReceiver : DomainEventComms, IDomainEventReceiver, IDisposable {
+    public class DomainEventReceiver : IDomainEventReceiver, IDisposable {
         public event ReceiverClosedCallback Closed;
         public IServiceProvider Provider { get; protected set; }
         public IDictionary<string, Type> EventTypeLookup { get; protected set; }
         public ReceiverLink Link { get; protected set; }
         public DomainEventError Error { get; set; }
 
-        public DomainEventReceiver(ServiceBusReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventComms> logger) : base(settings, logger) {
+        protected MessageBrokerReceiverSettings Settings { get; }
+
+        protected ILogger<DomainEventReceiver> Logger { get; }
+
+        protected virtual Session CreateSession() {
+            var connStr = $"{Settings.Protocol}://{Settings.PolicyName}:{Settings.Key}@{Settings.Namespace}/";
+            var conn = new Connection(new Address(connStr));
+            return new Session(conn);
+        }
+
+        public DomainEventReceiver(MessageBrokerReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) {
             Provider = provider;
+            Settings = settings;
+            Logger = logger;
         }
 
         public void Start(IDictionary<string, Type> eventTypeLookup) {
@@ -46,7 +58,7 @@ namespace Cortside.DomainEvent {
             var session = CreateSession();
             var attach = new Attach() {
                 Source = new Source() {
-                    Address = Settings.Address,
+                    Address = Settings.Queue,
                     Durable = Settings.Durable
                 },
                 Target = new Target() {
@@ -76,7 +88,7 @@ namespace Cortside.DomainEvent {
                 return null;
             }
 
-            var messageTypeName = message.ApplicationProperties[MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             if (!EventTypeLookup.ContainsKey(messageTypeName)) {
                 Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
                 Link.Reject(message);
@@ -100,7 +112,7 @@ namespace Cortside.DomainEvent {
         }
 
         protected async Task OnMessageCallback(IReceiverLink receiver, Message message) {
-            var messageTypeName = message.ApplicationProperties[MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,
@@ -165,7 +177,7 @@ namespace Cortside.DomainEvent {
 
                             //var isTestReceiver = this.GetType().Name.StartsWith("Test");
                             using (var ts = new TransactionScope()) {
-                                var sender = new SenderLink(Link.Session, base.Settings.AppName + "-retry", base.Settings.Address);
+                                var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
                                 // create a new message to be queued with scheduled delivery time
                                 var retry = new Message(body) {
                                     Header = message.Header,
@@ -173,7 +185,7 @@ namespace Cortside.DomainEvent {
                                     Properties = message.Properties,
                                     ApplicationProperties = message.ApplicationProperties
                                 };
-                                retry.ApplicationProperties[SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
+                                retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                                 sender.Send(retry);
                                 receiver.Accept(message);
                             }

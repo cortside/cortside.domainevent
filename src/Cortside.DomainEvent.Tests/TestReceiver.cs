@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Cortside.DomainEvent.Tests {
     public class TestReceiver : DomainEventReceiver {
 
-        public TestReceiver(ServiceBusReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventComms> logger) : base(settings, provider, logger) {
+        public TestReceiver(MessageBrokerReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) : base(settings, provider, logger) {
         }
 
         public void Setup(IDictionary<string, Type> eventTypeLookup) {

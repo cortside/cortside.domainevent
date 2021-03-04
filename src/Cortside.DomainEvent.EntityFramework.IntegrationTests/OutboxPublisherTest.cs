@@ -24,7 +24,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Seed(context);
             services.AddSingleton(context);
 
-            services.AddSingleton(new ServiceBusPublisherSettings() { Address = "topic." });
+            services.AddSingleton(new MessageBrokerPublisherSettings() { Topic = "topic." });
             services.AddTransient<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<EntityContext>>();
 
             provider = services.BuildServiceProvider();

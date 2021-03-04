@@ -45,7 +45,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                     Properties = message.Properties,
                     ApplicationProperties = message.ApplicationProperties
                 };
-                retry.ApplicationProperties[SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
+                retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                 sndr.Send(retry);
                 receiver.Accept(message);
             }

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using Cortside.DomainEvent.Tests;
+using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
@@ -21,14 +23,15 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 EventMessage message;
-                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, mockLogger)) {
+                var logger = new MockLogger<DomainEventReceiver>();
+                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
                     message = receiver.Receive(TimeSpan.FromSeconds(1));
                     if (message != null) {
                         message.Accept();
                     }
                 }
-                Assert.DoesNotContain(mockLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
                 Assert.NotNull(message);
 
                 Assert.NotNull(message);
@@ -57,7 +60,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     await publisher.SendAsync(@event).ConfigureAwait(false);
                 }
 
-                var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, mockLogger);
+                var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>());
                 receiver.Start(eventTypes);
 
                 var message1 = receiver.Receive();

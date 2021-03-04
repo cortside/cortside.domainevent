@@ -11,14 +11,11 @@ using Xunit;
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
     public class BaseHostTest : IDisposable {
-        public const string MESSAGE_TYPE_KEY = "Message.Type.FullName";
-        public const string SCHEDULED_ENQUEUE_TIME_UTC = "x-opt-scheduled-enqueue-time";
-
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
         protected ILinkProcessor linkProcessor;
-        protected readonly ServiceBusReceiverSettings receiverSettings;
-        protected readonly ServiceBusPublisherSettings publisterSettings;
+        protected readonly MessageBrokerReceiverSettings receiverSettings;
+        protected readonly MessageBrokerPublisherSettings publisterSettings;
         protected readonly Random random;
         protected readonly ServiceProvider provider;
         protected readonly Dictionary<string, Type> eventTypes;
@@ -30,21 +27,21 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 
-            this.receiverSettings = new ServiceBusReceiverSettings() {
+            this.receiverSettings = new MessageBrokerReceiverSettings() {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
                 Namespace = $"localhost:{port}",
-                Address = "queue",
+                Queue = "queue",
                 AppName = "unittest"
             };
 
-            this.publisterSettings = new ServiceBusPublisherSettings() {
+            this.publisterSettings = new MessageBrokerPublisherSettings() {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
                 Namespace = $"localhost:{port}",
-                Address = "/exchange/test/",
+                Topic = "/exchange/test/",
                 AppName = "unittest"
             };
             this.Address = new Address(publisterSettings.ConnectionString);
