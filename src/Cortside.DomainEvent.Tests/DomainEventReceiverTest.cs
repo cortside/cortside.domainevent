@@ -18,9 +18,9 @@ namespace Cortside.DomainEvent.Tests {
     public class DomainEventReceiverTest {
 
         private readonly IServiceProvider serviceProvider;
-        private readonly MessageBrokerReceiverSettings settings;
+        private readonly DomainEventReceiverSettings settings;
         private readonly MockLogger<DomainEventReceiver> logger;
-        private readonly TestReceiver receiver;
+        private readonly MockReceiver receiver;
         private readonly Mock<IReceiverLink> receiverLink;
 
         public DomainEventReceiverTest() {
@@ -28,10 +28,10 @@ namespace Cortside.DomainEvent.Tests {
             collection.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
             serviceProvider = collection.BuildServiceProvider();
 
-            settings = new MessageBrokerReceiverSettings();
+            settings = new DomainEventReceiverSettings();
 
             logger = new MockLogger<DomainEventReceiver>();
-            receiver = new TestReceiver(settings, serviceProvider, logger);
+            receiver = new MockReceiver(settings, serviceProvider, logger);
             receiver.Setup(new Dictionary<string, Type> {
                 { typeof(TestEvent).FullName,
                     typeof(TestEvent) }

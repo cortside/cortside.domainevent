@@ -1,5 +1,5 @@
 namespace Cortside.DomainEvent {
-    public class MessageOptions {
+    public class EventOptions {
         public string CorrelationId { get; set; }
         public string MessageId { get; set; }
         public string EventType { get; set; }

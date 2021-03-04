@@ -8,13 +8,13 @@ using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent.EntityFramework {
     public class DomainEventOutboxPublisher<TDbContext> : IDomainEventOutboxPublisher where TDbContext : DbContext {
-        protected MessageBrokerPublisherSettings Settings { get; }
+        protected DomainEventPublisherSettings Settings { get; }
 
         private readonly TDbContext context;
 
         protected ILogger<DomainEventOutboxPublisher<TDbContext>> Logger { get; }
 
-        public DomainEventOutboxPublisher(MessageBrokerPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
+        public DomainEventOutboxPublisher(DomainEventPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
             this.Settings = settings;
             this.context = context;
             Logger = logger;
@@ -103,18 +103,18 @@ namespace Cortside.DomainEvent.EntityFramework {
             });
         }
 
-        public async Task SendAsync(string body, MessageOptions options) {
+        public async Task SendAsync(string body, EventOptions options) {
             await InnerSendAsync(options.EventType, options.Topic, body, options.CorrelationId, options.MessageId, null);
         }
 
-        public async Task PublishAsync<T>(T @event, MessageOptions options) where T : class {
+        public async Task PublishAsync<T>(T @event, EventOptions options) where T : class {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
             var address = Settings.Topic + @event.GetType().Name;
             await InnerSendAsync(eventType, address, data, options.CorrelationId, options.MessageId, null);
         }
 
-        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, MessageOptions options) where T : class {
+        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventOptions options) where T : class {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
             var address = Settings.Topic + @event.GetType().Name;

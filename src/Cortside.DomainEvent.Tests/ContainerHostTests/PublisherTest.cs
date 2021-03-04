@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Amqp;
 using Amqp.Types;
+using Cortside.DomainEvent.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;

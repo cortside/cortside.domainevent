@@ -11,14 +11,14 @@ namespace Cortside.DomainEvent {
     public class DomainEventPublisher : IDomainEventPublisher {
         public event PublisherClosedCallback Closed;
 
-        public DomainEventPublisher(MessageBrokerPublisherSettings settings, ILogger<DomainEventPublisher> logger) {
+        public DomainEventPublisher(DomainEventPublisherSettings settings, ILogger<DomainEventPublisher> logger) {
             Settings = settings;
             Logger = logger;
         }
 
         public DomainEventError Error { get; set; }
 
-        protected MessageBrokerPublisherSettings Settings { get; }
+        protected DomainEventPublisherSettings Settings { get; }
 
         protected ILogger<DomainEventPublisher> Logger { get; }
 
@@ -153,7 +153,7 @@ namespace Cortside.DomainEvent {
             Closed?.Invoke(this, Error);
         }
 
-        public async Task PublishAsync<T>(T @event, MessageOptions options) where T : class {
+        public async Task PublishAsync<T>(T @event, EventOptions options) where T : class {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
             var address = Settings.Topic + @event.GetType().Name;
@@ -162,7 +162,7 @@ namespace Cortside.DomainEvent {
             await InnerSendAsync(address, message);
         }
 
-        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, MessageOptions options) where T : class {
+        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventOptions options) where T : class {
             var data = JsonConvert.SerializeObject(@event);
             var eventType = @event.GetType().FullName;
             var address = Settings.Topic + @event.GetType().Name;

@@ -14,8 +14,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
         protected ILinkProcessor linkProcessor;
-        protected readonly MessageBrokerReceiverSettings receiverSettings;
-        protected readonly MessageBrokerPublisherSettings publisterSettings;
+        protected readonly DomainEventReceiverSettings receiverSettings;
+        protected readonly DomainEventPublisherSettings publisterSettings;
         protected readonly Random random;
         protected readonly ServiceProvider provider;
         protected readonly Dictionary<string, Type> eventTypes;
@@ -27,7 +27,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 
-            this.receiverSettings = new MessageBrokerReceiverSettings() {
+            this.receiverSettings = new DomainEventReceiverSettings() {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
@@ -36,7 +36,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 AppName = "unittest"
             };
 
-            this.publisterSettings = new MessageBrokerPublisherSettings() {
+            this.publisterSettings = new DomainEventPublisherSettings() {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",

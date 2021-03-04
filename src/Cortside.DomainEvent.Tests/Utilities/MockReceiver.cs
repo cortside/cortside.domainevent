@@ -6,9 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.Tests {
-    public class TestReceiver : DomainEventReceiver {
+    public class MockReceiver : DomainEventReceiver {
 
-        public TestReceiver(MessageBrokerReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) : base(settings, provider, logger) {
+        public MockReceiver(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) : base(settings, provider, logger) {
         }
 
         public void Setup(IDictionary<string, Type> eventTypeLookup) {

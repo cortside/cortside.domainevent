@@ -1,7 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace System {
+namespace Cortside.DomainEvent.Tests.Utilities {
     public static class ObjectExtensions {
         private static readonly MethodInfo CloneMethod = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
 

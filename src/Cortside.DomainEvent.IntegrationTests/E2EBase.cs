@@ -13,8 +13,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
         protected readonly Random r;
         protected readonly DomainEventPublisher publisher;
         protected readonly MockLogger<DomainEventPublisher> mockLogger;
-        protected readonly MessageBrokerReceiverSettings receiverSettings;
-        protected readonly MessageBrokerPublisherSettings publisherSettings;
+        protected readonly DomainEventReceiverSettings receiverSettings;
+        protected readonly DomainEventPublisherSettings publisherSettings;
         protected readonly bool enabled;
 
         public E2EBase() {
@@ -38,17 +38,17 @@ namespace Cortside.DomainEvent.IntegrationTests {
             mockLogger = new MockLogger<DomainEventPublisher>();
 
             var publisherSection = configRoot.GetSection("Publisher.Settings");
-            publisherSettings = GetSettings<MessageBrokerPublisherSettings>(publisherSection);
+            publisherSettings = GetSettings<DomainEventPublisherSettings>(publisherSection);
             publisherSettings.Topic = publisherSection["Address"];
             publisher = new DomainEventPublisher(publisherSettings, mockLogger);
 
             var receiverSection = configRoot.GetSection("Receiver.Settings");
-            receiverSettings = GetSettings<MessageBrokerReceiverSettings>(receiverSection);
+            receiverSettings = GetSettings<DomainEventReceiverSettings>(receiverSection);
             receiverSettings.Queue = publisherSection["Address"];
             enabled = configRoot.GetValue<bool>("EnableE2ETests");
         }
 
-        protected T GetSettings<T>(IConfigurationSection section) where T : MessageBrokerSettings, new() {
+        protected T GetSettings<T>(IConfigurationSection section) where T : DomainEventSettings, new() {
             return new T {
                 AppName = section["AppName"],
                 Key = section["Key"],

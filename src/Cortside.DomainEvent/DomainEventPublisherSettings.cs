@@ -1,5 +1,5 @@
 namespace Cortside.DomainEvent {
-    public class MessageBrokerReceiverSettings : MessageBrokerSettings {
+    public class DomainEventPublisherSettings : DomainEventSettings {
         /// <summary>
         /// Gets or sets the address. Topic (azure SB) or exchange/queue (RabbitMQ)
         /// </summary>
@@ -14,6 +14,6 @@ namespace Cortside.DomainEvent {
         /// Azure SB {topic}/Subscriptions/{subscription}
         /// RabbitMQ {queue}
         /// </remarks>
-        public string Queue { set; get; }
+        public string Topic { set; get; }
     }
 }

@@ -15,7 +15,7 @@ namespace Cortside.DomainEvent {
         public ReceiverLink Link { get; protected set; }
         public DomainEventError Error { get; set; }
 
-        protected MessageBrokerReceiverSettings Settings { get; }
+        protected DomainEventReceiverSettings Settings { get; }
 
         protected ILogger<DomainEventReceiver> Logger { get; }
 
@@ -25,7 +25,7 @@ namespace Cortside.DomainEvent {
             return new Session(conn);
         }
 
-        public DomainEventReceiver(MessageBrokerReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) {
+        public DomainEventReceiver(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) {
             Provider = provider;
             Settings = settings;
             Logger = logger;
