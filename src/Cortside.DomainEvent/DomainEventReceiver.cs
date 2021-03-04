@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Amqp;
 using Amqp.Framing;
+using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
@@ -175,7 +176,6 @@ namespace Cortside.DomainEvent {
                             var delay = 10 * deliveryCount;
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
-                            //var isTestReceiver = this.GetType().Name.StartsWith("Test");
                             using (var ts = new TransactionScope()) {
                                 var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
                                 // create a new message to be queued with scheduled delivery time

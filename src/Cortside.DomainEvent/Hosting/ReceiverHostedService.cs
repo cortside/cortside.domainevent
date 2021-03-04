@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.DomainEvent {
+namespace Cortside.DomainEvent.Hosting {
     /// <summary>
     /// Message receiver hosted service
     /// </summary>

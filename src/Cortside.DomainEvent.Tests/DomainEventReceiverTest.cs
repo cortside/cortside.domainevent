@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Amqp;
 using Amqp.Framing;
+using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

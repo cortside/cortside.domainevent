@@ -11,24 +11,22 @@ namespace Cortside.DomainEvent {
     public class DomainEventPublisher : IDomainEventPublisher {
         public event PublisherClosedCallback Closed;
 
-        protected MessageBrokerPublisherSettings Settings { get; }
-
-        protected ILogger<DomainEventPublisher> Logger { get; }
-
-
-        protected virtual Session CreateSession() {
-            var connStr = $"{Settings.Protocol}://{Settings.PolicyName}:{Settings.Key}@{Settings.Namespace}/";
-            var conn = new Connection(new Address(connStr));
-            return new Session(conn);
-        }
-
-
         public DomainEventPublisher(MessageBrokerPublisherSettings settings, ILogger<DomainEventPublisher> logger) {
             Settings = settings;
             Logger = logger;
         }
 
         public DomainEventError Error { get; set; }
+
+        protected MessageBrokerPublisherSettings Settings { get; }
+
+        protected ILogger<DomainEventPublisher> Logger { get; }
+
+        private Session CreateSession() {
+            var connStr = $"{Settings.Protocol}://{Settings.PolicyName}:{Settings.Key}@{Settings.Namespace}/";
+            var conn = new Connection(new Address(connStr));
+            return new Session(conn);
+        }
 
         public async Task SendAsync<T>(T @event) where T : class {
             var data = JsonConvert.SerializeObject(@event);

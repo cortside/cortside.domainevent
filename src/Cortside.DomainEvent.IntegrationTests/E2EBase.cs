@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;

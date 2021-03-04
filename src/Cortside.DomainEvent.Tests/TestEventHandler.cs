@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Cortside.DomainEvent.Handlers;
 
 namespace Cortside.DomainEvent.Tests {
     public class TestEventHandler : IDomainEventHandler<TestEvent> {
