@@ -20,7 +20,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 var correlationId = Guid.NewGuid().ToString();
                 try {
-                    await publisher.SendAsync(@event, correlationId);
+                    await publisher.PublishAsync(@event, correlationId);
                 } finally {
                     Assert.Null(publisher.Error);
                 }
@@ -47,7 +47,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 var correlationId = Guid.NewGuid().ToString();
                 try {
-                    await publisher.ScheduleMessageAsync(@event, correlationId, DateTime.UtcNow.AddSeconds(20));
+                    await publisher.ScheduleAsync(@event, DateTime.UtcNow.AddSeconds(20), correlationId);
                 } finally {
                     Assert.Null(publisher.Error);
                 }

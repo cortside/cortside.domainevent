@@ -24,13 +24,13 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
                 .UseInMemoryDatabase($"OutboxHostedService-{Guid.NewGuid()}")
                 .Options;
             var context = new EntityContext(options);
-            var outbox = new Outbox() { EventType = "foo", Address = "bar", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = Guid.NewGuid().ToString() };
+            var outbox = new Outbox() { EventType = "foo", Topic = "bar", RoutingKey = "baz", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = Guid.NewGuid().ToString() };
             context.Set<Outbox>().Add(outbox);
             await context.SaveChangesAsync();
             services.AddSingleton(context);
             var publisher = new Mock<IDomainEventPublisher>();
 
-            publisher.Setup(x => x.SendAsync(outbox.EventType, outbox.Address, outbox.Body, outbox.CorrelationId, outbox.MessageId));
+            publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
             services.AddSingleton<IDomainEventPublisher>(publisher.Object);
             services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
             services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5 });

@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Cortside.DomainEvent.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -24,101 +25,70 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         public event PublisherClosedCallback Closed;
 
-        public async Task SendAsync<T>(T @event) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, null, null);
+        public async Task PublishAsync<T>(T @event) where T : class {
+            var properties = new EventProperties();
+            await InnerSendAsync(@event, properties);
         }
 
-        public async Task SendAsync<T>(T @event, string correlationId) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, correlationId, null);
+        public async Task PublishAsync<T>(T @event, string correlationId) where T : class {
+            var properties = new EventProperties() { CorrelationId = correlationId };
+            await InnerSendAsync(@event, properties);
         }
 
-        public async Task SendAsync<T>(T @event, string correlationId, string messageId) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, correlationId, messageId);
+        public async Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
+            await InnerSendAsync(@event, properties);
         }
 
-        public async Task SendAsync<T>(T @event, string eventType, string address, string correlationId) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            await InnerSendAsync(eventType, address, data, correlationId, null);
+        public async Task PublishAsync(string body, EventProperties properties) {
+            await InnerSendAsync(body, properties);
         }
 
-        public async Task SendAsync(string eventType, string address, string data, string correlationId, string messageId) {
-            await InnerSendAsync(eventType, address, data, correlationId, messageId);
+        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
+            var properties = new EventProperties();
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
         }
 
-        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, null, null, scheduledEnqueueTimeUtc);
-
+        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
+            var properties = new EventProperties() { CorrelationId = correlationId };
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
+        }
+        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
         }
 
-        public async Task ScheduleMessageAsync<T>(T @event, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, correlationId, null, scheduledEnqueueTimeUtc);
+        public async Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
+            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc);
         }
 
-        public async Task ScheduleMessageAsync<T>(T @event, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, correlationId, messageId, scheduledEnqueueTimeUtc);
+        private async Task InnerSendAsync(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
+            var body = JsonConvert.SerializeObject(@event);
+            properties.EventType ??= @event.GetType().FullName;
+            properties.Topic ??= Settings.Topic;
+            properties.RoutingKey ??= @event.GetType().Name;
+
+            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc);
         }
 
-        public async Task ScheduleMessageAsync<T>(T @event, string eventType, string address, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            await InnerSendAsync(eventType, address, data, correlationId, null, scheduledEnqueueTimeUtc);
+        private async Task InnerSendAsync(string body, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
+            Guard.Against(() => properties.EventType == null, () => new ArgumentNullException(nameof(properties.EventType), "EventType is a required argument"));
+            Guard.Against(() => properties.Topic == null, () => new ArgumentNullException(nameof(properties.Topic), "Topic is a required argument"));
+            Guard.Against(() => properties.RoutingKey == null, () => new ArgumentNullException(nameof(properties.RoutingKey), "RoutingKey is a required argument"));
 
-        }
-
-        public async Task ScheduleMessageAsync(string data, string eventType, string address, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) {
-            await InnerSendAsync(eventType, address, data, correlationId, messageId, scheduledEnqueueTimeUtc);
-        }
-
-        private async Task InnerSendAsync(string eventType, string address, string data, string correlationId, string messageId, DateTime? scheduledEnqueueTimeUtc = null) {
             var date = DateTime.UtcNow;
-            var messageIdentifier = messageId ?? Guid.NewGuid().ToString();
+            properties.MessageId ??= Guid.NewGuid().ToString();
 
-            Logger.LogDebug($"Queueing message {messageIdentifier} with body: {data}");
+            Logger.LogDebug($"Queueing message {properties.MessageId} with body: {body}");
             await context.Set<Outbox>().AddAsync(new Outbox() {
-                MessageId = messageIdentifier,
-                CorrelationId = correlationId,
-                EventType = eventType,
-                Address = address,
-                Body = data,
+                MessageId = properties.MessageId,
+                CorrelationId = properties.CorrelationId,
+                EventType = properties.EventType,
+                Topic = properties.Topic,
+                RoutingKey = properties.RoutingKey,
+                Body = body,
                 CreatedDate = date,
                 ScheduledDate = scheduledEnqueueTimeUtc ?? date,
                 Status = OutboxStatus.Queued
             });
-        }
-
-        public async Task SendAsync(string body, EventOptions options) {
-            await InnerSendAsync(options.EventType, options.Topic, body, options.CorrelationId, options.MessageId, null);
-        }
-
-        public async Task PublishAsync<T>(T @event, EventOptions options) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, options.CorrelationId, options.MessageId, null);
-        }
-
-        public async Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventOptions options) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Topic + @event.GetType().Name;
-            await InnerSendAsync(eventType, address, data, options.CorrelationId, options.MessageId, scheduledEnqueueTimeUtc);
         }
     }
 }

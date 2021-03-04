@@ -17,7 +17,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 var @event = NewTestEvent();
                 var correlationId = Guid.NewGuid().ToString();
                 try {
-                    await publisher.SendAsync(@event, correlationId);
+                    await publisher.PublishAsync(@event, correlationId);
                 } finally {
                     Assert.Null(publisher.Error);
                 }
@@ -57,7 +57,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                         StringValue = s
                     };
                     ids.Add(i);
-                    await publisher.SendAsync(@event).ConfigureAwait(false);
+                    await publisher.PublishAsync(@event).ConfigureAwait(false);
                 }
 
                 var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>());
@@ -72,7 +72,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     ids.Remove(message1.GetData<TestEvent>().IntValue);
 
                     var @event = new TestEvent() { IntValue = nMsgs + 1, StringValue = s };
-                    await publisher.SendAsync(@event).ConfigureAwait(false);
+                    await publisher.PublishAsync(@event).ConfigureAwait(false);
                     ids.Add(@event.IntValue);
 
                     ts.Complete();
@@ -81,7 +81,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 // ack message2 and send a new message in a txn but abort the txn
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                     message2.Accept();
-                    await publisher.SendAsync(message2.GetData<TestEvent>()).ConfigureAwait(false);
+                    await publisher.PublishAsync(message2.GetData<TestEvent>()).ConfigureAwait(false);
                 }
 
                 // release the message, since it shouldn't have been accepted above

@@ -47,7 +47,14 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
                         logger.LogInformation($"message count: {messages.Count}");
                         foreach (var message in messages) {
-                            await publisher.SendAsync(message.EventType, message.Address, message.Body, message.CorrelationId, message.MessageId);
+                            var properties = new EventProperties() {
+                                EventType = message.EventType,
+                                Topic = message.Topic,
+                                RoutingKey = message.RoutingKey,
+                                CorrelationId = message.CorrelationId,
+                                MessageId = message.MessageId
+                            };
+                            await publisher.PublishAsync(message.Body, properties);
                             message.Status = OutboxStatus.Published;
                             message.PublishedDate = DateTime.UtcNow;
                             message.LockId = null;

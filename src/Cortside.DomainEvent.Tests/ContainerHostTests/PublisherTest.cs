@@ -23,7 +23,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.SendAsync(@event);
+            await publisher.PublishAsync(@event);
 
             // assert
             Assert.Single(processor.Messages);
@@ -47,7 +47,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.SendAsync(@event, correlationId);
+            await publisher.PublishAsync(@event, correlationId);
 
             // assert
             Assert.Single(processor.Messages);
@@ -73,7 +73,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.SendAsync(@event, correlationId, messageId);
+            await publisher.PublishAsync(@event, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -90,17 +90,16 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor("bar", processor);
+            this.host.RegisterMessageProcessor("barTestEvent", processor);
 
             var settings = this.publisterSettings.Copy();
             settings.Topic = topic;
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
             var correlationId = Guid.NewGuid().ToString();
-            var messageId = Guid.NewGuid().ToString();
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.SendAsync<TestEvent>(@event, "foo", "bar", correlationId);
+            await publisher.PublishAsync<TestEvent>(@event, new EventProperties() { EventType = "foo", Topic = "bar", CorrelationId = correlationId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -116,7 +115,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor("bar", processor);
+            this.host.RegisterMessageProcessor("barbaz", processor);
 
             var settings = this.publisterSettings.Copy();
             settings.Topic = topic;
@@ -126,7 +125,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.SendAsync("foo", "bar", JsonConvert.SerializeObject(@event), correlationId, messageId);
+            await publisher.PublishAsync(JsonConvert.SerializeObject(@event), new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -152,7 +151,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleMessageAsync<TestEvent>(@event, scheduleDate);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate);
 
             // assert
             Assert.Single(processor.Messages);
@@ -178,7 +177,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleMessageAsync<TestEvent>(@event, correlationId, scheduleDate);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, correlationId);
 
             // assert
             Assert.Single(processor.Messages);
@@ -206,7 +205,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleMessageAsync<TestEvent>(@event, correlationId, messageId, scheduleDate);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -224,7 +223,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor("bar", processor);
+            this.host.RegisterMessageProcessor("barbaz", processor);
 
             var settings = this.publisterSettings.Copy();
             settings.Topic = topic;
@@ -234,7 +233,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleMessageAsync<TestEvent>(@event, "foo", "bar", correlationId, scheduleDate);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -251,7 +250,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor("bar", processor);
+            this.host.RegisterMessageProcessor("barbaz", processor);
 
             var settings = this.publisterSettings.Copy();
             settings.Topic = topic;
@@ -262,7 +261,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleMessageAsync(JsonConvert.SerializeObject(@event), "foo", "bar", correlationId, messageId, scheduleDate);
+            await publisher.ScheduleAsync(JsonConvert.SerializeObject(@event), scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);

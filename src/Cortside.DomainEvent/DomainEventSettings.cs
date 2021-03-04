@@ -68,6 +68,6 @@ namespace Cortside.DomainEvent {
         /// </remarks>
         public uint Durable { set; get; } = 0;
 
-        public string ConnectionString => $"{Protocol}://{PolicyName}:{Key}@{Namespace}";
+        public string ConnectionString => $"{Protocol}://{PolicyName}:{Key}@{Namespace}/";
     }
 }

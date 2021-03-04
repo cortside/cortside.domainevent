@@ -14,7 +14,6 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
         public OutboxPublisherTest() {
             var services = new ServiceCollection();
-
             services.AddLogging();
 
             var options = new DbContextOptionsBuilder<EntityContext>()
@@ -63,7 +62,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.SendAsync(@event);
+            await publisher.PublishAsync(@event);
             await db.SaveChangesAsync();
 
             // assert
@@ -80,7 +79,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.SendAsync(@event, correlationId);
+            await publisher.PublishAsync(@event, correlationId);
             await db.SaveChangesAsync();
 
             // assert
@@ -99,7 +98,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.SendAsync(@event, correlationId, messageId);
+            await publisher.PublishAsync(@event, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
             await db.SaveChangesAsync();
 
             // assert
@@ -118,7 +117,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.SendAsync(@event, "foo", "bar", correlationId);
+            await publisher.PublishAsync(@event, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId });
             await db.SaveChangesAsync();
 
             // assert
@@ -126,7 +125,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal("foo", messages[0].EventType);
-            Assert.Equal("bar", messages[0].Address);
+            Assert.Equal("bar", messages[0].Topic);
+            Assert.Equal("baz", messages[0].RoutingKey);
         }
 
         [Fact]
@@ -139,7 +139,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.SendAsync("foo", "bar", JsonConvert.SerializeObject(@event), correlationId, messageId);
+            await publisher.PublishAsync(JsonConvert.SerializeObject(@event), new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
             await db.SaveChangesAsync();
 
             // assert
@@ -148,7 +148,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal(messageId, messages[0].MessageId);
             Assert.Equal("foo", messages[0].EventType);
-            Assert.Equal("bar", messages[0].Address);
+            Assert.Equal("bar", messages[0].Topic);
+            Assert.Equal("baz", messages[0].RoutingKey);
         }
 
         [Fact]
@@ -160,7 +161,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleMessageAsync(@event, scheduleDate);
+            await publisher.ScheduleAsync(@event, scheduleDate);
             await db.SaveChangesAsync();
 
             // assert
@@ -179,7 +180,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleMessageAsync(@event, correlationId, scheduleDate);
+            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId });
             await db.SaveChangesAsync();
 
             // assert
@@ -200,7 +201,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleMessageAsync(@event, correlationId, messageId, scheduleDate);
+            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
             await db.SaveChangesAsync();
 
             // assert
@@ -217,12 +218,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
             var correlationId = Guid.NewGuid().ToString();
-            var messageId = Guid.NewGuid().ToString();
             var scheduleDate = DateTime.UtcNow.AddDays(1);
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleMessageAsync(@event, "foo", "bar", correlationId, scheduleDate);
+            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", CorrelationId = correlationId });
             await db.SaveChangesAsync();
 
             // assert
@@ -230,7 +230,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal("foo", messages[0].EventType);
-            Assert.Equal("bar", messages[0].Address);
+            Assert.Equal("bar", messages[0].Topic);
+            Assert.Equal("WidgetStateChangedEvent", messages[0].RoutingKey);
             Assert.Equal(scheduleDate, messages[0].ScheduledDate);
         }
 
@@ -245,7 +246,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleMessageAsync(JsonConvert.SerializeObject(@event), "foo", "bar", correlationId, messageId, scheduleDate);
+            await publisher.ScheduleAsync(JsonConvert.SerializeObject(@event), scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
             await db.SaveChangesAsync();
 
             // assert
@@ -254,7 +255,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal(messageId, messages[0].MessageId);
             Assert.Equal("foo", messages[0].EventType);
-            Assert.Equal("bar", messages[0].Address);
+            Assert.Equal("bar", messages[0].Topic);
+            Assert.Equal("baz", messages[0].RoutingKey);
             Assert.Equal(scheduleDate, messages[0].ScheduledDate);
         }
 

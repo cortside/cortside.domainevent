@@ -26,8 +26,12 @@ namespace Cortside.DomainEvent.EntityFramework {
                 .HasMaxLength(250)
                 .IsRequired();
 
-            builder.Property(t => t.Address)
-                .HasMaxLength(250)
+            builder.Property(t => t.Topic)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            builder.Property(t => t.RoutingKey)
+                .HasMaxLength(100)
                 .IsRequired();
 
             builder.Property(t => t.Body)

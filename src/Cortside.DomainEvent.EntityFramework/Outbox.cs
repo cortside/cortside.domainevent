@@ -11,9 +11,15 @@ namespace Cortside.DomainEvent.EntityFramework {
         [Required]
         [StringLength(250)]
         public string EventType { get; set; }
+
         [Required]
-        [StringLength(250)]
-        public string Address { get; set; }
+        [StringLength(100)]
+        public string Topic { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string RoutingKey { get; set; }
+
         [Required]
         public string Body { get; set; }
 

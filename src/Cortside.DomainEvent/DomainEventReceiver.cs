@@ -20,8 +20,7 @@ namespace Cortside.DomainEvent {
         protected ILogger<DomainEventReceiver> Logger { get; }
 
         protected virtual Session CreateSession() {
-            var connStr = $"{Settings.Protocol}://{Settings.PolicyName}:{Settings.Key}@{Settings.Namespace}/";
-            var conn = new Connection(new Address(connStr));
+            var conn = new Connection(new Address(Settings.ConnectionString));
             return new Session(conn);
         }
 
