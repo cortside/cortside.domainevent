@@ -58,10 +58,13 @@ namespace Cortside.DomainEvent {
         public string MessageId => Message.Properties.MessageId;
         public string CorrelationId => Message.Properties.CorrelationId;
         public string MessageTypeName => Message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
-        public object Data { get; internal set; }
+        public object Data { get; set; }
     }
 
     public class DomainEventMessage<T> : DomainEventMessage {
-        public new T Data => (T)base.Data;
+        public new T Data {
+            get { return (T)base.Data; }
+            set { base.Data = value; }
+        }
     }
 }
