@@ -90,7 +90,7 @@ What To Do:
   * changed Address to Topic
 * ServiceBusReceiverSettings renamed to DomainEventReceiverSettings
   * changed Address to Queue
-*  
+* receiverHostedServiceSettings now has property for message type lookup dictionary named MessageTypes
 
 ## examples
 * https://github.com/cortside/cortside.webapistarter

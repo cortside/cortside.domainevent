@@ -59,7 +59,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         public void ContainerHostProcessorOrderTest() {
             string name = "ContainerHostProcessorOrderTest";
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
+            var processor = new TestMessageProcessor(50, messages);
+            this.host.RegisterMessageProcessor(name, processor);
             this.linkProcessor = new TestLinkProcessor();
             this.host.RegisterLinkProcessor(this.linkProcessor);
 
@@ -75,6 +76,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             sender.Close();
+
+            Assert.Equal(count, messages.Count);
 
             this.host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
             var receiver = new ReceiverLink(session, "recv-link", name);

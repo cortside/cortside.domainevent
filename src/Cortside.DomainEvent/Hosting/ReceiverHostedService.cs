@@ -100,6 +100,5 @@ namespace Cortside.DomainEvent.Hosting {
         protected virtual void Dispose(bool disposing) {
             DisposeReceiver();
         }
-
     }
 }

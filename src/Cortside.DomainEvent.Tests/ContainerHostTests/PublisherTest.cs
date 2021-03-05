@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amqp;
 using Amqp.Types;
@@ -272,6 +273,31 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
             ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate);
+        }
+
+        [Fact]
+        public async Task ShouldPublishWithUsing() {
+            // arrange
+            string topic = Guid.NewGuid().ToString();
+            List<Message> messages = new List<Message>();
+            var processor = new TestMessageProcessor(50, messages);
+            this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
+
+            var settings = this.publisterSettings.Copy();
+            settings.Topic = topic;
+            var count = 10;
+
+            // act
+            using (var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>())) {
+                publisher.Connect();
+                for (int i = 0; i < count; i++) {
+                    var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
+                    await publisher.PublishAsync(@event);
+                }
+            }
+
+            // assert
+            Assert.Equal(count, processor.Messages.Count);
         }
     }
 }

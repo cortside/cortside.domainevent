@@ -70,9 +70,9 @@ namespace Cortside.DomainEvent.EntityFramework {
         }
 
         private async Task InnerSendAsync(string body, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
-            Guard.Against(() => properties.EventType == null, () => new ArgumentNullException(nameof(properties.EventType), "EventType is a required argument"));
-            Guard.Against(() => properties.Topic == null, () => new ArgumentNullException(nameof(properties.Topic), "Topic is a required argument"));
-            Guard.Against(() => properties.RoutingKey == null, () => new ArgumentNullException(nameof(properties.RoutingKey), "RoutingKey is a required argument"));
+            Guard.Against(() => properties.EventType == null, () => new ArgumentException("EventType is a required argument"));
+            Guard.Against(() => properties.Topic == null, () => new ArgumentException("Topic is a required argument"));
+            Guard.Against(() => properties.RoutingKey == null, () => new ArgumentException("RoutingKey is a required argument"));
 
             var date = DateTime.UtcNow;
             properties.MessageId ??= Guid.NewGuid().ToString();

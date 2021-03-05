@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
-    public class DomainEventPublisher : IDomainEventPublisher {
+    public class DomainEventPublisher : IDomainEventPublisher, IDisposable {
+        private Connection conn;
+
         public event PublisherClosedCallback Closed;
 
         public DomainEventPublisher(DomainEventPublisherSettings settings, ILogger<DomainEventPublisher> logger) {
@@ -22,11 +24,6 @@ namespace Cortside.DomainEvent {
         protected DomainEventPublisherSettings Settings { get; }
 
         protected ILogger<DomainEventPublisher> Logger { get; }
-
-        private Session CreateSession() {
-            var conn = new Connection(new Address(Settings.ConnectionString));
-            return new Session(conn);
-        }
 
         public async Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();
@@ -82,9 +79,9 @@ namespace Cortside.DomainEvent {
         }
 
         private Message CreateMessage(string data, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
-            Guard.Against(() => properties.EventType == null, () => new ArgumentNullException(nameof(properties.EventType), "EventType is a required argument"));
-            Guard.Against(() => properties.Topic == null, () => new ArgumentNullException(nameof(properties.Topic), "Topic is a required argument"));
-            Guard.Against(() => properties.RoutingKey == null, () => new ArgumentNullException(nameof(properties.RoutingKey), "RoutingKey is a required argument"));
+            Guard.Against(() => properties.EventType == null, () => new ArgumentException("EventType is a required argument"));
+            Guard.Against(() => properties.Topic == null, () => new ArgumentException("Topic is a required argument"));
+            Guard.Against(() => properties.RoutingKey == null, () => new ArgumentException("RoutingKey is a required argument"));
 
             properties.MessageId = properties.MessageId ?? Guid.NewGuid().ToString();
 
@@ -107,6 +104,12 @@ namespace Cortside.DomainEvent {
             return message;
         }
 
+        public void Connect() {
+            if (conn == null) {
+                conn = new Connection(new Address(Settings.ConnectionString));
+            }
+        }
+
         private async Task InnerSendAsync(Message message, EventProperties properties) {
             using (Logger.BeginScope(new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
@@ -114,12 +117,19 @@ namespace Cortside.DomainEvent {
                 ["MessageType"] = message.Properties.GroupId
             })) {
                 Logger.LogTrace($"Publishing message {message.Properties.MessageId} to {properties.Address} with body: {message.Body}");
-                var session = CreateSession();
+
+                var disconnectAfter = false;
+                if (conn == null) {
+                    Connect();
+                    disconnectAfter = true;
+                }
+
+                var session = new Session(conn);
                 var attach = new Attach() {
                     Target = new Target() { Address = properties.Address, Durable = Settings.Durable },
                     Source = new Source()
                 };
-                var sender = new SenderLink(session, Settings.AppName, attach, null);
+                var sender = new SenderLink(session, Settings.AppName + Guid.NewGuid().ToString(), attach, null);
                 sender.Closed += OnClosed;
 
                 try {
@@ -132,11 +142,14 @@ namespace Cortside.DomainEvent {
                         Error.Description = sender.Error.Description;
                         Closed?.Invoke(this, Error);
                     }
-                    if (!sender.IsClosed) {
-                        await sender.CloseAsync(TimeSpan.FromSeconds(5));
+
+                    if (disconnectAfter) {
+                        if (!sender.IsClosed) {
+                            await sender.CloseAsync(TimeSpan.FromSeconds(5));
+                        }
+                        await session.CloseAsync();
+                        await session.Connection.CloseAsync();
                     }
-                    await session.CloseAsync();
-                    await session.Connection.CloseAsync();
                 }
             }
         }
@@ -148,6 +161,17 @@ namespace Cortside.DomainEvent {
                 Error.Description = sender.Error.Description;
             }
             Closed?.Invoke(this, Error);
+        }
+
+        public void Close(TimeSpan? timeout = null) {
+            timeout = timeout ?? TimeSpan.Zero;
+            conn.Close(timeout.Value);
+            conn = null;
+            Error = null;
+        }
+
+        public void Dispose() {
+            this.Close();
         }
     }
 }
