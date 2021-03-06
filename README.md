@@ -66,8 +66,9 @@ What To Do:
   * modelBuilder.AddDomainEventOutbox();
   * https://github.com/cortside/cortside.webapistarter/blob/outbox/src/Cortside.WebApiStarter.Data/Migrations/20210228035338_DomainEventOutbox.cs
 * register IDomainEventOutboxPublisher AND IDomainEventPublisher
-  * use IDomainEventPublisher in classes that will publish
+  * use IDomainEventOutboxPublisher in classes that will publish to the outbox
   * SaveChanges after calling PublishAsync or ScheduleAsync -- and make part of transaction or workset in db so that publish becomes atomic with db changes
+  * OutboxHostedService needs IDomainEventPublisher to actually publish to message broker
 * register OutboxHostedService to publish messages from db to broker
 * if publishing an entity id in message, might need to add a using around the work with a transaction and call savechanges twice if the entity id is assigned by the db
 
