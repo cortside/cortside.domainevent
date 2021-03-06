@@ -39,7 +39,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(0, source.Count);
         }
 
-        [Fact(Skip = "flake")]
+        [Fact]
         public async Task ShouldReceiveMessage_Reject() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 

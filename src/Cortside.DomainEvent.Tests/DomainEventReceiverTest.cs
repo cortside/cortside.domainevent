@@ -24,17 +24,17 @@ namespace Cortside.DomainEvent.Tests {
         private readonly Mock<IReceiverLink> receiverLink;
 
         public DomainEventReceiverTest() {
-            var collection = new ServiceCollection();
-            collection.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
-            serviceProvider = collection.BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
+            serviceProvider = services.BuildServiceProvider();
 
             settings = new DomainEventReceiverSettings();
 
             logger = new MockLogger<DomainEventReceiver>();
             receiver = new MockReceiver(settings, serviceProvider, logger);
             receiver.Setup(new Dictionary<string, Type> {
-                { typeof(TestEvent).FullName,
-                    typeof(TestEvent) }
+                { typeof(TestEvent).FullName, typeof(TestEvent) }
             });
 
             receiverLink = new Mock<IReceiverLink>();
