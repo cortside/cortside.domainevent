@@ -217,7 +217,7 @@ namespace Cortside.DomainEvent {
         }
 
         public void Dispose() {
-            this.Close();
+            Close();
         }
     }
 }

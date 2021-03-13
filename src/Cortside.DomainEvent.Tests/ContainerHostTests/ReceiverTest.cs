@@ -12,9 +12,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
-            this.linkProcessor = new TestLinkProcessor();
-            this.host.RegisterLinkProcessor(this.linkProcessor);
+            host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
+            linkProcessor = new TestLinkProcessor();
+            host.RegisterLinkProcessor(linkProcessor);
 
             int count = 1;
             publisterSettings.Topic = receiverSettings.Queue;
@@ -26,7 +26,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
-            this.host.RegisterMessageSource(receiverSettings.Queue, source);
+            host.RegisterMessageSource(receiverSettings.Queue, source);
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
@@ -45,9 +45,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
-            this.linkProcessor = new TestLinkProcessor();
-            this.host.RegisterLinkProcessor(this.linkProcessor);
+            host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
+            linkProcessor = new TestLinkProcessor();
+            host.RegisterLinkProcessor(linkProcessor);
 
             int count = 1;
             publisterSettings.Topic = receiverSettings.Queue;
@@ -59,7 +59,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
-            this.host.RegisterMessageSource(receiverSettings.Queue, source);
+            host.RegisterMessageSource(receiverSettings.Queue, source);
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
@@ -77,9 +77,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
-            this.linkProcessor = new TestLinkProcessor();
-            this.host.RegisterLinkProcessor(this.linkProcessor);
+            host.RegisterMessageProcessor(receiverSettings.Queue + "TestEvent", new TestMessageProcessor(50, messages));
+            linkProcessor = new TestLinkProcessor();
+            host.RegisterLinkProcessor(linkProcessor);
 
             int count = 1;
             publisterSettings.Topic = receiverSettings.Queue;
@@ -91,7 +91,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
-            this.host.RegisterMessageSource(receiverSettings.Queue, source);
+            host.RegisterMessageSource(receiverSettings.Queue, source);
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {

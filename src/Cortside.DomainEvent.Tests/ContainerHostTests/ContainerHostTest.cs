@@ -14,9 +14,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         public void Retry() {
             string name = "Retry";
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
-            this.linkProcessor = new TestLinkProcessor();
-            this.host.RegisterLinkProcessor(this.linkProcessor);
+            host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
+            linkProcessor = new TestLinkProcessor();
+            host.RegisterLinkProcessor(linkProcessor);
 
             int count = 80;
             var connection = new Connection(Address);
@@ -29,7 +29,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
             sender.Close();
 
-            this.host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
+            host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
             var receiver = new ReceiverLink(session, "recv-link", name);
             var message = receiver.Receive();
             var deliveryCount = message.Header.DeliveryCount;
@@ -60,9 +60,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             string name = "ContainerHostProcessorOrderTest";
             List<Message> messages = new List<Message>();
             var processor = new TestMessageProcessor(50, messages);
-            this.host.RegisterMessageProcessor(name, processor);
-            this.linkProcessor = new TestLinkProcessor();
-            this.host.RegisterLinkProcessor(this.linkProcessor);
+            host.RegisterMessageProcessor(name, processor);
+            linkProcessor = new TestLinkProcessor();
+            host.RegisterLinkProcessor(linkProcessor);
 
             int count = 80;
             var connection = new Connection(Address);
@@ -79,7 +79,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             Assert.Equal(count, messages.Count);
 
-            this.host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
+            host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
             var receiver = new ReceiverLink(session, "recv-link", name);
             for (int i = 0; i < count; i++) {
                 var message = receiver.Receive();
@@ -104,7 +104,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         public void ContainerHostMessageProcessorTest() {
             string name = "ContainerHostMessageProcessorTest";
             var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor(name, processor);
+            host.RegisterMessageProcessor(name, processor);
 
             int count = 500;
             var connection = new Connection(Address);
@@ -138,7 +138,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(messages);
-            this.host.RegisterMessageSource(name, source);
+            host.RegisterMessageSource(name, source);
 
             var connection = new Connection(Address);
             var session = new Session(connection);
@@ -175,7 +175,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         public void ContainerHostRequestProcessorTest() {
             string name = "ContainerHostRequestProcessorTest";
             var processor = new TestRequestProcessor();
-            this.host.RegisterRequestProcessor(name, processor);
+            host.RegisterRequestProcessor(name, processor);
 
             int count = 500;
             var connection = new Connection(Address);

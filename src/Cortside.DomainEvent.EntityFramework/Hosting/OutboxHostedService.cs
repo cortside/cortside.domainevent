@@ -20,7 +20,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken) {
-            logger.LogInformation($"OutboxHostedService StartAsync() entered.");
+            logger.LogInformation("OutboxHostedService StartAsync() entered.");
             await base.StartAsync(cancellationToken).ConfigureAwait(false);
         }
 
@@ -34,40 +34,44 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
 
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
-                await using (var tx = isRelational ? await db.Database.BeginTransactionAsync().ConfigureAwait(false) : null) {
-                    try {
-                        List<Outbox> messages;
-                        if (isRelational) {
-                            var sql = $";with cte as (select top ({config.Interval}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
-                            await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
-                            messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync().ConfigureAwait(false);
-                        } else {
-                            messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
-                        }
+                var strategy = db.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () => {
+                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync().ConfigureAwait(false) : null) {
+                        try {
+                            List<Outbox> messages;
+                            if (isRelational) {
+                                var sql = $";with cte as (select top ({config.Interval}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
+                                await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
+                                messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync().ConfigureAwait(false);
+                            } else {
+                                messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+                            }
 
-                        logger.LogInformation($"message count: {messages.Count}");
-                        foreach (var message in messages) {
-                            var properties = new EventProperties() {
-                                EventType = message.EventType,
-                                Topic = message.Topic,
-                                RoutingKey = message.RoutingKey,
-                                CorrelationId = message.CorrelationId,
-                                MessageId = message.MessageId
-                            };
-                            await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
-                            message.Status = OutboxStatus.Published;
-                            message.PublishedDate = DateTime.UtcNow;
-                            message.LockId = null;
-                        }
+                            logger.LogInformation($"message count: {messages.Count}");
+                            foreach (var message in messages) {
+                                var properties = new EventProperties() {
+                                    EventType = message.EventType,
+                                    Topic = message.Topic,
+                                    RoutingKey = message.RoutingKey,
+                                    CorrelationId = message.CorrelationId,
+                                    MessageId = message.MessageId
+                                };
+                                await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
+                                message.Status = OutboxStatus.Published;
+                                message.PublishedDate = DateTime.UtcNow;
+                                message.LockId = null;
+                            }
 
-                        await db.SaveChangesAsync().ConfigureAwait(false);
-                        await (tx?.CommitAsync()).ConfigureAwait(false);
-                    } catch (Exception ex) {
-                        logger.LogError(ex, "Exception attempting to publish from outbox");
-                        await (tx?.RollbackAsync()).ConfigureAwait(false);
+                            await db.SaveChangesAsync().ConfigureAwait(false);
+                            await (tx?.CommitAsync()).ConfigureAwait(false);
+                        } catch (Exception ex) {
+                            logger.LogError(ex, "Exception attempting to publish from outbox");
+                            await (tx?.RollbackAsync()).ConfigureAwait(false);
+                        }
                     }
-                }
+                }).ConfigureAwait(false);
             }
         }
     }
 }
+

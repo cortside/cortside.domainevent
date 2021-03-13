@@ -14,11 +14,11 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         public int TotalCount {
-            get { return this.totalCount; }
+            get { return totalCount; }
         }
 
         public void Process(RequestContext requestContext) {
-            int id = Interlocked.Increment(ref this.totalCount);
+            int id = Interlocked.Increment(ref totalCount);
             requestContext.Complete(new Message("OK" + id));
         }
     }

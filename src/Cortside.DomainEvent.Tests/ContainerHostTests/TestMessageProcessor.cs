@@ -10,8 +10,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         public TestMessageProcessor(int credit, List<Message> messages) {
-            this.Credit = credit;
-            this.Messages = messages;
+            Credit = credit;
+            Messages = messages;
         }
 
         public List<Message> Messages {
@@ -25,8 +25,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         public void Process(MessageContext messageContext) {
-            if (this.Messages != null) {
-                this.Messages.Add(messageContext.Message);
+            if (Messages != null) {
+                Messages.Add(messageContext.Message);
             }
 
             messageContext.Complete();

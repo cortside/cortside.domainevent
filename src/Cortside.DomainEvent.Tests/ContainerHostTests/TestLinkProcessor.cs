@@ -19,12 +19,12 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         public void Process(AttachContext attachContext) {
-            if (this.attachHandler != null && this.attachHandler(attachContext)) {
+            if (attachHandler != null && attachHandler(attachContext)) {
                 return;
             }
 
             attachContext.Complete(
-                this.factory != null ? this.factory(attachContext.Link) : new TestLinkEndpoint(),
+                factory != null ? factory(attachContext.Link) : new TestLinkEndpoint(),
                 attachContext.Attach.Role ? 0 : 30);
         }
     }

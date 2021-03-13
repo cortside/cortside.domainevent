@@ -23,11 +23,11 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         protected Address Address { get; set; }
 
         public BaseHostTest() {
-            this.random = new Random();
+            random = new Random();
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 
-            this.receiverSettings = new DomainEventReceiverSettings() {
+            receiverSettings = new DomainEventReceiverSettings() {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
@@ -36,7 +36,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 AppName = "unittest" + port.ToString()
             };
 
-            this.publisterSettings = new DomainEventPublisherSettings() {
+            publisterSettings = new DomainEventPublisherSettings() {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
@@ -44,12 +44,12 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 Topic = "/exchange/test/",
                 AppName = "unittest" + port.ToString()
             };
-            this.Address = new Address(publisterSettings.ConnectionString);
+            Address = new Address(publisterSettings.ConnectionString);
 
-            this.host = new ContainerHost(this.Address);
-            this.host.Listeners[0].SASL.EnableExternalMechanism = true;
-            this.host.Listeners[0].SASL.EnableAnonymousMechanism = true;
-            this.host.Open();
+            host = new ContainerHost(Address);
+            host.Listeners[0].SASL.EnableExternalMechanism = true;
+            host.Listeners[0].SASL.EnableAnonymousMechanism = true;
+            host.Open();
 
             eventTypes = new Dictionary<string, Type> {
                 { typeof(TestEvent).FullName, typeof(TestEvent) }
@@ -60,8 +60,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         public void Dispose() {
-            if (this.host != null) {
-                this.host.Close();
+            if (host != null) {
+                host.Close();
             }
         }
 

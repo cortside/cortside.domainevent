@@ -16,7 +16,7 @@ namespace Cortside.DomainEvent.EntityFramework {
         protected ILogger<DomainEventOutboxPublisher<TDbContext>> Logger { get; }
 
         public DomainEventOutboxPublisher(DomainEventPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
-            this.Settings = settings;
+            Settings = settings;
             this.context = context;
             Logger = logger;
         }
