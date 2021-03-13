@@ -30,8 +30,8 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
             var correlationId = CorrelationContext.GetCorrelationId();
 
             using (var scope = serviceProvider.CreateScope()) {
-                var db = serviceProvider.GetService<T>();
-                var publisher = serviceProvider.GetService<IDomainEventPublisher>();
+                var db = scope.ServiceProvider.GetService<T>();
+                var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
 
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
                 await using (var tx = isRelational ? await db.Database.BeginTransactionAsync() : null) {
