@@ -27,11 +27,11 @@ namespace Cortside.DomainEvent.Tests {
                 }
 
                 if (@event.Data.IntValue > 0) {
-                    return await Task.FromResult(HandlerResult.Success);
+                    return await Task.FromResult(HandlerResult.Success).ConfigureAwait(false);
                 } else if (@event.Data.IntValue == 0) {
-                    return await Task.FromResult(HandlerResult.Retry);
+                    return await Task.FromResult(HandlerResult.Retry).ConfigureAwait(false);
                 } else {
-                    return await Task.FromResult(HandlerResult.Failed);
+                    return await Task.FromResult(HandlerResult.Failed).ConfigureAwait(false);
                 }
             }
         }

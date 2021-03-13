@@ -17,7 +17,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 var @event = NewTestEvent();
                 var correlationId = Guid.NewGuid().ToString();
                 try {
-                    await publisher.PublishAsync(@event, correlationId);
+                    await publisher.PublishAsync(@event, correlationId).ConfigureAwait(false);
                 } finally {
                     Assert.Null(publisher.Error);
                 }

@@ -26,7 +26,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var context = new EntityContext(options);
             var outbox = new Outbox() { EventType = "foo", Topic = "bar", RoutingKey = "baz", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = Guid.NewGuid().ToString() };
             context.Set<Outbox>().Add(outbox);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
             services.AddSingleton(context);
             var publisher = new Mock<IDomainEventPublisher>();
 
@@ -40,11 +40,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var service = serviceProvider.GetService<IHostedService>() as OutboxHostedService<EntityContext>;
 
             CancellationTokenSource source = new CancellationTokenSource();
-            await service.StartAsync(source.Token);
+            await service.StartAsync(source.Token).ConfigureAwait(false);
 
-            await Task.Delay(1000);
+            await Task.Delay(1000).ConfigureAwait(false);
 
-            var messages = await context.Set<Outbox>().ToListAsync();
+            var messages = await context.Set<Outbox>().ToListAsync().ConfigureAwait(false);
             Assert.Single(messages);
             Assert.Null(messages[0].LockId);
             Assert.Equal(OutboxStatus.Published, messages[0].Status);
@@ -52,7 +52,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             publisher.VerifyAll();
 
             source.Cancel();
-            await service.StopAsync(source.Token);
+            await service.StopAsync(source.Token).ConfigureAwait(false);
         }
 
     }

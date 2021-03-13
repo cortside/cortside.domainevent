@@ -16,7 +16,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         public async Task MessageCallback(IReceiverLink receiver, Message message) {
-            await OnMessageCallback(receiver, message);
+            await OnMessageCallback(receiver, message).ConfigureAwait(false);
         }
 
         internal void SetProvider(ServiceProvider provider) {

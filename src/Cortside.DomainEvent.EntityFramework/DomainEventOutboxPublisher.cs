@@ -27,37 +27,37 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         public async Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();
-            await InnerSendAsync(@event, properties);
+            await InnerSendAsync(@event, properties).ConfigureAwait(false);
         }
 
         public async Task PublishAsync<T>(T @event, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
-            await InnerSendAsync(@event, properties);
+            await InnerSendAsync(@event, properties).ConfigureAwait(false);
         }
 
         public async Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
-            await InnerSendAsync(@event, properties);
+            await InnerSendAsync(@event, properties).ConfigureAwait(false);
         }
 
         public async Task PublishAsync(string body, EventProperties properties) {
-            await InnerSendAsync(body, properties);
+            await InnerSendAsync(body, properties).ConfigureAwait(false);
         }
 
         public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
             var properties = new EventProperties();
-            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
         public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
-            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
         public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
-            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
         public async Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
-            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc);
+            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
         private async Task InnerSendAsync(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
@@ -66,7 +66,7 @@ namespace Cortside.DomainEvent.EntityFramework {
             properties.Topic ??= Settings.Topic;
             properties.RoutingKey ??= @event.GetType().Name;
 
-            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc);
+            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
         private async Task InnerSendAsync(string body, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
@@ -88,7 +88,7 @@ namespace Cortside.DomainEvent.EntityFramework {
                 CreatedDate = date,
                 ScheduledDate = scheduledEnqueueTimeUtc ?? date,
                 Status = OutboxStatus.Queued
-            });
+            }).ConfigureAwait(false);
         }
     }
 }

@@ -28,45 +28,45 @@ namespace Cortside.DomainEvent {
         public async Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();
             var message = CreateMessage(@event, properties);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         public async Task PublishAsync<T>(T @event, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
             var message = CreateMessage(@event, properties);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         public async Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
             var message = CreateMessage(@event, properties);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         public async Task PublishAsync(string body, EventProperties properties) {
             var message = CreateMessage(body, properties);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
             var properties = new EventProperties();
             var message = CreateMessage(@event, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
             var message = CreateMessage(@event, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
             var message = CreateMessage(@event, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         public async Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
             var message = CreateMessage(body, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties);
+            await InnerSendAsync(message, properties).ConfigureAwait(false);
         }
 
         private Message CreateMessage(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
@@ -138,7 +138,7 @@ namespace Cortside.DomainEvent {
                 sender.Closed += OnClosed;
 
                 try {
-                    await sender.SendAsync(message);
+                    await sender.SendAsync(message).ConfigureAwait(false);
                     Logger.LogInformation($"Published message {message.Properties.MessageId}");
                 } finally {
                     if (sender.Error != null) {
@@ -150,10 +150,10 @@ namespace Cortside.DomainEvent {
 
                     if (disconnectAfter) {
                         if (!sender.IsClosed) {
-                            await sender.CloseAsync(TimeSpan.FromSeconds(5));
+                            await sender.CloseAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                         }
-                        await session.CloseAsync();
-                        await session.Connection.CloseAsync();
+                        await session.CloseAsync().ConfigureAwait(false);
+                        await session.Connection.CloseAsync().ConfigureAwait(false);
                     }
                 }
             }
@@ -170,13 +170,13 @@ namespace Cortside.DomainEvent {
 
         public void Close(TimeSpan? timeout = null) {
             timeout = timeout ?? TimeSpan.Zero;
-            conn.Close(timeout.Value);
+            conn?.Close(timeout.Value);
             conn = null;
             Error = null;
         }
 
         public void Dispose() {
-            this.Close();
+            Close();
         }
     }
 }

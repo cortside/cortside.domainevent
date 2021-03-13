@@ -22,7 +22,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-                await publisher.PublishAsync(@event);
+                await publisher.PublishAsync(@event).ConfigureAwait(false);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
@@ -55,7 +55,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-                await publisher.PublishAsync(@event);
+                await publisher.PublishAsync(@event).ConfigureAwait(false);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
@@ -87,7 +87,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-                await publisher.PublishAsync(@event);
+                await publisher.PublishAsync(@event).ConfigureAwait(false);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));

@@ -26,7 +26,7 @@ namespace Cortside.DomainEvent.Hosting {
 
         public override async Task StartAsync(CancellationToken cancellationToken) {
             logger.LogInformation($"ReceiverHostedService StartAsync() entered.");
-            await base.StartAsync(cancellationToken);
+            await base.StartAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Cortside.DomainEvent.Hosting {
                         }
                         receiver.Closed += OnReceiverClosed;
                     }
-                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval));
+                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval)).ConfigureAwait(false);
                 }
             }
         }

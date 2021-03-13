@@ -26,13 +26,13 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var service = serviceProvider.GetService<IHostedService>() as ReceiverHostedService;
 
             CancellationTokenSource source = new CancellationTokenSource();
-            await service.StartAsync(source.Token);
+            await service.StartAsync(source.Token).ConfigureAwait(false);
 
-            await Task.Delay(1000);
+            await Task.Delay(1000).ConfigureAwait(false);
             receiver.VerifyAll();
 
             source.Cancel();
-            await service.StopAsync(source.Token);
+            await service.StopAsync(source.Token).ConfigureAwait(false);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests.Database {
         public async Task<IDbContextTransaction> BeginTransactionAsync() {
             var supportsTransactions = !Database.ProviderName.Contains("InMemory");
             if (supportsTransactions) {
-                return await Database.BeginTransactionAsync();
+                return await Database.BeginTransactionAsync().ConfigureAwait(false);
             }
             return null;
         }
