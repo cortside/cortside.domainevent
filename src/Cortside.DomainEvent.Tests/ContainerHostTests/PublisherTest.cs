@@ -7,6 +7,8 @@ using Cortside.DomainEvent.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
@@ -23,14 +25,48 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
 
             // act
-            var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
+            var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = StatusEnum.PendingWork };
             await publisher.PublishAsync(@event);
 
             // assert
             Assert.Single(processor.Messages);
             var message = processor.Messages[0];
-            Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
-            Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
+            var body = message.GetBody<string>();
+            Assert.Contains("\"Status\":1", body);
+            Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(body).IntValue);
+            Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(body).StringValue);
+            Assert.Equal(@event.Status, JsonConvert.DeserializeObject<TestEvent>(body).Status);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+        }
+
+        [Fact]
+        public async Task ShouldPublishEvent1WithSerializationSettings() {
+            // arrange
+            string topic = Guid.NewGuid().ToString();
+            var processor = new TestMessageProcessor();
+            this.host.RegisterMessageProcessor(topic + "TestEvent", processor);
+
+            var settings = this.publisterSettings.Copy();
+            settings.Topic = topic;
+            settings.SerializerSettings = new JsonSerializerSettings() {
+                Converters = new List<JsonConverter> {
+                    new StringEnumConverter(new CamelCaseNamingStrategy())
+                }
+            };
+            var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
+
+            // act
+            var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = StatusEnum.PendingWork };
+            await publisher.PublishAsync(@event);
+
+            // assert
+            Assert.Single(processor.Messages);
+            var message = processor.Messages[0];
+            var body = message.GetBody<string>();
+            Assert.Contains("\"Status\":\"pendingWork\"", body);
+            Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(body).IntValue);
+            Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(body).StringValue);
+            Assert.Equal(@event.Status, JsonConvert.DeserializeObject<TestEvent>(body).Status);
             Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
         }
 

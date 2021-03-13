@@ -31,6 +31,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
                     var message = receiver.Receive(TimeSpan.FromSeconds(1));
+                    Assert.NotNull(message.GetData<TestEvent>());
                     message.Accept();
                 }
             }
@@ -71,7 +72,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(0, source.Count);
         }
 
-        [Fact(Skip = "flake")]
+        [Fact(Skip = "concurrency issue")]
         public async Task ShouldReceiveMessage_Release() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 

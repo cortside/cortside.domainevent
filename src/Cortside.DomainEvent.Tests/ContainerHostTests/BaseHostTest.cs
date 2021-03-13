@@ -33,7 +33,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 Key = "guest",
                 Namespace = $"localhost:{port}",
                 Queue = "queue",
-                AppName = "unittest"
+                AppName = "unittest" + port.ToString()
             };
 
             this.publisterSettings = new DomainEventPublisherSettings() {
@@ -42,7 +42,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 Key = "guest",
                 Namespace = $"localhost:{port}",
                 Topic = "/exchange/test/",
-                AppName = "unittest"
+                AppName = "unittest" + port.ToString()
             };
             this.Address = new Address(publisterSettings.ConnectionString);
 

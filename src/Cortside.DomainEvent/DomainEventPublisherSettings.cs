@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Cortside.DomainEvent {
     public class DomainEventPublisherSettings : DomainEventSettings {
         /// <summary>
@@ -15,5 +17,8 @@ namespace Cortside.DomainEvent {
         /// RabbitMQ {queue}
         /// </remarks>
         public string Topic { set; get; }
+
+        public JsonSerializerSettings SerializerSettings { get; set; }
+
     }
 }

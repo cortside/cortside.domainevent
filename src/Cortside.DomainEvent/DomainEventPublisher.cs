@@ -70,7 +70,12 @@ namespace Cortside.DomainEvent {
         }
 
         private Message CreateMessage(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
-            var data = JsonConvert.SerializeObject(@event);
+            string data;
+            if (Settings.SerializerSettings != null) {
+                data = JsonConvert.SerializeObject(@event, Settings.SerializerSettings);
+            } else {
+                data = JsonConvert.SerializeObject(@event);
+            }
             properties.EventType = properties.EventType ?? @event.GetType().FullName;
             properties.Topic = properties.Topic ?? Settings.Topic;
             properties.RoutingKey = properties.RoutingKey ?? @event.GetType().Name;
