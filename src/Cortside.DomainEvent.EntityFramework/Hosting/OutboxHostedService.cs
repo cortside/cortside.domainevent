@@ -37,8 +37,6 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 await strategy.ExecuteAsync(async () => {
                     await using (var tx = isRelational ? await db.Database.BeginTransactionAsync().ConfigureAwait(false) : null) {
                         try {
-                            var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
-
                             List<Outbox> messages;
                             if (isRelational) {
                                 var sql = $";with cte as (select top ({config.Interval}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
@@ -57,6 +55,8 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                                     CorrelationId = message.CorrelationId,
                                     MessageId = message.MessageId
                                 };
+
+                                var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
                                 await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
                                 message.Status = OutboxStatus.Published;
                                 message.PublishedDate = DateTime.UtcNow;
