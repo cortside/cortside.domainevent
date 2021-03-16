@@ -31,13 +31,14 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
-                var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
 
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
                 var strategy = db.Database.CreateExecutionStrategy();
                 await strategy.ExecuteAsync(async () => {
                     await using (var tx = isRelational ? await db.Database.BeginTransactionAsync().ConfigureAwait(false) : null) {
                         try {
+                            var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
+
                             List<Outbox> messages;
                             if (isRelational) {
                                 var sql = $";with cte as (select top ({config.Interval}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
