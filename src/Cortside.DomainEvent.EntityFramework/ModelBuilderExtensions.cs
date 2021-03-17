@@ -20,7 +20,7 @@ namespace Cortside.DomainEvent.EntityFramework {
                 .ValueGeneratedNever();
 
             builder.Property(t => t.CorrelationId)
-                .HasMaxLength(36);
+                .HasMaxLength(250);
 
             builder.Property(t => t.EventType)
                 .HasMaxLength(250)
