@@ -6,7 +6,7 @@ namespace Cortside.DomainEvent.EntityFramework {
         [Required]
         [StringLength(36)]
         public string MessageId { get; set; }
-        [StringLength(36)]
+        [StringLength(250)]
         public string CorrelationId { get; set; }
         [Required]
         [StringLength(250)]
