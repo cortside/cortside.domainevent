@@ -33,7 +33,7 @@ namespace Cortside.DomainEvent {
             return domainEvent;
         }
 
-        internal static string GetBody(Message message) {
+        public static string GetBody(Message message) {
             string body = null;
             // Get the body
             if (message.Body is string) {
@@ -55,13 +55,16 @@ namespace Cortside.DomainEvent {
         }
 
         internal Message Message { get; set; }
-        public string MessageId => Message.Properties.MessageId;
-        public string CorrelationId => Message.Properties.CorrelationId;
-        public string MessageTypeName => Message.ApplicationProperties[DomainEventComms.MESSAGE_TYPE_KEY] as string;
-        public object Data { get; internal set; }
+        public string MessageId => Message?.Properties?.MessageId;
+        public string CorrelationId => Message?.Properties?.CorrelationId;
+        public string MessageTypeName => Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+        public object Data { get; set; }
     }
 
     public class DomainEventMessage<T> : DomainEventMessage {
-        public new T Data => (T)base.Data;
+        public new T Data {
+            get { return (T)base.Data; }
+            set { base.Data = value; }
+        }
     }
 }

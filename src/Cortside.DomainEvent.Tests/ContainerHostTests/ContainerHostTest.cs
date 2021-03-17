@@ -7,15 +7,16 @@ using Amqp.Framing;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    public class ContainerHostTest : BaseHostTest {
+    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
 
+    public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "tx error")]
         public void Retry() {
             string name = "Retry";
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
-            this.linkProcessor = new TestLinkProcessor();
-            this.host.RegisterLinkProcessor(this.linkProcessor);
+            host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
+            linkProcessor = new TestLinkProcessor();
+            host.RegisterLinkProcessor(linkProcessor);
 
             int count = 80;
             var connection = new Connection(Address);
@@ -28,7 +29,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
             sender.Close();
 
-            this.host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
+            host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
             var receiver = new ReceiverLink(session, "recv-link", name);
             var message = receiver.Receive();
             var deliveryCount = message.Header.DeliveryCount;
@@ -44,7 +45,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                     Properties = message.Properties,
                     ApplicationProperties = message.ApplicationProperties
                 };
-                retry.ApplicationProperties[SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
+                retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                 sndr.Send(retry);
                 receiver.Accept(message);
             }
@@ -58,9 +59,10 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         public void ContainerHostProcessorOrderTest() {
             string name = "ContainerHostProcessorOrderTest";
             List<Message> messages = new List<Message>();
-            this.host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
-            this.linkProcessor = new TestLinkProcessor();
-            this.host.RegisterLinkProcessor(this.linkProcessor);
+            var processor = new TestMessageProcessor(50, messages);
+            host.RegisterMessageProcessor(name, processor);
+            linkProcessor = new TestLinkProcessor();
+            host.RegisterLinkProcessor(linkProcessor);
 
             int count = 80;
             var connection = new Connection(Address);
@@ -75,7 +77,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             sender.Close();
 
-            this.host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
+            Assert.Equal(count, messages.Count);
+
+            host.RegisterMessageSource(name, new TestMessageSource(new Queue<Message>(messages)));
             var receiver = new ReceiverLink(session, "recv-link", name);
             for (int i = 0; i < count; i++) {
                 var message = receiver.Receive();
@@ -100,7 +104,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         public void ContainerHostMessageProcessorTest() {
             string name = "ContainerHostMessageProcessorTest";
             var processor = new TestMessageProcessor();
-            this.host.RegisterMessageProcessor(name, processor);
+            host.RegisterMessageProcessor(name, processor);
 
             int count = 500;
             var connection = new Connection(Address);
@@ -124,7 +128,6 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
         }
 
-
         [Fact]
         public void ContainerHostMessageSourceTest() {
             string name = "ContainerHostMessageSourceTest";
@@ -135,7 +138,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             }
 
             var source = new TestMessageSource(messages);
-            this.host.RegisterMessageSource(name, source);
+            host.RegisterMessageSource(name, source);
 
             var connection = new Connection(Address);
             var session = new Session(connection);
@@ -164,15 +167,15 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             connection.Close();
 
             Thread.Sleep(500);
-            Assert.Equal(released + ignored, source.Count); //, string.Join(",", messages.Select(m => m.Properties.MessageId)));
-            Assert.Equal(rejected, source.DeadLetterCount); //, string.Join(",", source.DeadletterMessage.Select(m => m.Properties.MessageId)));
+            Assert.Equal(released + ignored, source.Count);
+            Assert.Equal(rejected, source.DeadLetterCount);
         }
 
         [Fact]
         public void ContainerHostRequestProcessorTest() {
             string name = "ContainerHostRequestProcessorTest";
             var processor = new TestRequestProcessor();
-            this.host.RegisterRequestProcessor(name, processor);
+            host.RegisterRequestProcessor(name, processor);
 
             int count = 500;
             var connection = new Connection(Address);

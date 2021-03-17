@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Cortside.DomainEvent {
+namespace Cortside.DomainEvent.Hosting {
     /// <summary>
     /// Settings for the ReceiverHostedService
     /// </summary>
@@ -15,10 +14,10 @@ namespace Cortside.DomainEvent {
         /// <summary>
         /// Controls whether receiver hosted service is enabled
         /// </summary>
-        public bool Disabled { get; set; }
+        public bool Enabled { get; set; }
 
         /// <summary>
-        /// Frequency which the receiver attempts to connect to the message broker
+        /// Frequency which the receiver attempts to connect to the message broker in seconds
         /// </summary>
         public int TimedInterval { get; set; }
     }

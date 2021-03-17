@@ -1,23 +1,33 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using System.Transactions;
-using System.Xml;
 using Amqp;
 using Amqp.Framing;
+using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
-    public class DomainEventReceiver : DomainEventComms, IDomainEventReceiver, IDisposable {
+    public class DomainEventReceiver : IDomainEventReceiver, IDisposable {
         public event ReceiverClosedCallback Closed;
         public IServiceProvider Provider { get; protected set; }
         public IDictionary<string, Type> EventTypeLookup { get; protected set; }
         public ReceiverLink Link { get; protected set; }
         public DomainEventError Error { get; set; }
 
-        public DomainEventReceiver(ServiceBusReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventComms> logger) : base(settings, logger) {
+        protected DomainEventReceiverSettings Settings { get; }
+
+        protected ILogger<DomainEventReceiver> Logger { get; }
+
+        protected virtual Session CreateSession() {
+            var conn = new Connection(new Address(Settings.ConnectionString));
+            return new Session(conn);
+        }
+
+        public DomainEventReceiver(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) {
             Provider = provider;
+            Settings = settings;
+            Logger = logger;
         }
 
         public void Start(IDictionary<string, Type> eventTypeLookup) {
@@ -48,7 +58,7 @@ namespace Cortside.DomainEvent {
             var session = CreateSession();
             var attach = new Attach() {
                 Source = new Source() {
-                    Address = Settings.Address,
+                    Address = Settings.Queue,
                     Durable = Settings.Durable
                 },
                 Target = new Target() {
@@ -78,7 +88,7 @@ namespace Cortside.DomainEvent {
                 return null;
             }
 
-            var messageTypeName = message.ApplicationProperties[MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             if (!EventTypeLookup.ContainsKey(messageTypeName)) {
                 Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
                 Link.Reject(message);
@@ -102,8 +112,7 @@ namespace Cortside.DomainEvent {
         }
 
         protected async Task OnMessageCallback(IReceiverLink receiver, Message message) {
-            // TODO: remove this and log elsewhere
-            var messageTypeName = message.ApplicationProperties[MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,
@@ -114,7 +123,6 @@ namespace Cortside.DomainEvent {
                 Logger.LogInformation($"Received message {message.Properties.MessageId}");
 
                 try {
-                    // TODO: only getting this for logging, should this be here?
                     string body = DomainEventMessage.GetBody(message);
                     Logger.LogTrace($"Received message {message.Properties.MessageId} with body: {body}");
 
@@ -147,34 +155,13 @@ namespace Cortside.DomainEvent {
                         return;
                     }
 
-                    //List<string> errors = new List<string>();
-                    //var data = JsonConvert.DeserializeObject(body, dataType,
-                    //    new JsonSerializerSettings {
-                    //        Error = (object sender, Newtonsoft.Json.Serialization.ErrorEventArgs args) => {
-                    //            errors.Add(args.ErrorContext.Error.Message);
-                    //            args.ErrorContext.Handled = true;
-                    //        }
-                    //    });
-                    //if (errors.Any()) {
-                    //    Logger.LogError($"Message {message.Properties.MessageId} rejected because of errors deserializing messsage body: {string.Join(", ", errors)}");
-                    //    receiver.Reject(message);
-                    //    return;
-                    //}
-                    //Logger.LogDebug($"Successfully deserialized body to {dataType}");
-
-                    //var eventType = typeof(DomainEventMessage<>).MakeGenericType(dataType);
-                    //dynamic domainEvent = Activator.CreateInstance(eventType);
-                    //domainEvent.MessageId = message.Properties.MessageId;
-                    //domainEvent.CorrelationId = message.Properties.CorrelationId;
-                    //domainEvent.Data = (dynamic)data;
-
                     HandlerResult result;
                     dynamic dhandler = handler;
                     try {
                         result = await dhandler.HandleAsync(domainEvent);
                     } catch (Exception ex) {
                         Logger.LogError(ex, $"Message {message.Properties.MessageId} caught unhandled exception {ex.Message}");
-                        result = HandlerResult.Release;
+                        result = HandlerResult.Failed;
                     }
                     Logger.LogInformation($"Handler executed for message {message.Properties.MessageId} and returned result of {result}");
 
@@ -189,7 +176,7 @@ namespace Cortside.DomainEvent {
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
                             using (var ts = new TransactionScope()) {
-                                var sender = new SenderLink(Link.Session, base.Settings.AppName + "-retry", base.Settings.Address);
+                                var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
                                 // create a new message to be queued with scheduled delivery time
                                 var retry = new Message(body) {
                                     Header = message.Header,
@@ -197,7 +184,7 @@ namespace Cortside.DomainEvent {
                                     Properties = message.Properties,
                                     ApplicationProperties = message.ApplicationProperties
                                 };
-                                retry.ApplicationProperties[SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
+                                retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                                 sender.Send(retry);
                                 receiver.Accept(message);
                             }
@@ -219,27 +206,6 @@ namespace Cortside.DomainEvent {
             }
         }
 
-        private static string GetBody(Message message) {
-            string body = null;
-            // Get the body
-            if (message.Body is string) {
-                body = message.Body as string;
-            } else if (message.Body is byte[]) {
-                using (var reader = XmlDictionaryReader.CreateBinaryReader(
-                    new MemoryStream(message.Body as byte[]),
-                    null,
-                    XmlDictionaryReaderQuotas.Max)) {
-                    var doc = new XmlDocument();
-                    doc.Load(reader);
-                    body = doc.InnerText;
-                }
-            } else {
-                throw new ArgumentException($"Message {message.Properties.MessageId} has body with an invalid type {message.Body.GetType()}");
-            }
-
-            return body;
-        }
-
         public void Close(TimeSpan? timeout = null) {
             timeout = timeout ?? TimeSpan.Zero;
             Link?.Session.Close(timeout.Value);
@@ -251,7 +217,7 @@ namespace Cortside.DomainEvent {
         }
 
         public void Dispose() {
-            this.Close();
+            Close();
         }
     }
 }

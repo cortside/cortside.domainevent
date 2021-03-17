@@ -1,9 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
-
   <PropertyGroup>
     <PackageId>Cortside.DomainEvent.EntityFramework</PackageId>
     <Company>Cortside Consulting</Company>
@@ -11,8 +9,10 @@
     <Copyright>Copyright (c) 2017 Cortside Consulting and Contributors</Copyright>
     <Summary>Library for sending AMQP 1.0 messages using Outbox Pattern and EntityFramework</Summary>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/cortside/cortside.domainevent.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Cortside.Common.Correlation" Version="1.0.165" />
     <PackageReference Include="Cortside.Common.Hosting" Version="1.0.165" />
@@ -21,9 +21,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.12" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.12" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Cortside.DomainEvent\Cortside.DomainEvent.csproj" />
   </ItemGroup>
-
 </Project>

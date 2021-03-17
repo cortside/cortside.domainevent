@@ -1,3 +1,7 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/43l1ckgn806lqxjx?svg=true)](https://ci.appveyor.com/project/cortside/cortside-domainevent)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=cortside_cortside.common&metric=alert_status)](https://sonarcloud.io/dashboard?id=cortside_cortside.domainevent)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=cortside_cortside.domainevent&metric=coverage)](https://sonarcloud.io/dashboard?id=cortside_cortside.domainevent)
+
 ## Cortside.DomainEvent
 Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 protocol).
 ### Azure ServiceBus
@@ -17,7 +21,7 @@ Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 
         "Policy": "Send",
         "Key": "44CharBASE64EncodedNoSlashes",
         "AppName": "test.publisher",
-        "Address": "topic.",
+        "Topic": "topic.",
         "Durable": "0"
     },
     "Receiver.Settings": {
@@ -26,7 +30,7 @@ Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 
         "Policy": "Listen",
         "Key": "44CharBASE64EncodedNoSlashes",
         "AppName": "test.receiver",
-        "Address": "queue.testReceive",
+        "Queue": "queue.testReceive",
         "Durable": "0"
     }
 ```
@@ -56,6 +60,43 @@ Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 
 
 ## Outbox Pattern using Cortside.DomainEvent.EntityFramework
 
-todo:
+What To Do:
 * will probably want to set deduplication at the message broker since same messageId will be used
-* 
+* will need to generate ef migration after adding following to OnModelCreating method in dbcontext class:
+  * modelBuilder.AddDomainEventOutbox();
+  * https://github.com/cortside/cortside.webapistarter/blob/outbox/src/Cortside.WebApiStarter.Data/Migrations/20210228035338_DomainEventOutbox.cs
+* register IDomainEventOutboxPublisher AND IDomainEventPublisher
+  * use IDomainEventOutboxPublisher in classes that will publish to the outbox
+  * SaveChanges after calling PublishAsync or ScheduleAsync -- and make part of transaction or workset in db so that publish becomes atomic with db changes
+  * OutboxHostedService needs IDomainEventPublisher to actually publish to message broker
+* register OutboxHostedService to publish messages from db to broker
+* if publishing an entity id in message, might need to add a using around the work with a transaction and call savechanges twice if the entity id is assigned by the db
+
+## migration from cortside.common.domainevent to cortside.domainevent
+* DomainEventPublisher change in publish method
+  * SendAsync to PublishAsync
+  * ScheduleMessageAsync to ScheduleAsync
+  * overrides for both PublishAsync and ScheduleAsync use EventProperties for overrides that allowed for EventType or Topic 
+* namespaces all dropped common
+  * make sure to check logging overrides for namespaces that might have changed
+* namespace for handler interface changed to be in Handlers
+* namespace for ReceiverHostedService changed to be in Hosting
+* ReceiverHostedServiceSettings.Disabled changed to Enabled
+* ReceiverHostedServiceSettings.TimedInterval should not be specified in seconds, not milliseconds
+* IDomainEventHandler HandleAsync now has return value of HandlerResultEnum
+  * To keep current functionality, return HandlerResultEnum.Success and let uncaught exceptions trigger HandlerResultEnum.Failure result
+* Publisher uses Logger<DomainEventPublisher> instead of Logger<DomainEventComms>
+* Reciever uses Logger<DomainEventReceiver> instead of Logger<DomainEventComms> 
+* ServiceBusPublisherSettings renamed to DomainEventPublisherSettings
+  * changed Address to Topic
+* ServiceBusReceiverSettings renamed to DomainEventReceiverSettings
+  * changed Address to Queue
+* receiverHostedServiceSettings now has property for message type lookup dictionary named MessageTypes
+
+## examples
+* https://github.com/cortside/cortside.webapistarter
+
+## todo:
+* publisher should return published message information -- at least messageId -- would make debugging easier
+* allow publisher to be used to publish multiple events withing a using statement without having to create new connection for each publish 
+ 

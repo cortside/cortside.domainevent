@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.DomainEvent {
+namespace Cortside.DomainEvent.Hosting {
     /// <summary>
     /// Message receiver hosted service
     /// </summary>
@@ -24,20 +24,23 @@ namespace Cortside.DomainEvent {
             this.settings = settings;
         }
 
-        public override Task StartAsync(CancellationToken ct) {
-            return base.StartAsync(ct);
+        public override async Task StartAsync(CancellationToken cancellationToken) {
+            logger.LogInformation($"ReceiverHostedService StartAsync() entered.");
+            await base.StartAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Interface method to start service
         /// </summary>
-        protected async override Task ExecuteAsync(CancellationToken cancellationToken) {
-            if (settings.Disabled) {
-                logger.LogInformation("Receiverhostedservice is disabled");
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken) {
+            await Task.Yield();
+
+            if (!settings.Enabled) {
+                logger.LogInformation("ReceiverHostedService is not enabled");
             } else if (settings.MessageTypes == null) {
                 logger.LogError("Configuration error:  No event types have been configured for the receiverhostedeservice");
             } else {
-                while (!cancellationToken.IsCancellationRequested) {
+                while (!stoppingToken.IsCancellationRequested) {
                     if (receiver == null || receiver.Link == null || receiver.Link.IsClosed) {
                         DisposeReceiver();
                         receiver = services.GetService<IDomainEventReceiver>();
@@ -50,7 +53,7 @@ namespace Cortside.DomainEvent {
                         }
                         receiver.Closed += OnReceiverClosed;
                     }
-                    await Task.Delay(settings.TimedInterval);
+                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval)).ConfigureAwait(false);
                 }
             }
         }
@@ -97,6 +100,5 @@ namespace Cortside.DomainEvent {
         protected virtual void Dispose(bool disposing) {
             DisposeReceiver();
         }
-
     }
 }

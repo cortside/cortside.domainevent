@@ -15,6 +15,7 @@ pull_requests:
 environment:
   # Don't report back to the mothership
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  JAVA_HOME: C:\Program Files\Java\jdk15
 
 init:
 - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
@@ -30,20 +31,22 @@ before_build:
 - appveyor-retry dotnet restore src/Cortside.DomainEvent.sln -v Minimal
 - set DNX_BUILD_VERSION=%APPVEYOR_BUILD_NUMBER%
 - dotnet --info
-- choco install opencover.portable
-- choco install codecov
 
 build:
   publish_nuget: true
   publish_nuget_symbols: true
+  use_snupkg_format: true 
   include_nuget_references: true
   verbosity: minimal
 
 build_script:
+- dotnet tool install --global dotnet-sonarscanner --version 5.0.4
+- dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.domainevent" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 - dotnet build src/Cortside.DomainEvent.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
-- OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:"test --no-build --logger:trx;LogFileName=results.trx /p:DebugType=full src/Cortside.DomainEvent.Tests/Cortside.DomainEvent.Tests.csproj" -filter:"+[*]* -[RsvpScheduler.Tests*]*" -output:".\results.xml" -oldStyle
-- codecov -f .\Results.xml -t $(codecov_token)
-#- dotnet test src/Cortside.Common.DomainEvent.Tests/Cortside.Common.DomainEvent.Tests.csproj --no-build
+- dotnet test src/Cortside.DomainEvent.Tests/Cortside.DomainEvent.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+- dotnet test src/Cortside.DomainEvent.EntityFramework.IntegrationTests/Cortside.DomainEvent.EntityFramework.IntegrationTests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+- dotnet test src/Cortside.DomainEvent.IntegrationTests/Cortside.DomainEvent.IntegrationTests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+- dotnet sonarscanner end /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
 
 after_build:
 - ps: >-
@@ -51,16 +54,8 @@ after_build:
     $fileVersion = $env:APPVEYOR_BUILD_VERSION;
     if($branch -ne 'master') {
         $fileVersion = "${fileVersion}-${branch}"; 
-    }
-    
-    dotnet pack src/cortside.domainevent.sln --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
-    
-    #gci -include *.nuspec -Recurse | %{ 
-    #    $csproj = ($_.Fullname).Replace('.nuspec','.csproj')
-    #    if((Test-Path -path $_.Fullname) -and (Test-Path -path $csproj )) { 
-    #        dotnet pack $csproj --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
-    #    }
-    #}
+    }   
+    dotnet pack src/cortside.domainevent.sln --include-symbols -p:SymbolPackageFormat=snupkg --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
     
 artifacts:
 - path: artifacts\**\*.*

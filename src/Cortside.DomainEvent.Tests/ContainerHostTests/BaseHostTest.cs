@@ -5,37 +5,63 @@ using System.Net;
 using System.Net.NetworkInformation;
 using Amqp;
 using Amqp.Listener;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    public partial class BaseHostTest : IDisposable {
-        public const string MESSAGE_TYPE_KEY = "Message.Type.FullName";
-        public const string SCHEDULED_ENQUEUE_TIME_UTC = "x-opt-scheduled-enqueue-time";
-
+    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
+    public class BaseHostTest : IDisposable {
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
         protected ILinkProcessor linkProcessor;
+        protected readonly DomainEventReceiverSettings receiverSettings;
+        protected readonly DomainEventPublisherSettings publisterSettings;
+        protected readonly Random random;
+        protected readonly ServiceProvider provider;
+        protected readonly Dictionary<string, Type> eventTypes;
 
-        protected Address Address {
-            get;
-            set;
-        }
+        protected Address Address { get; set; }
 
         public BaseHostTest() {
-            var random = new Random();
+            random = new Random();
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 
-            this.Address = new Address($"amqp://guest:guest@localhost:{port}");
+            receiverSettings = new DomainEventReceiverSettings() {
+                Protocol = "amqp",
+                PolicyName = "guest",
+                Key = "guest",
+                Namespace = $"localhost:{port}",
+                Queue = "queue",
+                AppName = "unittest" + port.ToString()
+            };
 
-            this.host = new ContainerHost(this.Address);
-            this.host.Listeners[0].SASL.EnableExternalMechanism = true;
-            this.host.Listeners[0].SASL.EnableAnonymousMechanism = true;
-            this.host.Open();
+            publisterSettings = new DomainEventPublisherSettings() {
+                Protocol = "amqp",
+                PolicyName = "guest",
+                Key = "guest",
+                Namespace = $"localhost:{port}",
+                Topic = "/exchange/test/",
+                AppName = "unittest" + port.ToString()
+            };
+            Address = new Address(publisterSettings.ConnectionString);
+
+            host = new ContainerHost(Address);
+            host.Listeners[0].SASL.EnableExternalMechanism = true;
+            host.Listeners[0].SASL.EnableAnonymousMechanism = true;
+            host.Open();
+
+            eventTypes = new Dictionary<string, Type> {
+                { typeof(TestEvent).FullName, typeof(TestEvent) }
+            };
+
+            var services = new ServiceCollection();
+            provider = services.BuildServiceProvider();
         }
 
         public void Dispose() {
-            if (this.host != null) {
-                this.host.Close();
+            if (host != null) {
+                host.Close();
             }
         }
 

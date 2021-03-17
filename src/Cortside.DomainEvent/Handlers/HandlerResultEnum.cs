@@ -1,4 +1,4 @@
-namespace Cortside.DomainEvent {
+namespace Cortside.DomainEvent.Handlers {
 
     public enum HandlerResult {
         Success,

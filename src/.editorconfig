@@ -85,9 +85,9 @@ dotnet_style_qualification_for_method                                    = false
 dotnet_style_qualification_for_event                                     = false : suggestion
 
 # only use var when it's obvious what the variable type is
-csharp_style_var_for_built_in_types                                      = false : none
-csharp_style_var_when_type_is_apparent                                   = false : none
-csharp_style_var_elsewhere                                               = false : suggestion
+csharp_style_var_for_built_in_types                                      = true : none
+csharp_style_var_when_type_is_apparent                                   = true : none
+csharp_style_var_elsewhere                                               = true : none
 
 # use language keywords instead of BCL types
 dotnet_style_predefined_type_for_locals_parameters_members               = true : suggestion
@@ -185,9 +185,16 @@ dotnet_diagnostic.S3458.severity                                         = none
 
 # Xml project files
 [*.{csproj,vcxproj,vcxproj.filters,proj,nativeproj,locproj}]
-indent_size = 2
+indent_size                          = 2
 
 # Xml build files
+
+# IDE0063: Use simple 'using' statement
+csharp_prefer_simple_using_statement = false : suggestion
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity   = none
+
 [*.{builds}]
 indent_size = 2
 

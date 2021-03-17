@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using Cortside.DomainEvent.Tests;
+using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
@@ -15,20 +17,21 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 var @event = NewTestEvent();
                 var correlationId = Guid.NewGuid().ToString();
                 try {
-                    await publisher.SendAsync(@event, correlationId);
+                    await publisher.PublishAsync(@event, correlationId).ConfigureAwait(false);
                 } finally {
                     Assert.Null(publisher.Error);
                 }
 
                 EventMessage message;
-                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, mockLogger)) {
+                var logger = new MockLogger<DomainEventReceiver>();
+                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
                     message = receiver.Receive(TimeSpan.FromSeconds(1));
                     if (message != null) {
                         message.Accept();
                     }
                 }
-                Assert.DoesNotContain(mockLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
                 Assert.NotNull(message);
 
                 Assert.NotNull(message);
@@ -54,10 +57,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
                         StringValue = s
                     };
                     ids.Add(i);
-                    await publisher.SendAsync(@event).ConfigureAwait(false);
+                    await publisher.PublishAsync(@event).ConfigureAwait(false);
                 }
 
-                var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, mockLogger);
+                var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>());
                 receiver.Start(eventTypes);
 
                 var message1 = receiver.Receive();
@@ -69,7 +72,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     ids.Remove(message1.GetData<TestEvent>().IntValue);
 
                     var @event = new TestEvent() { IntValue = nMsgs + 1, StringValue = s };
-                    await publisher.SendAsync(@event).ConfigureAwait(false);
+                    await publisher.PublishAsync(@event).ConfigureAwait(false);
                     ids.Add(@event.IntValue);
 
                     ts.Complete();
@@ -78,7 +81,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 // ack message2 and send a new message in a txn but abort the txn
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                     message2.Accept();
-                    await publisher.SendAsync(message2.GetData<TestEvent>()).ConfigureAwait(false);
+                    await publisher.PublishAsync(message2.GetData<TestEvent>()).ConfigureAwait(false);
                 }
 
                 // release the message, since it shouldn't have been accepted above

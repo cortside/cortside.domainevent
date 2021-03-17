@@ -1,88 +1,94 @@
+#pragma warning disable CS0067
+
 using System;
 using System.Threading.Tasks;
+using Cortside.DomainEvent.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent.EntityFramework {
     public class DomainEventOutboxPublisher<TDbContext> : IDomainEventOutboxPublisher where TDbContext : DbContext {
-
-        public const string MESSAGE_TYPE_KEY = "Message.Type.FullName";
-        public const string SCHEDULED_ENQUEUE_TIME_UTC = "x-opt-scheduled-enqueue-time";
-
-        protected ServiceBusSettings Settings { get; }
+        protected DomainEventPublisherSettings Settings { get; }
 
         private readonly TDbContext context;
 
         protected ILogger<DomainEventOutboxPublisher<TDbContext>> Logger { get; }
 
-        public DomainEventOutboxPublisher(ServiceBusPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
-            this.Settings = settings;
+        public DomainEventOutboxPublisher(DomainEventPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
+            Settings = settings;
             this.context = context;
             Logger = logger;
         }
 
-        public DomainEventError Error { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DomainEventError Error { get; set; }
 
         public event PublisherClosedCallback Closed;
 
-        public async Task SendAsync<T>(T @event) where T : class {
-            var data = JsonConvert.SerializeObject(@event);
-            var eventType = @event.GetType().FullName;
-            var address = Settings.Address + @event.GetType().Name;
-            await SendAsync(eventType, address, data, null, null);
+        public async Task PublishAsync<T>(T @event) where T : class {
+            var properties = new EventProperties();
+            await InnerSendAsync(@event, properties).ConfigureAwait(false);
         }
 
-        public Task SendAsync<T>(T @event, string correlationId) where T : class {
-            throw new NotImplementedException();
+        public async Task PublishAsync<T>(T @event, string correlationId) where T : class {
+            var properties = new EventProperties() { CorrelationId = correlationId };
+            await InnerSendAsync(@event, properties).ConfigureAwait(false);
         }
 
-        public Task SendAsync<T>(T @event, string correlationId, string messageId) where T : class {
-            throw new NotImplementedException();
+        public async Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
+            await InnerSendAsync(@event, properties).ConfigureAwait(false);
         }
 
-        public Task SendAsync<T>(T @event, string eventType, string address, string correlationId) where T : class {
-            throw new NotImplementedException();
+        public async Task PublishAsync(string body, EventProperties properties) {
+            await InnerSendAsync(body, properties).ConfigureAwait(false);
         }
 
-        public async Task SendAsync(string eventType, string address, string data, string correlationId, string messageId) {
-            await InnerSendAsync(eventType, address, data, correlationId, messageId);
+        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
+            var properties = new EventProperties();
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
+        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
+            var properties = new EventProperties() { CorrelationId = correlationId };
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
+        }
+        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
+            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
+        public async Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
+            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
+        private async Task InnerSendAsync(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
+            var body = JsonConvert.SerializeObject(@event);
+            properties.EventType ??= @event.GetType().FullName;
+            properties.Topic ??= Settings.Topic;
+            properties.RoutingKey ??= @event.GetType().Name;
+
+            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
         }
 
-        public Task ScheduleMessageAsync<T>(T @event, string eventType, string address, string correlationId, DateTime scheduledEnqueueTimeUtc) where T : class {
-            throw new NotImplementedException();
-        }
+        private async Task InnerSendAsync(string body, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
+            Guard.Against(() => properties.EventType == null, () => new ArgumentException("EventType is a required argument"));
+            Guard.Against(() => properties.Topic == null, () => new ArgumentException("Topic is a required argument"));
+            Guard.Against(() => properties.RoutingKey == null, () => new ArgumentException("RoutingKey is a required argument"));
 
-        public Task ScheduleMessageAsync(string data, string eventType, string address, string correlationId, string messageId, DateTime scheduledEnqueueTimeUtc) {
-            throw new NotImplementedException();
-        }
+            var date = DateTime.UtcNow;
+            properties.MessageId ??= Guid.NewGuid().ToString();
 
-        private async Task InnerSendAsync(string eventType, string address, string data, string correlationId, string messageId) {
-            var messageIdentifier = messageId ?? Guid.NewGuid().ToString();
-
-            Logger.LogDebug($"Queueing message {messageId} with body: {data}");
+            Logger.LogDebug($"Queueing message {properties.MessageId} with body: {body}");
             await context.Set<Outbox>().AddAsync(new Outbox() {
-                MessageId = messageIdentifier,
-                CorrelationId = correlationId,
-                EventType = eventType,
-                Address = address,
-                Body = data,
-                CreatedDate = DateTime.UtcNow,
-                ScheduledDate = DateTime.UtcNow,
+                MessageId = properties.MessageId,
+                CorrelationId = properties.CorrelationId,
+                EventType = properties.EventType,
+                Topic = properties.Topic,
+                RoutingKey = properties.RoutingKey,
+                Body = body,
+                CreatedDate = date,
+                ScheduledDate = scheduledEnqueueTimeUtc ?? date,
                 Status = OutboxStatus.Queued
-            });
+            }).ConfigureAwait(false);
         }
     }
 }
