@@ -39,7 +39,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                         try {
                             List<Outbox> messages;
                             if (isRelational) {
-                                var sql = $";with cte as (select top ({config.Interval}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
+                                var sql = $";with cte as (select * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
                                 await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
                                 messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync().ConfigureAwait(false);
                             } else {
