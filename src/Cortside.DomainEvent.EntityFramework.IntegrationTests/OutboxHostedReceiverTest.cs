@@ -33,7 +33,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
             services.AddSingleton<IDomainEventPublisher>(publisher.Object);
             services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
-            services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5 });
+            services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5, BatchSize = 1000 });
 
             var serviceProvider = services.BuildServiceProvider();
 
