@@ -64,10 +64,14 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                             }
 
                             await db.SaveChangesAsync().ConfigureAwait(false);
-                            await (tx?.CommitAsync()).ConfigureAwait(false);
+                            if (isRelational && tx != null) {
+                                await tx.CommitAsync().ConfigureAwait(false);
+                            }
                         } catch (Exception ex) {
                             logger.LogError(ex, "Exception attempting to publish from outbox");
-                            await (tx?.RollbackAsync()).ConfigureAwait(false);
+                            if (isRelational && tx != null) {
+                                await tx.RollbackAsync().ConfigureAwait(false);
+                            }
                         }
                     }
                 }).ConfigureAwait(false);
