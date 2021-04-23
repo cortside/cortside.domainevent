@@ -30,7 +30,6 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
-                var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
                 var strategy = db.Database.CreateExecutionStrategy();
                 await strategy.ExecuteAsync(async () => {
@@ -56,6 +55,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                                     MessageId = message.MessageId
                                 };
 
+                                var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
                                 await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
                                 message.Status = OutboxStatus.Published;
                                 message.PublishedDate = DateTime.UtcNow;
