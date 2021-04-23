@@ -30,23 +30,23 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
-
+                var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
                 var strategy = db.Database.CreateExecutionStrategy();
                 await strategy.ExecuteAsync(async () => {
-                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync().ConfigureAwait(false) : null) {
+                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
                         try {
                             List<Outbox> messages;
                             if (isRelational) {
-                                var sql = $";with cte as (select top ({config.BatchSize}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
+                                var sql = $";with cte as (select top ({config.BatchSize}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK, ROWLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
                                 sql += $"; select * from outbox where LockId = '{correlationId}'";
                                 messages = await db.Set<Outbox>().FromSqlRaw(sql).ToListAsync().ConfigureAwait(false);
-                                //messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync().ConfigureAwait(false);
                             } else {
                                 messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
                             }
 
                             logger.LogInformation($"message count: {messages.Count}");
+
                             foreach (var message in messages) {
                                 var properties = new EventProperties() {
                                     EventType = message.EventType,
@@ -56,7 +56,6 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                                     MessageId = message.MessageId
                                 };
 
-                                var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
                                 await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
                                 message.Status = OutboxStatus.Published;
                                 message.PublishedDate = DateTime.UtcNow;
@@ -64,13 +63,13 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                             }
 
                             await db.SaveChangesAsync().ConfigureAwait(false);
-                            if (isRelational && tx != null) {
-                                await tx.CommitAsync().ConfigureAwait(false);
+                            if (isRelational) {
+                                await (tx?.CommitAsync()).ConfigureAwait(false);
                             }
                         } catch (Exception ex) {
                             logger.LogError(ex, "Exception attempting to publish from outbox");
-                            if (isRelational && tx != null) {
-                                await tx.RollbackAsync().ConfigureAwait(false);
+                            if (isRelational) {
+                                await (tx?.RollbackAsync()).ConfigureAwait(false);
                             }
                         }
                     }

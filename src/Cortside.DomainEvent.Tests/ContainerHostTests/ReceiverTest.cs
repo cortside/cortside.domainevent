@@ -63,7 +63,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
-                    var message = receiver.Receive(TimeSpan.FromSeconds(3));
+                    var message = receiver.Receive(TimeSpan.FromSeconds(5));
                     message.Reject();
                 }
             }
