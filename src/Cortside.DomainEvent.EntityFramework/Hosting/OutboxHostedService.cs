@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cortside.Common.Correlation;
@@ -40,8 +39,9 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                             List<Outbox> messages;
                             if (isRelational) {
                                 var sql = $";with cte as (select top ({config.BatchSize}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
-                                await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
-                                messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync().ConfigureAwait(false);
+                                sql += $"; select * from outbox where LockId = '{correlationId}'";
+                                messages = await db.Set<Outbox>().FromSqlRaw(sql).ToListAsync().ConfigureAwait(false);
+                                //messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync().ConfigureAwait(false);
                             } else {
                                 messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
                             }
