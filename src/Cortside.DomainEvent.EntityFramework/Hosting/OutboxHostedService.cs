@@ -33,12 +33,15 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
                 var strategy = db.Database.CreateExecutionStrategy();
                 await strategy.ExecuteAsync(async () => {
-                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable).ConfigureAwait(false) : null) {
+                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
                         try {
                             List<Outbox> messages;
                             if (isRelational) {
-                                var sql = $";with cte as (select top ({config.BatchSize}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK, ROWLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
-                                sql += $"; select * from outbox where LockId = '{correlationId}'";
+                                var sql = $@";with cte as (select top ({config.BatchSize}) * from Outbox
+                                                WITH (UPDLOCK)
+                                                where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate)
+                                            update cte set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'
+                                            ;select * from outbox where LockId = '{correlationId}'";
                                 messages = await db.Set<Outbox>().FromSqlRaw(sql).ToListAsync().ConfigureAwait(false);
                             } else {
                                 messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
