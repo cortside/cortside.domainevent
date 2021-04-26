@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Cortside.Common.Correlation;
@@ -33,7 +34,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
                 var strategy = db.Database.CreateExecutionStrategy();
                 await strategy.ExecuteAsync(async () => {
-                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
+                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
                         try {
                             List<Outbox> messages;
                             if (isRelational) {
