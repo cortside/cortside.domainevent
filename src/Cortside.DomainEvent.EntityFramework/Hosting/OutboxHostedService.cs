@@ -80,17 +80,17 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
                 if (config.PurgePublished) {
                     await strategy.ExecuteAsync(async () => {
-                        await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
-                            try {
+                        try {
+                            if (isRelational) {
+                                var query = $@"DELETE TOP {config.BatchSize} FROM Outbox
+                                                Where Status = '{OutboxStatus.Published}'";
+                                await db.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
+                            } else {
                                 db.RemoveRange(db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Published).Take(config.BatchSize));
-                                await db.SaveChangesAsync().ConfigureAwait(false);
-                                if (isRelational) {
-                                    await (tx?.CommitAsync()).ConfigureAwait(false);
-                                }
-                            } catch (Exception ex) {
-                                logger.LogError(ex, "Exception attempting to purge published from outbox");
-                                await (tx?.RollbackAsync()).ConfigureAwait(false);
                             }
+                            await db.SaveChangesAsync().ConfigureAwait(false);
+                        } catch (Exception ex) {
+                            logger.LogError(ex, "Exception attempting to purge published from outbox");
                         }
                     }).ConfigureAwait(false);
                 }
