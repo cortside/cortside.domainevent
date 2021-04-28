@@ -80,7 +80,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
                 if (config.PurgePublished) {
                     await strategy.ExecuteAsync(async () => {
-                        await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted).ConfigureAwait(false) : null) {
+                        await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
                             try {
                                 db.RemoveRange(db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Published).Take(config.BatchSize));
                                 await db.SaveChangesAsync().ConfigureAwait(false);
