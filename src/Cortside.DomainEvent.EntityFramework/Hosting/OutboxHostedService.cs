@@ -82,7 +82,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                     await strategy.ExecuteAsync(async () => {
                         try {
                             if (isRelational) {
-                                var query = $@"DELETE TOP {config.BatchSize} FROM Outbox
+                                var query = $@"DELETE TOP ({config.BatchSize}) FROM Outbox
                                                 Where Status = '{OutboxStatus.Published}'";
                                 await db.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
                             } else {
