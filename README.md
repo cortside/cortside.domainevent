@@ -88,9 +88,10 @@ What To Do:
 
 ```
 OutboxHostedService": {
-        "BatchSize":  1000,
+        "BatchSize":  10,
         "Enabled": true,
-        "Interval": 5
+        "Interval": 5,
+        "PurgePublished": true
       }
 ```
 

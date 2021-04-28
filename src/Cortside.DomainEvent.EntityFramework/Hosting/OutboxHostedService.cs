@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cortside.Common.Correlation;
@@ -72,12 +73,27 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                             }
                         } catch (Exception ex) {
                             logger.LogError(ex, "Exception attempting to publish from outbox");
-                            if (isRelational) {
-                                await (tx?.RollbackAsync()).ConfigureAwait(false);
-                            }
+                            await (tx?.RollbackAsync()).ConfigureAwait(false);
                         }
                     }
                 }).ConfigureAwait(false);
+
+                if (config.PurgePublished) {
+                    await strategy.ExecuteAsync(async () => {
+                        await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted).ConfigureAwait(false) : null) {
+                            try {
+                                db.RemoveRange(db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Published).Take(config.BatchSize));
+                                await db.SaveChangesAsync().ConfigureAwait(false);
+                                if (isRelational) {
+                                    await (tx?.CommitAsync()).ConfigureAwait(false);
+                                }
+                            } catch (Exception ex) {
+                                logger.LogError(ex, "Exception attempting to purge published from outbox");
+                                await (tx?.RollbackAsync()).ConfigureAwait(false);
+                            }
+                        }
+                    }).ConfigureAwait(false);
+                }
             }
         }
     }
