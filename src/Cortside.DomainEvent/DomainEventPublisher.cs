@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 namespace Cortside.DomainEvent {
     public class DomainEventPublisher : IDomainEventPublisher, IDisposable {
         private Connection conn;
+        private Session sharedSession;
 
         public event PublisherClosedCallback Closed;
 
@@ -18,6 +19,13 @@ namespace Cortside.DomainEvent {
             Settings = settings;
             Logger = logger;
         }
+
+        public DomainEventPublisher(DomainEventPublisherSettings settings, ILogger<DomainEventPublisher> logger, Session session) {
+            Settings = settings;
+            Logger = logger;
+            sharedSession = session;
+        }
+
 
         public DomainEventError Error { get; set; }
 
@@ -124,16 +132,27 @@ namespace Cortside.DomainEvent {
                 Logger.LogTrace($"Publishing message {message.Properties.MessageId} to {properties.Address} with body: {message.Body}");
 
                 var disconnectAfter = false;
-                if (conn == null) {
-                    Connect();
-                    disconnectAfter = true;
-                }
+                Attach attach;
+                Session session;
 
-                var session = new Session(conn);
-                var attach = new Attach() {
-                    Target = new Target() { Address = properties.Address, Durable = Settings.Durable },
-                    Source = new Source()
-                };
+                if (sharedSession == null) {
+                    if (conn == null) {
+                        Connect();
+                        disconnectAfter = true;
+                    }
+
+                    session = new Session(conn);
+                    attach = new Attach() {
+                        Target = new Target() { Address = properties.Address, Durable = Settings.Durable },
+                        Source = new Source()
+                    };
+                } else {
+                    session = sharedSession;
+                    attach = new Attach() {
+                        Target = new Target() { Address = properties.Address, Durable = Settings.Durable },
+                        Source = new Source()
+                    };
+                }
                 var sender = new SenderLink(session, Settings.AppName + Guid.NewGuid().ToString(), attach, null);
                 sender.Closed += OnClosed;
 
@@ -148,12 +167,13 @@ namespace Cortside.DomainEvent {
                         Closed?.Invoke(this, Error);
                     }
 
-                    if (disconnectAfter) {
+                    if (disconnectAfter && sharedSession != null) {
                         if (!sender.IsClosed) {
                             await sender.CloseAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                         }
                         await session.CloseAsync().ConfigureAwait(false);
                         await session.Connection.CloseAsync().ConfigureAwait(false);
+                        conn = null;
                     }
                 }
             }

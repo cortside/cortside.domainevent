@@ -175,7 +175,7 @@ namespace Cortside.DomainEvent {
                             var delay = 10 * deliveryCount;
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
-                            using (var ts = new TransactionScope()) {
+                            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                                 var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
                                 // create a new message to be queued with scheduled delivery time
                                 var retry = new Message(body) {
@@ -187,6 +187,7 @@ namespace Cortside.DomainEvent {
                                 retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                                 sender.Send(retry);
                                 receiver.Accept(message);
+                                tx.Complete();
                             }
                             Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
                             break;

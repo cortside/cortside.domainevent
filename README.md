@@ -72,9 +72,30 @@ What To Do:
 * register OutboxHostedService to publish messages from db to broker
 * if publishing an entity id in message, might need to add a using around the work with a transaction and call savechanges twice if the entity id is assigned by the db
 
+### sql to create table if not using migrations
+```` sql
+    CREATE TABLE [dbo].[Outbox] (
+        [MessageId] nvarchar(36) NOT NULL,
+        [CorrelationId] nvarchar(36) NULL,
+        [EventType] nvarchar(250) NOT NULL,
+        [Topic] nvarchar(100) NOT NULL,
+        [RoutingKey] nvarchar(100) NOT NULL,
+        [Body] nvarchar(max) NOT NULL,
+        [Status] nvarchar(10) NOT NULL,
+        [CreatedDate] datetime2 NOT NULL,
+        [ScheduledDate] datetime2 NOT NULL,
+        [PublishedDate] datetime2 NULL,
+        [LockId] nvarchar(36) NULL,
+        CONSTRAINT [PK_Outbox] PRIMARY KEY ([MessageId])
+    );
+
+   CREATE INDEX [IX_ScheduleDate_Status] ON [dbo].[Outbox] ([ScheduledDate], [Status]) INCLUDE ([EventType]);
+````
+
 ## migration from cortside.common.domainevent to cortside.domainevent
 * DomainEventPublisher change in publish method
   * SendAsync to PublishAsync
+    * overloads that took messageId should now use the overload with EventProperties
   * ScheduleMessageAsync to ScheduleAsync
   * overrides for both PublishAsync and ScheduleAsync use EventProperties for overrides that allowed for EventType or Topic 
 * namespaces all dropped common
@@ -82,7 +103,7 @@ What To Do:
 * namespace for handler interface changed to be in Handlers
 * namespace for ReceiverHostedService changed to be in Hosting
 * ReceiverHostedServiceSettings.Disabled changed to Enabled
-* ReceiverHostedServiceSettings.TimedInterval should not be specified in seconds, not milliseconds
+* ReceiverHostedServiceSettings.TimedInterval should be specified in seconds, not milliseconds
 * IDomainEventHandler HandleAsync now has return value of HandlerResultEnum
   * To keep current functionality, return HandlerResultEnum.Success and let uncaught exceptions trigger HandlerResultEnum.Failure result
 * Publisher uses Logger<DomainEventPublisher> instead of Logger<DomainEventComms>
@@ -92,6 +113,10 @@ What To Do:
 * ServiceBusReceiverSettings renamed to DomainEventReceiverSettings
   * changed Address to Queue
 * receiverHostedServiceSettings now has property for message type lookup dictionary named MessageTypes
+ 
+
+## Transactions
+* See E2ETransactionTest for use of transactions for accept/reject/release and publish operations
 
 ## examples
 * https://github.com/cortside/cortside.webapistarter
