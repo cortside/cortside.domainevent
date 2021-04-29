@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Amqp;
@@ -67,6 +68,17 @@ namespace Cortside.DomainEvent {
             };
             Link = new ReceiverLink(session, Settings.AppName, attach, null);
             Link.Closed += OnClosed;
+
+            // moved from Erik's test to help know that receiver link is up
+            int waits = 0;
+            do {
+                Thread.Sleep(1000);
+                if (Link.LinkState == LinkState.Attached) {
+                    break;
+                }
+                waits++;
+            }
+            while (waits < 15);  // TODO: needs configuration value
         }
 
         protected void OnClosed(IAmqpObject sender, Error error) {

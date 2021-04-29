@@ -14,7 +14,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         public async Task ShouldBeAbleToSendAndReceive() {
             if (enabled) {
                 var @event = new TestEvent {
-                    IntValue = r.Next(),
+                    IntValue = r.Next() + 1,
                     StringValue = Guid.NewGuid().ToString()
                 };
 
@@ -30,10 +30,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.DoesNotContain(mockLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
                 Assert.True(TestEvent.Instances.Any());
-                Assert.True(TestEvent.Instances.ContainsKey(correlationId));
-                Assert.NotNull(TestEvent.Instances[correlationId]);
-                Assert.Equal(@event.StringValue, TestEvent.Instances[correlationId].StringValue);
-                Assert.Equal(@event.IntValue, TestEvent.Instances[correlationId].IntValue);
+                Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
+                var received = TestEvent.Instances.Single(x => x.Value.CorrelationId == correlationId).Value;
+                Assert.Equal(@event.StringValue, received.Data.StringValue);
+                Assert.Equal(@event.IntValue, received.Data.IntValue);
             }
         }
 
@@ -57,11 +57,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.DoesNotContain(mockLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
                 Assert.True(elapsed.TotalSeconds >= 17, $"{elapsed.TotalSeconds} >= 17");
+
                 Assert.True(TestEvent.Instances.Any());
-                Assert.True(TestEvent.Instances.ContainsKey(correlationId));
-                Assert.NotNull(TestEvent.Instances[correlationId]);
-                Assert.Equal(@event.StringValue, TestEvent.Instances[correlationId].StringValue);
-                Assert.Equal(@event.IntValue, TestEvent.Instances[correlationId].IntValue);
+                Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
+                var received = TestEvent.Instances.Single(x => x.Value.CorrelationId == correlationId).Value;
+                Assert.Equal(@event.StringValue, received.Data.StringValue);
+                Assert.Equal(@event.IntValue, received.Data.IntValue);
             }
         }
 

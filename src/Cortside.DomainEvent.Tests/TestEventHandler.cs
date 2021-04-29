@@ -19,8 +19,9 @@ namespace Cortside.DomainEvent.Tests {
             };
 
             using (logger.BeginScope(properties)) {
-                TestEvent.Instances.Add(@event.MessageId, @event.Data);
+                TestEvent.Instances.Add(@event.MessageId, @event);
 
+                // intentionally cause exception
                 if (@event.Data.IntValue == int.MinValue) {
                     var x = 0;
                     _ = 1 / x;
