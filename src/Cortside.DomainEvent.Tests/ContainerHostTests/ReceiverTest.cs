@@ -62,9 +62,20 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             host.RegisterMessageSource(receiverSettings.Queue, source);
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
+                int waits = 0;
+                do {
+                    await Task.Delay(1000);
+                    if (receiver.Link.LinkState == LinkState.Attached) {
+                        break;
+                    }
+                    waits++;
+                }
+                while (waits < 20);
+
                 for (int i = 0; i < count; i++) {
-                    var message = receiver.Receive(TimeSpan.FromSeconds(1));
+                    var message = receiver.Receive(TimeSpan.FromSeconds(10));
                     message.Reject();
+                    await Task.Delay(1000);
                 }
             }
 
