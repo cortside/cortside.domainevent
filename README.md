@@ -3,17 +3,28 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=cortside_cortside.domainevent&metric=coverage)](https://sonarcloud.io/dashboard?id=cortside_cortside.domainevent)
 
 ## Cortside.DomainEvent
+
 Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 protocol).
+
 ### Azure ServiceBus
+
 #### General
+
 - Authorization keys cannot contain '/'. They must be regenerated if they do. AMQPNETLITE does not like that value.
-- I found inconsistent behavior if the topic and queue were created using the AzureSB UI.  I had success creating the topics, subscriptions, queues using ServiceBusExplorer (https://github.com/paolosalvatori/ServiceBusExplorer/releases)
+- I found inconsistent behavior if the topic and queue were created using the AzureSB UI. I had success creating the topics, subscriptions, queues using ServiceBusExplorer (https://github.com/paolosalvatori/ServiceBusExplorer/releases)
+
 #### Queues
+
 - Names of queues cannot be single worded. Should be multipart (eg. auth.queue).
+
 #### Topic
-- The forward to setting for the topic subscription is not visible in the azure UI.  You can use ServiceBusExplorer to set that field.
+
+- The forward to setting for the topic subscription is not visible in the azure UI. You can use ServiceBusExplorer to set that field.
+
 #### Example
+
 - for the following configuration settings for the test project with a TestEvent object
+
 ```
     "Publisher.Settings": {
         "Protocol": "amqps",
@@ -34,7 +45,9 @@ Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 
         "Durable": "0"
     }
 ```
-**__(for test default settings from Service Bus Explorer are fine unless specified below)__**
+
+**(for test default settings from Service Bus Explorer are fine unless specified below)**
+
 - Azure Service Bus Components:
   - a queue named queue.TestReceive
     - new authorization rule for queue
@@ -57,10 +70,10 @@ Classes for sending and listening to a message bus. Uses AMQPNETLITE (AMQP 1. 0 
   - a subscription to topic.TestEvent named subscription.TestEvent
     - The "Forward To" setting for this subscription needs to be set to queue.TestReceive
 
-
 ## Outbox Pattern using Cortside.DomainEvent.EntityFramework
 
 What To Do:
+
 - will probably want to set deduplication at the message broker since same messageId will be used
 - will need to generate ef migration after adding following to OnModelCreating method in dbcontext class:
   - modelBuilder.AddDomainEventOutbox();
@@ -103,11 +116,12 @@ OutboxHostedService": {
 ````
 
 ## migration from cortside.common.domainevent to cortside.domainevent
+
 - DomainEventPublisher change in publish method
   - SendAsync to PublishAsync
     - overloads that took messageId should now use the overload with EventProperties
   - ScheduleMessageAsync to ScheduleAsync
-  - overrides for both PublishAsync and ScheduleAsync use EventProperties for overrides that allowed for EventType or Topic 
+  - overrides for both PublishAsync and ScheduleAsync use EventProperties for overrides that allowed for EventType or Topic
 - namespaces all dropped common
   - make sure to check logging overrides for namespaces that might have changed
 - namespace for handler interface changed to be in Handlers
@@ -116,8 +130,8 @@ OutboxHostedService": {
 - ReceiverHostedServiceSettings.TimedInterval should be specified in seconds, not milliseconds
 - IDomainEventHandler HandleAsync now has return value of HandlerResultEnum
   - To keep current functionality, return HandlerResultEnum.Success and let uncaught exceptions trigger HandlerResultEnum.Failure result
-- Publisher uses Logger<DomainEventPublisher> instead of Logger<DomainEventComms>
-- Reciever uses Logger<DomainEventReceiver> instead of Logger<DomainEventComms> 
+- Publisher uses `Logger<DomainEventPublisher>` instead of `Logger<DomainEventComms>`
+- Reciever uses `Logger<DomainEventReceiver>` instead of `Logger<DomainEventComms>`
 - ServiceBusPublisherSettings renamed to DomainEventPublisherSettings
   - changed Address to Topic
 - ServiceBusReceiverSettings renamed to DomainEventReceiverSettings
@@ -129,9 +143,10 @@ OutboxHostedService": {
 - See E2ETransactionTest for use of transactions for accept/reject/release and publish operations
 
 ## examples
+
 - https://github.com/cortside/cortside.webapistarter
 
 ## todo:
+
 - publisher should return published message information -- at least messageId -- would make debugging easier
-- allow publisher to be used to publish multiple events withing a using statement without having to create new connection for each publish 
- 
+- allow publisher to be used to publish multiple events withing a using statement without having to create new connection for each publish
