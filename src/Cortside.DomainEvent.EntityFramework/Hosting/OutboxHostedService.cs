@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,22 +32,25 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
-
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
                 var strategy = db.Database.CreateExecutionStrategy();
                 await strategy.ExecuteAsync(async () => {
-                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync().ConfigureAwait(false) : null) {
+                    await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
                         try {
                             List<Outbox> messages;
                             if (isRelational) {
-                                var sql = $";with cte as (select top ({config.Interval}) * from Outbox where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate) update cte WITH (XLOCK) set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'";
-                                await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
-                                messages = await db.Set<Outbox>().Where(o => o.LockId == correlationId).ToListAsync().ConfigureAwait(false);
+                                var sql = $@";with cte as (select top ({config.BatchSize}) * from Outbox
+                                                WITH (UPDLOCK)
+                                                where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate)
+                                            update cte set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'
+                                            ;select * from outbox where LockId = '{correlationId}'";
+                                messages = await db.Set<Outbox>().FromSqlRaw(sql).ToListAsync().ConfigureAwait(false);
                             } else {
                                 messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
                             }
 
                             logger.LogInformation($"message count: {messages.Count}");
+
                             foreach (var message in messages) {
                                 var properties = new EventProperties() {
                                     EventType = message.EventType,
@@ -64,13 +68,32 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                             }
 
                             await db.SaveChangesAsync().ConfigureAwait(false);
-                            await (tx?.CommitAsync()).ConfigureAwait(false);
+                            if (isRelational) {
+                                await (tx?.CommitAsync()).ConfigureAwait(false);
+                            }
                         } catch (Exception ex) {
                             logger.LogError(ex, "Exception attempting to publish from outbox");
                             await (tx?.RollbackAsync()).ConfigureAwait(false);
                         }
                     }
                 }).ConfigureAwait(false);
+
+                if (config.PurgePublished) {
+                    await strategy.ExecuteAsync(async () => {
+                        try {
+                            if (isRelational) {
+                                var query = $@"DELETE TOP ({config.BatchSize}) FROM Outbox
+                                                Where Status = '{OutboxStatus.Published}'";
+                                await db.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
+                            } else {
+                                db.RemoveRange(db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Published).Take(config.BatchSize));
+                            }
+                            await db.SaveChangesAsync().ConfigureAwait(false);
+                        } catch (Exception ex) {
+                            logger.LogError(ex, "Exception attempting to purge published from outbox");
+                        }
+                    }).ConfigureAwait(false);
+                }
             }
         }
     }

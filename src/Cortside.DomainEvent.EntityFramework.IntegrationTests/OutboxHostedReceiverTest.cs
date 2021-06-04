@@ -33,7 +33,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
             services.AddSingleton<IDomainEventPublisher>(publisher.Object);
             services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
-            services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5 });
+            services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5, BatchSize = 1000, PurgePublished = false });
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -53,6 +53,43 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             source.Cancel();
             await service.StopAsync(source.Token).ConfigureAwait(false);
+        }
+
+        [Fact]
+        public async Task ShouldPurgePublishedMessages() {
+            IServiceCollection services = new ServiceCollection();
+            services.AddLogging();
+            services.AddHostedService<OutboxHostedService<EntityContext>>();
+
+            var options = new DbContextOptionsBuilder<EntityContext>()
+                .UseInMemoryDatabase($"OutboxHostedService-{Guid.NewGuid()}")
+                .Options;
+            var context = new EntityContext(options);
+            var outbox = new Outbox() { EventType = "foo", Topic = "bar", RoutingKey = "baz", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = Guid.NewGuid().ToString() };
+            context.Set<Outbox>().Add(outbox);
+            await context.SaveChangesAsync().ConfigureAwait(false);
+            services.AddSingleton(context);
+            var publisher = new Mock<IDomainEventPublisher>();
+
+            publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
+            services.AddSingleton<IDomainEventPublisher>(publisher.Object);
+            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
+            services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5, BatchSize = 1000, PurgePublished = true });
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var service = serviceProvider.GetService<IHostedService>() as OutboxHostedService<EntityContext>;
+
+            CancellationTokenSource source = new CancellationTokenSource();
+            await service.StartAsync(source.Token).ConfigureAwait(false);
+
+            await Task.Delay(1000).ConfigureAwait(false);
+
+            var messages = await context.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            Assert.Empty(messages);
+            publisher.VerifyAll();
+
+            source.Cancel();
         }
 
     }
