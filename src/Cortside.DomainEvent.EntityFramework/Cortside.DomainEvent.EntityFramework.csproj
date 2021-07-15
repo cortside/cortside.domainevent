@@ -14,8 +14,8 @@
     <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Cortside.Common.Correlation" Version="1.0.175" />
-    <PackageReference Include="Cortside.Common.Hosting" Version="1.0.175" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="1.0.181" />
+    <PackageReference Include="Cortside.Common.Hosting" Version="1.0.181" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.12" />
