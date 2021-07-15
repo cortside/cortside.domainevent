@@ -176,7 +176,7 @@ namespace Cortside.DomainEvent {
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
                             using (var ts = new TransactionScope()) {
-                                var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
+                                var sender = new SenderLink(Link.Session, Settings.AppName + "-" + Guid.NewGuid().ToString(), Settings.Queue);
                                 // create a new message to be queued with scheduled delivery time
                                 var retry = new Message(body) {
                                     Header = message.Header,
