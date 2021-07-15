@@ -10,7 +10,7 @@ using Xunit;
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
 namespace Cortside.DomainEvent.IntegrationTests {
-    //[CollectionDefinition("e2etests", DisableParallelization = true)]
+    [CollectionDefinition("e2etests", DisableParallelization = true)]
     public class E2EBase {
         protected readonly IServiceProvider serviceProvider;
         protected readonly Dictionary<string, Type> eventTypes;

@@ -187,6 +187,11 @@ namespace Cortside.DomainEvent {
                             var delay = 10 * deliveryCount;
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
+                            // make sure the link is still valid before attempting to send
+                            if (Link == null || Link.IsClosed) {
+                                InternalStart(EventTypeLookup);
+                            }
+
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                                 var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
                                 // create a new message to be queued with scheduled delivery time
@@ -226,7 +231,7 @@ namespace Cortside.DomainEvent {
             Link?.Close(timeout.Value);
             Link = null;
             Error = null;
-            EventTypeLookup = null;
+            //EventTypeLookup = null;
         }
 
         public void Dispose() {
