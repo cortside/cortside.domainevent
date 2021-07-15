@@ -205,6 +205,9 @@ namespace Cortside.DomainEvent {
                                 sender.Send(retry);
                                 receiver.Accept(message);
                                 tx.Complete();
+                                if (!sender.IsClosed) {
+                                    await sender.CloseAsync().ConfigureAwait(false);
+                                }
                             }
                             Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
                             break;
