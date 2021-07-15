@@ -7,7 +7,7 @@ using Amqp.Framing;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
+    //[CollectionDefinition("dbcontexttests", DisableParallelization = true)]
 
     public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "tx error")]

@@ -58,6 +58,7 @@ namespace Cortside.DomainEvent {
         public string MessageId => Message?.Properties?.MessageId;
         public string CorrelationId => Message?.Properties?.CorrelationId;
         public string MessageTypeName => Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+        public int DeliveryCount => Convert.ToInt32(Message?.Header?.DeliveryCount);
         public object Data { get; set; }
     }
 
