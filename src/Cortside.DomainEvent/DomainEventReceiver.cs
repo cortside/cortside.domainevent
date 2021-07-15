@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Amqp;
@@ -67,6 +68,17 @@ namespace Cortside.DomainEvent {
             };
             Link = new ReceiverLink(session, Settings.AppName, attach, null);
             Link.Closed += OnClosed;
+
+            // moved from Erik's test to help know that receiver link is up
+            int waits = 0;
+            do {
+                Thread.Sleep(1000);
+                if (Link.LinkState == LinkState.Attached) {
+                    break;
+                }
+                waits++;
+            }
+            while (waits < 15);  // TODO: needs configuration value
         }
 
         protected void OnClosed(IAmqpObject sender, Error error) {
@@ -175,7 +187,12 @@ namespace Cortside.DomainEvent {
                             var delay = 10 * deliveryCount;
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
-                            using (var ts = new TransactionScope()) {
+                            // make sure the link is still valid before attempting to send
+                            if (Link == null || Link.IsClosed) {
+                                InternalStart(EventTypeLookup);
+                            }
+
+                            using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                                 var sender = new SenderLink(Link.Session, Settings.AppName + "-" + Guid.NewGuid().ToString(), Settings.Queue);
                                 // create a new message to be queued with scheduled delivery time
                                 var retry = new Message(body) {
@@ -187,6 +204,7 @@ namespace Cortside.DomainEvent {
                                 retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                                 sender.Send(retry);
                                 receiver.Accept(message);
+                                tx.Complete();
                             }
                             Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
                             break;
@@ -213,7 +231,7 @@ namespace Cortside.DomainEvent {
             Link?.Close(timeout.Value);
             Link = null;
             Error = null;
-            EventTypeLookup = null;
+            //EventTypeLookup = null;
         }
 
         public void Dispose() {

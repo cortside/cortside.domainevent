@@ -95,10 +95,31 @@ OutboxHostedService": {
       }
 ```
 
+### sql to create table if not using migrations
+```` sql
+    CREATE TABLE [dbo].[Outbox] (
+        [MessageId] nvarchar(36) NOT NULL,
+        [CorrelationId] nvarchar(36) NULL,
+        [EventType] nvarchar(250) NOT NULL,
+        [Topic] nvarchar(100) NOT NULL,
+        [RoutingKey] nvarchar(100) NOT NULL,
+        [Body] nvarchar(max) NOT NULL,
+        [Status] nvarchar(10) NOT NULL,
+        [CreatedDate] datetime2 NOT NULL,
+        [ScheduledDate] datetime2 NOT NULL,
+        [PublishedDate] datetime2 NULL,
+        [LockId] nvarchar(36) NULL,
+        CONSTRAINT [PK_Outbox] PRIMARY KEY ([MessageId])
+    );
+
+   CREATE INDEX [IX_ScheduleDate_Status] ON [dbo].[Outbox] ([ScheduledDate], [Status]) INCLUDE ([EventType]);
+````
+
 ## migration from cortside.common.domainevent to cortside.domainevent
 
 - DomainEventPublisher change in publish method
   - SendAsync to PublishAsync
+    - overloads that took messageId should now use the overload with EventProperties
   - ScheduleMessageAsync to ScheduleAsync
   - overrides for both PublishAsync and ScheduleAsync use EventProperties for overrides that allowed for EventType or Topic
 - namespaces all dropped common
@@ -116,6 +137,10 @@ OutboxHostedService": {
 - ServiceBusReceiverSettings renamed to DomainEventReceiverSettings
   - changed Address to Queue
 - receiverHostedServiceSettings now has property for message type lookup dictionary named MessageTypes
+ 
+
+## Transactions
+- See E2ETransactionTest for use of transactions for accept/reject/release and publish operations
 
 ## examples
 

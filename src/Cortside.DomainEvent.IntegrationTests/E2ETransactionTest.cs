@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Cortside.DomainEvent.Tests;
@@ -26,7 +27,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 var logger = new MockLogger<DomainEventReceiver>();
                 using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
-                    message = receiver.Receive(TimeSpan.FromSeconds(1));
+                    message = receiver.Receive(TimeSpan.FromSeconds(5));
                     if (message != null) {
                         message.Accept();
                     }
@@ -44,7 +45,11 @@ namespace Cortside.DomainEvent.IntegrationTests {
             }
         }
 
-        [Fact]
+        /// <summary>
+        /// domainevent version of amqptransaction test TransactedRetiringAndPosting
+        /// </summary>
+        /// <returns></returns>
+        [Fact(Skip = "hangs")]
         public async Task ShouldUseTransactionScope() {
             var s = Guid.NewGuid().ToString();
             if (enabled) {
@@ -63,8 +68,17 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>());
                 receiver.Start(eventTypes);
 
+                Assert.NotNull(receiver.Link?.Session);
+
+                // create a new publisher that will share the same session
+                publisher = new DomainEventPublisher(publisherSettings, new NullLogger<DomainEventPublisher>(), receiver.Link.Session);
+
+                receiver.Link.SetCredit(2, false);
                 var message1 = receiver.Receive();
                 var message2 = receiver.Receive();
+
+                Console.Out.WriteLine($"message1: {message1.GetData<TestEvent>().IntValue}");
+                Console.Out.WriteLine($"message2: {message2.GetData<TestEvent>().IntValue}");
 
                 // ack message1 and send a new message in a txn
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
@@ -78,6 +92,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     ts.Complete();
                 }
 
+                Assert.Equal(nMsgs, ids.Count);
+
                 // ack message2 and send a new message in a txn but abort the txn
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                     message2.Accept();
@@ -86,9 +102,13 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 // release the message, since it shouldn't have been accepted above
                 message2.Release();
+                Thread.Sleep(TimeSpan.FromSeconds(2));
+
+                Assert.Equal(nMsgs, ids.Count);
 
                 // receive all messages. should see the effect of the first txn
-                for (int i = 1; i <= nMsgs; i++) {
+                receiver.Link.SetCredit(nMsgs, false);
+                for (int i = 0; i < nMsgs; i++) {
                     var message = receiver.Receive();
                     message.Accept();
 
@@ -102,6 +122,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 // shouldn't be any messages left
                 var empty = receiver.Receive(TimeSpan.FromSeconds(2));
+                if (empty != null) {
+                    empty.Accept();
+                    Assert.Equal(-1, empty.GetData<TestEvent>().IntValue);
+                }
                 Assert.Null(empty);
 
                 receiver.Close();
