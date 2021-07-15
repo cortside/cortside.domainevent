@@ -29,6 +29,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
             //IoC
             var collection = new ServiceCollection();
             collection.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
+            collection.AddLogging();
             serviceProvider = collection.BuildServiceProvider();
 
             eventTypes = new Dictionary<string, Type> {
@@ -44,7 +45,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
             var receiverSection = configRoot.GetSection("Receiver.Settings");
             receiverSettings = GetSettings<DomainEventReceiverSettings>(receiverSection);
-            receiverSettings.Queue = publisherSection["Address"];
+            receiverSettings.Queue = receiverSection["Address"];
             enabled = configRoot.GetValue<bool>("EnableE2ETests");
         }
 

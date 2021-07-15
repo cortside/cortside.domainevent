@@ -51,15 +51,18 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 int nMsgs = 10;
                 var ids = new List<int>();
 
-                for (int i = 0; i < nMsgs; i++) {
-                    var @event = new TestEvent() {
-                        IntValue = i,
-                        StringValue = s
-                    };
-                    ids.Add(i);
-                    await publisher.PublishAsync(@event).ConfigureAwait(false);
-                }
+                using (var pub = new DomainEventPublisher(publisherSettings, new NullLogger<DomainEventPublisher>())) {
+                    pub.Connect();
 
+                    for (int i = 0; i < nMsgs; i++) {
+                        var @event = new TestEvent() {
+                            IntValue = i,
+                            StringValue = s
+                        };
+                        ids.Add(i);
+                        await pub.PublishAsync(@event).ConfigureAwait(false);
+                    }
+                }
                 var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>());
                 receiver.Start(eventTypes);
 

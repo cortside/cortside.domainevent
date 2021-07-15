@@ -20,6 +20,7 @@ namespace Cortside.DomainEvent.Tests {
 
             using (logger.BeginScope(properties)) {
                 TestEvent.Instances.Add(@event.MessageId, @event.Data);
+                TestEvent.Instances.Add(@event.CorrelationId, @event.Data);
 
                 if (@event.Data.IntValue == int.MinValue) {
                     var x = 0;
@@ -27,11 +28,11 @@ namespace Cortside.DomainEvent.Tests {
                 }
 
                 if (@event.Data.IntValue > 0) {
-                    return await Task.FromResult(HandlerResult.Success).ConfigureAwait(false);
+                    return HandlerResult.Success;
                 } else if (@event.Data.IntValue == 0) {
-                    return await Task.FromResult(HandlerResult.Retry).ConfigureAwait(false);
+                    return HandlerResult.Retry;
                 } else {
-                    return await Task.FromResult(HandlerResult.Failed).ConfigureAwait(false);
+                    return HandlerResult.Failed;
                 }
             }
         }
