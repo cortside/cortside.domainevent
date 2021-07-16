@@ -21,6 +21,12 @@ namespace Cortside.DomainEvent.Tests {
             using (logger.BeginScope(properties)) {
                 TestEvent.Instances.Add(@event.MessageId, @event);
 
+                // intentionally cause exception, used to assert unhandled exception handling
+                if (@event.Data.IntValue == int.MinValue) {
+                    var x = 0;
+                    _ = 1 / x;
+                }
+
                 var result = HandlerResult.Failed;
                 if (@event.Data.IntValue > 0) {
                     result = HandlerResult.Success;
