@@ -186,14 +186,18 @@ namespace Cortside.DomainEvent {
                             var deliveryCount = message.Header.DeliveryCount;
                             var delay = 10 * deliveryCount;
                             var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
+                            Logger.LogDebug($"Message {message.Properties.MessageId} being scheduled with delay of {delay} seconds for {scheduleTime}");
 
                             // make sure the link is still valid before attempting to send
                             if (Link == null || Link.IsClosed) {
+                                Logger.LogDebug("Link was closed or null, restarting link");
                                 InternalStart(EventTypeLookup);
                             }
 
                             using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                                var sender = new SenderLink(Link.Session, Settings.AppName + "-" + Guid.NewGuid().ToString(), Settings.Queue);
+                                var linkName = Settings.AppName + "-" + Guid.NewGuid().ToString();
+                                var sender = new SenderLink(Link.Session, linkName, Settings.Queue);
+                                Logger.LogDebug($"Sender {linkName} created");
                                 // create a new message to be queued with scheduled delivery time
                                 var retry = new Message(body) {
                                     Header = message.Header,
@@ -203,19 +207,24 @@ namespace Cortside.DomainEvent {
                                 };
                                 retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                                 sender.Send(retry);
+                                Logger.LogDebug($"Retry message {message.Properties.MessageId} scheduled");
                                 receiver.Accept(message);
+                                Logger.LogDebug($"Message {message.Properties.MessageId} accepted");
                                 tx.Complete();
                                 if (!sender.IsClosed) {
                                     await sender.CloseAsync().ConfigureAwait(false);
+                                    Logger.LogDebug("Sender closed");
                                 }
                             }
                             Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
                             break;
                         case HandlerResult.Failed:
                             receiver.Reject(message);
+                            Logger.LogInformation($"Message {message.Properties.MessageId} rejected");
                             break;
                         case HandlerResult.Release:
                             receiver.Release(message);
+                            Logger.LogInformation($"Message {message.Properties.MessageId} released");
                             break;
                         default:
                             throw new NotImplementedException($"Unknown HandlerResult value of {result}");
