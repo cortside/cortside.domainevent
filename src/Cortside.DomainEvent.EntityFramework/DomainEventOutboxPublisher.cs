@@ -61,7 +61,13 @@ namespace Cortside.DomainEvent.EntityFramework {
         }
 
         private async Task InnerSendAsync(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
-            var body = JsonConvert.SerializeObject(@event);
+            string body;
+            if (Settings.SerializerSettings != null) {
+                body = JsonConvert.SerializeObject(@event, Settings.SerializerSettings);
+            } else {
+                body = JsonConvert.SerializeObject(@event);
+            }
+
             properties.EventType ??= @event.GetType().FullName;
             properties.Topic ??= Settings.Topic;
             properties.RoutingKey ??= @event.GetType().Name;
