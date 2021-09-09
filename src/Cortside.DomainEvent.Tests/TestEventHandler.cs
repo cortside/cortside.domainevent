@@ -29,14 +29,27 @@ namespace Cortside.DomainEvent.Tests {
 
                 var result = HandlerResult.Failed;
                 if (@event.Data.IntValue > 0) {
+                    Increment(TestEvent.Success, @event.MessageId);
                     result = HandlerResult.Success;
-                } else if (@event.Data.IntValue == 0 && @event.DeliveryCount > 1) {
+                } else if (@event.Data.IntValue == 0 && @event.DeliveryCount > 3) {
+                    Increment(TestEvent.Success, @event.MessageId);
                     result = HandlerResult.Success;
                 } else if (@event.Data.IntValue == 0) {
+                    Increment(TestEvent.Retry, @event.MessageId);
                     result = HandlerResult.Retry;
+                } else {
+                    Increment(TestEvent.Fail, @event.MessageId);
                 }
 
                 return result;
+            }
+        }
+
+        private static void Increment(Dictionary<string, int> d, string messageId) {
+            if (d.ContainsKey(messageId)) {
+                d[messageId]++;
+            } else {
+                d.Add(messageId, 1);
             }
         }
     }

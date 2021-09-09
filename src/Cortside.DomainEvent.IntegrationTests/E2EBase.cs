@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
@@ -72,5 +74,52 @@ namespace Cortside.DomainEvent.IntegrationTests {
             };
             return @event;
         }
+
+        protected TimeSpan ReceiveAndWait(string correlationId, int wait = 30) {
+            var tokenSource = new CancellationTokenSource();
+            var start = DateTime.Now;
+
+            using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>())) {
+                receiver.Closed += (r, e) => tokenSource.Cancel();
+                receiver.StartAndListen(eventTypes);
+
+                while (!TestEvent.Instances.ContainsKey(correlationId) && (DateTime.Now - start) < new TimeSpan(0, 0, wait)) {
+                    if (tokenSource.Token.IsCancellationRequested) {
+                        if (receiver.Error != null) {
+                            Assert.Equal(string.Empty, receiver.Error.Description);
+                            Assert.Equal(string.Empty, receiver.Error.Condition);
+                        }
+                        Assert.True(receiver.Error == null);
+                    }
+                    Thread.Sleep(1000);
+                } // run for 30 seconds
+            }
+
+            return DateTime.Now.Subtract(start);
+        }
+
+        protected TimeSpan ReceiveSuccessAndWait(string messageId, int wait = 30) {
+            var tokenSource = new CancellationTokenSource();
+            var start = DateTime.Now;
+
+            using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>())) {
+                receiver.Closed += (r, e) => tokenSource.Cancel();
+                receiver.StartAndListen(eventTypes);
+
+                while (!TestEvent.Success.ContainsKey(messageId) && !TestEvent.Fail.ContainsKey(messageId) && (DateTime.Now - start) < new TimeSpan(0, 0, wait)) {
+                    if (tokenSource.Token.IsCancellationRequested) {
+                        if (receiver.Error != null) {
+                            Assert.Equal(string.Empty, receiver.Error.Description);
+                            Assert.Equal(string.Empty, receiver.Error.Condition);
+                        }
+                        Assert.True(receiver.Error == null);
+                    }
+                    Thread.Sleep(1000);
+                } // run for 30 seconds
+            }
+
+            return DateTime.Now.Subtract(start);
+        }
+
     }
 }

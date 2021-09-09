@@ -50,7 +50,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             settings.Topic = topic;
             settings.SerializerSettings = new JsonSerializerSettings() {
                 Converters = new List<JsonConverter> {
-                    new StringEnumConverter(new CamelCaseNamingStrategy())
+                    new StringEnumConverter(new SnakeCaseNamingStrategy())
                 }
             };
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
