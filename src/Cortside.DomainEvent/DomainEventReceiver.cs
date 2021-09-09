@@ -124,7 +124,7 @@ namespace Cortside.DomainEvent {
 
                 try {
                     string body = DomainEventMessage.GetBody(message);
-                    Logger.LogTrace($"Received message {message.Properties.MessageId} with body: {body}");
+                    Logger.LogTrace("Received message {MessageId} with body: {MessageBody}", message.Properties.MessageId, body);
 
                     Logger.LogDebug($"Event type key: {messageTypeName}");
                     if (!EventTypeLookup.ContainsKey(messageTypeName)) {

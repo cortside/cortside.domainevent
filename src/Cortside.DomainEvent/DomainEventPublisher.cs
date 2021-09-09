@@ -121,7 +121,7 @@ namespace Cortside.DomainEvent {
                 ["MessageId"] = message.Properties.MessageId,
                 ["MessageType"] = message.Properties.GroupId
             })) {
-                Logger.LogTrace($"Publishing message {message.Properties.MessageId} to {properties.Address} with body: {message.Body}");
+                Logger.LogTrace("Publishing message {MessageId} to {Address} with body: {MessageBody}", message.Properties.MessageId, properties.Address, message.Body);
 
                 var disconnectAfter = false;
                 if (conn == null) {

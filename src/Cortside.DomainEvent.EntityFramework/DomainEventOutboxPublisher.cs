@@ -77,7 +77,7 @@ namespace Cortside.DomainEvent.EntityFramework {
             var date = DateTime.UtcNow;
             properties.MessageId ??= Guid.NewGuid().ToString();
 
-            Logger.LogDebug($"Queueing message {properties.MessageId} with body: {body}");
+            Logger.LogDebug("Queueing message {MessageId} with body: {MessageBody}", properties.MessageId, body);
             await context.Set<Outbox>().AddAsync(new Outbox() {
                 MessageId = properties.MessageId,
                 CorrelationId = properties.CorrelationId,
