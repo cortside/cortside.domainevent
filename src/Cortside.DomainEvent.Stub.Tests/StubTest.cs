@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.Stub.Tests {
-    public class UnitTest1 {
+    public class StubTest {
         [Fact]
         public async Task ShouldPublishAndHandleMessage() {
             var services = new ServiceCollection();
@@ -29,7 +29,7 @@ namespace Cortside.DomainEvent.Stub.Tests {
             receiver.StartAndListen(eventTypeLookup);
             await publisher.PublishAsync<TestEvent>(new TestEvent() { IntValue = 1 });
 
-            await Task.Delay(12000);
+            await Task.Delay(2000);
             Assert.False(broker.HasItems);
             Assert.False(broker.HasDeadLetterItems);
         }

@@ -43,7 +43,7 @@ namespace Cortside.DomainEvent.Stub {
                     var message = receiver.Peek();
                     AsyncUtil.RunSync(() => OnMessageCallback(message));
                 }
-                Thread.Sleep(5000);
+                Thread.Sleep(500);
             } while (true);
         }
 
