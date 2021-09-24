@@ -44,6 +44,7 @@ build_script:
 - dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.domainevent" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 - dotnet build src/Cortside.DomainEvent.sln --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
 - dotnet test src/Cortside.DomainEvent.Tests/Cortside.DomainEvent.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+- dotnet test src/Cortside.DomainEvent.Stub.Tests/Cortside.DomainEvent.Stub.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 - dotnet test src/Cortside.DomainEvent.EntityFramework.IntegrationTests/Cortside.DomainEvent.EntityFramework.IntegrationTests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 - dotnet test src/Cortside.DomainEvent.IntegrationTests/Cortside.DomainEvent.IntegrationTests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 - dotnet sonarscanner end /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"

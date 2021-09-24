@@ -3,6 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageId>Cortside.DomainEvent.Stub</PackageId>
+    <Company>Cortside Consulting</Company>
+    <Description>Library for stubbing publisher and receiver for integration testing</Description>
+    <Copyright>Copyright (c) 2017 Cortside Consulting and Contributors</Copyright>
+    <Summary>Library for stubbing publisher and receiver for integration testing</Summary>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/cortside/cortside.domainevent.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Cortside.Common.Threading" Version="1.0.185-develop" />

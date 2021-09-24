@@ -13,11 +13,11 @@ namespace Cortside.DomainEvent.Stub {
 
         private readonly IServiceProvider provider;
         private readonly DomainEventReceiverSettings settings;
-        private readonly ILogger<DomainEventReceiver> logger;
+        private readonly ILogger<DomainEventReceiverStub> logger;
         private readonly QueueBroker receiver;
         private IDictionary<string, Type> eventTypeLookup;
 
-        public DomainEventReceiverStub(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger, QueueBroker queue) {
+        public DomainEventReceiverStub(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiverStub> logger, QueueBroker queue) {
             this.provider = provider;
             this.settings = settings;
             this.logger = logger;
@@ -33,6 +33,11 @@ namespace Cortside.DomainEvent.Stub {
         public void StartAndListen(IDictionary<string, Type> eventTypeLookup) {
             InternalStart(eventTypeLookup);
 
+            var thread = new Thread(Listen);
+            thread.Start();
+        }
+
+        private void Listen() {
             do {
                 while (receiver.HasItems) {
                     var message = receiver.Peek();
