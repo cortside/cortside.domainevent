@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cortside.DomainEvent.EntityFramework {
+    [Table("Outbox", Schema = "dbo")]
     public class Outbox {
         [Required]
         [StringLength(36)]
