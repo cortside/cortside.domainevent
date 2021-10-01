@@ -264,7 +264,6 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal(scheduleDate, messages[0].ScheduledDate);
         }
 
-
         [Fact]
         public async Task ShouldPublishEventWithSerializerSettings() {
             // arrange

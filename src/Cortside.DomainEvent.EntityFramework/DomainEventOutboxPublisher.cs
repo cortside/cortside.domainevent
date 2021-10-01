@@ -67,7 +67,6 @@ namespace Cortside.DomainEvent.EntityFramework {
             } else {
                 body = JsonConvert.SerializeObject(@event);
             }
-
             properties.EventType ??= @event.GetType().FullName;
             properties.Topic ??= Settings.Topic;
             properties.RoutingKey ??= @event.GetType().Name;
