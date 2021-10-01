@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Database;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Events;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
@@ -260,5 +264,36 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal(scheduleDate, messages[0].ScheduledDate);
         }
 
+        [Fact]
+        public async Task ShouldPublishEventWithSerializerSettings() {
+            // arrange
+            var settings = provider.GetService<DomainEventPublisherSettings>();
+            settings.SerializerSettings = new JsonSerializerSettings() {
+                Converters = new List<JsonConverter> {
+                    new StringEnumConverter(new SnakeCaseNamingStrategy())
+                }
+            };
+
+            var db = provider.GetService<EntityContext>();
+            var publisher = new DomainEventOutboxPublisher<EntityContext>(settings, db, new NullLogger<DomainEventOutboxPublisher<EntityContext>>());
+
+            var correlationId = Guid.NewGuid().ToString();
+            var messageId = Guid.NewGuid().ToString();
+
+            // act
+            var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow, Status = WidgetStatus.CreatedWidget };
+            await publisher.PublishAsync(@event, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
+            await db.SaveChangesAsync().ConfigureAwait(false);
+
+            // assert
+            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            Assert.Single(messages);
+            Assert.Equal(correlationId, messages[0].CorrelationId);
+            Assert.Equal(messageId, messages[0].MessageId);
+            Assert.Equal("foo", messages[0].EventType);
+            Assert.Equal("bar", messages[0].Topic);
+            Assert.Equal("baz", messages[0].RoutingKey);
+            Assert.Contains("created_widget", messages[0].Body);
+        }
     }
 }
