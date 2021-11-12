@@ -8,20 +8,20 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.4.1" />
-    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.1" />
-    <PackageReference Include="coverlet.collector" Version="3.0.3">
+    <PackageReference Include="AMQPNetLite.Core" Version="2.4.3" />
+    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.3" />
+    <PackageReference Include="coverlet.collector" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.msbuild" Version="3.0.3">
+    <PackageReference Include="coverlet.msbuild" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.12" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.12" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+    <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.21" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.21" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="Xunit.Extensions.Ordering" Version="1.4.5" />
