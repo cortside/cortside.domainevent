@@ -35,14 +35,14 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
 
-                var messageCount = 1;
+                var messageCount = 0;
                 if (isRelational) {
                     const string sql = "select count(*) from Outbox with (nolock) where ScheduledDate<GETUTCDATE()";
                     messageCount = await db.ExecuteScalarAsync<int>(sql).ConfigureAwait(false);
                 }
 
                 var strategy = db.Database.CreateExecutionStrategy();
-                if (messageCount > 0) {
+                if (!isRelational || messageCount > 0) {
                     await strategy.ExecuteAsync(async () => {
                         await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
                             try {
