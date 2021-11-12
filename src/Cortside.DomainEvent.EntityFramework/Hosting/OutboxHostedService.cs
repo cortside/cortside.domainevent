@@ -9,7 +9,6 @@ using Cortside.Common.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Cortside.DomainEvent.EntityFramework;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
@@ -36,8 +35,11 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
 
-                var sql = "select count(*) from Outbox with (nolock) where ScheduledDate<GETUTCDATE()";
-                var messageCount = await db.ExecuteScalarAsync<int>(sql).ConfigureAwait(false);
+                var messageCount = 1;
+                if (isRelational) {
+                    const string sql = "select count(*) from Outbox with (nolock) where ScheduledDate<GETUTCDATE()";
+                    messageCount = await db.ExecuteScalarAsync<int>(sql).ConfigureAwait(false);
+                }
 
                 var strategy = db.Database.CreateExecutionStrategy();
                 if (messageCount > 0) {

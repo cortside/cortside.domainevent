@@ -18,8 +18,8 @@ namespace Cortside.DomainEvent.EntityFramework {
                         command.Parameters.Add(p);
                     }
                 }
-                await conn.OpenAsync();
-                return (T)await command.ExecuteScalarAsync();
+                await conn.OpenAsync().ConfigureAwait(false);
+                return (T)await command.ExecuteScalarAsync().ConfigureAwait(false);
             }
         }
     }
