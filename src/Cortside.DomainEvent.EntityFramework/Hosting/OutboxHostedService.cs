@@ -39,6 +39,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 if (isRelational) {
                     const string sql = "select count(*) from Outbox with (nolock) where ScheduledDate<GETUTCDATE()";
                     messageCount = await db.ExecuteScalarAsync<int>(sql).ConfigureAwait(false);
+                    logger.LogInformation($"messages to publish: {messageCount}");
                 }
 
                 var strategy = db.Database.CreateExecutionStrategy();
@@ -58,7 +59,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                                     messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
                                 }
 
-                                logger.LogInformation($"message count: {messages.Count}");
+                                logger.LogInformation($"messages claimed: {messages.Count}");
 
                                 foreach (var message in messages) {
                                     var properties = new EventProperties() {
