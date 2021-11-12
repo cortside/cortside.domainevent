@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Database;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Events;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,6 +14,7 @@ using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
+
     public class OutboxPublisherTest {
         private readonly IServiceProvider provider;
 
@@ -171,7 +173,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             // assert
             var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
             Assert.Single(messages);
-            messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate);
+            messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
 
         [Fact]
@@ -191,7 +193,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
-            messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate);
+            messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
 
         [Fact]
