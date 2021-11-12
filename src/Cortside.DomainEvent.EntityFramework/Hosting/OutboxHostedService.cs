@@ -9,8 +9,10 @@ using Cortside.Common.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Cortside.DomainEvent.EntityFramework;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
+
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
         private readonly IServiceProvider serviceProvider;
         private readonly OutboxHostedServiceConfiguration config;
@@ -20,9 +22,9 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
             this.config = config;
         }
 
-        public override async Task StartAsync(CancellationToken cancellationToken) {
+        public override Task StartAsync(CancellationToken cancellationToken) {
             logger.LogInformation("OutboxHostedService StartAsync() entered.");
-            await base.StartAsync(cancellationToken).ConfigureAwait(false);
+            return base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteIntervalAsync() {
@@ -33,9 +35,11 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
-                var strategy = db.Database.CreateExecutionStrategy();
+
                 var sql = "select count(*) from Outbox with (nolock) where ScheduledDate<GETUTCDATE()";
-                var messageCount = db.Database.ExecuteSqlRaw(sql);
+                var messageCount = await db.ExecuteScalarAsync<int>(sql).ConfigureAwait(false);
+
+                var strategy = db.Database.CreateExecutionStrategy();
                 if (messageCount > 0) {
                     await strategy.ExecuteAsync(async () => {
                         await using (var tx = isRelational ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false) : null) {
@@ -102,4 +106,3 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         }
     }
 }
-
