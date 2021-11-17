@@ -4,11 +4,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Cortside.Common.Correlation;
-using Cortside.Common.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
@@ -50,10 +45,11 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                                 List<Outbox> messages;
                                 if (isRelational) {
                                     var sql = $@";with cte as (select top ({config.BatchSize}) * from Outbox
-                                                WITH (UPDLOCK)
+                                                WITH (UPDLOCK, ROWLOCK, READPAST)
                                                 where LockId is null and Status='{OutboxStatus.Queued}' and ScheduledDate<GETUTCDATE() order by ScheduledDate)
                                             update cte set LockId = '{correlationId}', Status='{OutboxStatus.Publishing}'
                                             ;select * from outbox where LockId = '{correlationId}'";
+
                                     messages = await db.Set<Outbox>().FromSqlRaw(sql).ToListAsync().ConfigureAwait(false);
                                 } else {
                                     messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
