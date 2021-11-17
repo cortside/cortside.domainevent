@@ -4,6 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cortside.Common.Correlation;
+using Cortside.Common.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
 
