@@ -3,16 +3,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Cortside.DomainEvent.EntityFramework {
+
     public static class ModelBuilderExtensions {
+
         public static void AddDomainEventOutbox(this ModelBuilder builder) {
             builder.ApplyConfiguration(new OutboxMessageEntityConfiguration());
         }
     }
 
     internal class OutboxMessageEntityConfiguration : IEntityTypeConfiguration<Outbox> {
+
         public void Configure(EntityTypeBuilder<Outbox> builder) {
             builder.ToTable("Outbox");
-            builder.HasKey(t => t.MessageId);
+            builder.HasKey(t => t.OutboxId);
+
+            builder.HasIndex(t => t.MessageId)
+                .IsUnique(true);
 
             builder.Property(t => t.MessageId)
                 .HasMaxLength(36)
