@@ -38,7 +38,7 @@ select @rows = count(*) from Outbox with (nolock) where (LockId is null and Stat
 if (@rows > 0)
   BEGIN
 	UPDATE Q
-	SET LockId = {lockId}, Status='Publishing', LastModifiedDate=GETUTCDATE()
+	SET LockId = '{lockId}', Status='Publishing', LastModifiedDate=GETUTCDATE()
 	FROM (
 			select top ({config.BatchSize}) * from Outbox
 			WITH (ROWLOCK, READPAST)
