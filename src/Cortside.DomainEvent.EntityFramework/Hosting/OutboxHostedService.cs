@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
-
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
         private readonly IServiceProvider serviceProvider;
         private readonly OutboxHostedServiceConfiguration config;
@@ -55,7 +54,7 @@ if (@rows > 0)
 
                 var messageCount = 0;
                 if (isRelational) {
-                    messageCount = await db.Database.ExecuteSqlRawAsync(sql);
+                    messageCount = await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
                 } else {
                     var messages = db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow).Take(config.BatchSize);
                     foreach (var message in messages) {

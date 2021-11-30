@@ -9,9 +9,10 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
+
     public class DomainEventPublisher : IDomainEventPublisher, IDisposable {
         private Connection conn;
-        private Session sharedSession;
+        private readonly Session sharedSession;
 
         public event PublisherClosedCallback Closed;
 
@@ -26,55 +27,54 @@ namespace Cortside.DomainEvent {
             sharedSession = session;
         }
 
-
         public DomainEventError Error { get; set; }
 
         protected DomainEventPublisherSettings Settings { get; }
 
         protected ILogger<DomainEventPublisher> Logger { get; }
 
-        public async Task PublishAsync<T>(T @event) where T : class {
+        public Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();
             var message = CreateMessage(@event, properties);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
-        public async Task PublishAsync<T>(T @event, string correlationId) where T : class {
+        public Task PublishAsync<T>(T @event, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
             var message = CreateMessage(@event, properties);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
-        public async Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
+        public Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
             var message = CreateMessage(@event, properties);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
-        public async Task PublishAsync(string body, EventProperties properties) {
+        public Task PublishAsync(string body, EventProperties properties) {
             var message = CreateMessage(body, properties);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
-        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
+        public Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
             var properties = new EventProperties();
             var message = CreateMessage(@event, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
-        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
+        public Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
             var message = CreateMessage(@event, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
-        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
+        public Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
             var message = CreateMessage(@event, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
-        public async Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
+        public Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
             var message = CreateMessage(body, properties, scheduledEnqueueTimeUtc);
-            await InnerSendAsync(message, properties).ConfigureAwait(false);
+            return InnerSendAsync(message, properties);
         }
 
         private Message CreateMessage(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
@@ -161,9 +161,10 @@ namespace Cortside.DomainEvent {
                     Logger.LogInformation($"Published message {message.Properties.MessageId}");
                 } finally {
                     if (sender.Error != null) {
-                        Error = new DomainEventError();
-                        Error.Condition = sender.Error.Condition.ToString();
-                        Error.Description = sender.Error.Description;
+                        Error = new DomainEventError {
+                            Condition = sender.Error.Condition.ToString(),
+                            Description = sender.Error.Description
+                        };
                         Closed?.Invoke(this, Error);
                     }
 
@@ -181,9 +182,10 @@ namespace Cortside.DomainEvent {
 
         private void OnClosed(IAmqpObject sender, Error error) {
             if (sender.Error != null) {
-                Error = new DomainEventError();
-                Error.Condition = sender.Error.Condition.ToString();
-                Error.Description = sender.Error.Description;
+                Error = new DomainEventError {
+                    Condition = sender.Error.Condition.ToString(),
+                    Description = sender.Error.Description
+                };
             }
             Closed?.Invoke(this, Error);
         }

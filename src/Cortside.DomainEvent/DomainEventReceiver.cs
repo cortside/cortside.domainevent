@@ -75,19 +75,20 @@ namespace Cortside.DomainEvent {
 
         protected void OnClosed(IAmqpObject sender, Error error) {
             if (sender.Error != null) {
-                Error = new DomainEventError();
-                Error.Condition = sender.Error.Condition.ToString();
-                Error.Description = sender.Error.Description;
+                Error = new DomainEventError {
+                    Condition = sender.Error.Condition.ToString(),
+                    Description = sender.Error.Description
+                };
             }
             Closed?.Invoke(this, Error);
         }
 
-        public EventMessage Receive() {
-            return Receive(TimeSpan.FromSeconds(60));
+        public Task<EventMessage> ReceiveAsync() {
+            return ReceiveAsync(TimeSpan.FromSeconds(60));
         }
 
-        public EventMessage Receive(TimeSpan timeout) {
-            Message message = Link.Receive(timeout);
+        public async Task<EventMessage> ReceiveAsync(TimeSpan timeout) {
+            Message message = await Link.ReceiveAsync(timeout).ConfigureAwait(false);
             if (message == null) {
                 return null;
             }
@@ -217,7 +218,7 @@ namespace Cortside.DomainEvent {
                                 break;
 
                             default:
-                                throw new NotImplementedException($"Unknown HandlerResult value of {result}");
+                                throw new ArgumentOutOfRangeException($"Unknown HandlerResult value of {result}");
                         }
                     }
                 } catch (Exception ex) {

@@ -14,7 +14,6 @@ using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
-
     public class OutboxPublisherTest {
         private readonly IServiceProvider provider;
 

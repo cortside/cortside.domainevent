@@ -13,9 +13,7 @@ using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-
     public partial class ContainerHostTest : BaseHostTest {
-
         [Fact]
         public async Task ShouldPublishEvent1() {
             // arrange

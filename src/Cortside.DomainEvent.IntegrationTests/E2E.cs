@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
+
     public class E2E : E2EBase {
 
         [Fact]
@@ -101,7 +102,6 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.Equal(@event.IntValue, received.Data.IntValue);
             }
         }
-
 
         private TimeSpan ReceiveAndWait(string correlationId) {
             var tokenSource = new CancellationTokenSource();

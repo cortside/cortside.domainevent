@@ -2,7 +2,6 @@ using Xunit;
 
 namespace Cortside.DomainEvent.Tests {
     public class DomainEventMessageTest {
-
         [Fact]
         public void ShouldBeAbleToAssignData() {
             // act

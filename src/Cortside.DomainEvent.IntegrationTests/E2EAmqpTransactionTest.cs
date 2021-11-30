@@ -8,6 +8,7 @@ using Amqp.Framing;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
+
     public class E2EAmqpTransactionTest : E2EBase {
         private readonly Amqp.Address address;
         private string path;
@@ -20,9 +21,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
         [Fact]
         public void TransactedPosting() {
             if (enabled) {
-                string testName = "TransactedPosting";
+                const string testName = "TransactedPosting";
                 path = "test." + testName;
-                int nMsgs = 5;
+                const int nMsgs = 5;
 
                 Connection connection = new Connection(address);
                 Session session = new Session(connection);
@@ -31,8 +32,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 // commit
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                     for (int i = 0; i < nMsgs; i++) {
-                        Message message = new Message("test");
-                        message.Properties = new Properties() { MessageId = "commit" + i, GroupId = testName };
+                        Message message = new Message("test") {
+                            Properties = new Properties() { MessageId = "commit" + i, GroupId = testName }
+                        };
                         sender.Send(message);
                     }
 
@@ -42,8 +44,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 // rollback
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                     for (int i = nMsgs; i < nMsgs * 2; i++) {
-                        Message message = new Message("test");
-                        message.Properties = new Properties() { MessageId = "rollback" + i, GroupId = testName };
+                        Message message = new Message("test") {
+                            Properties = new Properties() { MessageId = "rollback" + i, GroupId = testName }
+                        };
                         sender.Send(message);
                     }
                 }
@@ -51,8 +54,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 // commit
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                     for (int i = 0; i < nMsgs; i++) {
-                        Message message = new Message("test");
-                        message.Properties = new Properties() { MessageId = "commit" + i, GroupId = testName };
+                        Message message = new Message("test") {
+                            Properties = new Properties() { MessageId = "commit" + i, GroupId = testName }
+                        };
                         sender.Send(message);
                     }
 
@@ -81,9 +85,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
         [Fact]
         public void TransactedRetiring() {
             if (enabled) {
-                string testName = "TransactedRetiring";
+                const string testName = "TransactedRetiring";
                 path = "test." + testName;
-                int nMsgs = 10;
+                const int nMsgs = 10;
                 var ids = new List<string>();
 
                 Connection connection = new Connection(address);
@@ -92,8 +96,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 // send one extra for validation
                 for (int i = 0; i < nMsgs + 1; i++) {
-                    Message message = new Message("test");
-                    message.Properties = new Properties() { MessageId = "msg" + i, GroupId = testName };
+                    Message message = new Message("test") {
+                        Properties = new Properties() { MessageId = "msg" + i, GroupId = testName }
+                    };
                     ids.Add(message.Properties.MessageId);
                     sender.Send(message);
                 }
@@ -161,9 +166,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
         [Fact]
         public void TransactedRetiringAndPosting() {
             if (enabled) {
-                string testName = "TransactedRetiringAndPosting";
+                const string testName = "TransactedRetiringAndPosting";
                 path = "test." + testName;
-                int nMsgs = 10;
+                const int nMsgs = 10;
                 var ids = new List<string>();
 
                 Connection connection = new Connection(address);
@@ -193,8 +198,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     receiver.Accept(message1);
                     ids.Remove(message1.Properties.MessageId);
 
-                    Message message = new Message("test");
-                    message.Properties = new Properties() { MessageId = "msg" + nMsgs, GroupId = testName };
+                    Message message = new Message("test") {
+                        Properties = new Properties() { MessageId = "msg" + nMsgs, GroupId = testName }
+                    };
                     ids.Add(message.Properties.MessageId);
                     sender.Send(message);
 
@@ -205,9 +211,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
                     receiver.Accept(message2);
 
-                    Message message = new Message("test");
-                    message.Properties = new Properties() { MessageId = "msg" + (nMsgs + 1), GroupId = testName };
-                    sender.Send(message1);
+                    Message message = new Message("test") {
+                        Properties = new Properties() { MessageId = "msg" + (nMsgs + 1), GroupId = testName }
+                    };
+                    sender.Send(message);
                 }
 
                 // release the message, since it shouldn't have been accepted above

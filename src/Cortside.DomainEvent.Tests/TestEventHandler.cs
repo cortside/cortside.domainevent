@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.Handlers;
@@ -24,20 +25,20 @@ namespace Cortside.DomainEvent.Tests {
 
                 // intentionally cause exception, used to assert unhandled exception handling
                 if (@event.Data.IntValue == int.MinValue) {
-                    var x = 0;
-                    _ = 1 / x;
+                    throw new ArgumentException("IntValue is int.MinValue");
                 }
 
-                var result = HandlerResult.Failed;
+                await Task.Delay(10).ConfigureAwait(false);
+
                 if (@event.Data.IntValue > 0) {
-                    result = HandlerResult.Success;
+                    return HandlerResult.Success;
                 } else if (@event.Data.IntValue == 0 && @event.DeliveryCount > 1) {
-                    result = HandlerResult.Success;
+                    return HandlerResult.Success;
                 } else if (@event.Data.IntValue == 0) {
-                    result = HandlerResult.Retry;
+                    return HandlerResult.Retry;
                 }
 
-                return result;
+                return HandlerResult.Failed;
             }
         }
     }

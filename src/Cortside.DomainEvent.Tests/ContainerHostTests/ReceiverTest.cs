@@ -6,7 +6,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
+
     public partial class ContainerHostTest : BaseHostTest {
+
         [Fact]
         public async Task ShouldReceiveMessage_Accept() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
@@ -16,7 +18,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             linkProcessor = new TestLinkProcessor();
             host.RegisterLinkProcessor(linkProcessor);
 
-            int count = 1;
+            const int count = 1;
             publisterSettings.Topic = receiverSettings.Queue;
             var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
@@ -30,7 +32,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
-                    var message = receiver.Receive(TimeSpan.FromSeconds(1));
+                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                     Assert.NotNull(message.GetData<TestEvent>());
                     message.Accept();
                 }
@@ -49,7 +51,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             linkProcessor = new TestLinkProcessor();
             host.RegisterLinkProcessor(linkProcessor);
 
-            int count = 1;
+            const int count = 1;
             publisterSettings.Topic = receiverSettings.Queue;
             var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
@@ -64,7 +66,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 receiver.Start(eventTypes);
                 int waits = 0;
                 do {
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                     if (receiver.Link.LinkState == LinkState.Attached) {
                         break;
                     }
@@ -73,9 +75,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 while (waits < 20);
 
                 for (int i = 0; i < count; i++) {
-                    var message = receiver.Receive(TimeSpan.FromSeconds(10));
+                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
                     message.Reject();
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
             }
 
@@ -92,7 +94,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             linkProcessor = new TestLinkProcessor();
             host.RegisterLinkProcessor(linkProcessor);
 
-            int count = 1;
+            const int count = 1;
             publisterSettings.Topic = receiverSettings.Queue;
             var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
@@ -106,7 +108,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
-                    var message = receiver.Receive(TimeSpan.FromSeconds(1));
+                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                     message.Release();
                 }
             }

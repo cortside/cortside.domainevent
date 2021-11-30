@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 
 namespace Cortside.DomainEvent.Tests {
-
     public enum StatusEnum {
         New,
         PendingWork,

@@ -15,8 +15,8 @@ using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests {
-    public class DomainEventReceiverTest {
 
+    public class DomainEventReceiverTest {
         private readonly IServiceProvider serviceProvider;
         private readonly DomainEventReceiverSettings settings;
         private readonly MockLogger<DomainEventReceiver> logger;
@@ -82,7 +82,7 @@ namespace Cortside.DomainEvent.Tests {
             // arrange
             var @event = new TestEvent();
             var eventType = @event.GetType().FullName;
-            var body = 1;
+            const int body = 1;
             Message message = CreateMessage(eventType, body);
 
             receiverLink.Setup(x => x.Reject(message, null));

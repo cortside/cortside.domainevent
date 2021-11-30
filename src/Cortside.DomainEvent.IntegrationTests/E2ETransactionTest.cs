@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Cortside.DomainEvent.Tests;
@@ -10,6 +9,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
+
     public class E2ETransactionTest : E2EBase {
 
         [Fact]
@@ -27,13 +27,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 var logger = new MockLogger<DomainEventReceiver>();
                 using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
-                    message = receiver.Receive(TimeSpan.FromSeconds(5));
-                    if (message != null) {
-                        message.Accept();
-                    }
+                    message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                    message?.Accept();
                 }
                 Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
-                Assert.NotNull(message);
 
                 Assert.NotNull(message);
                 Assert.Equal(correlationId, message.Message.CorrelationId);
@@ -53,7 +50,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         public async Task ShouldUseTransactionScope() {
             var s = Guid.NewGuid().ToString();
             if (enabled) {
-                int nMsgs = 10;
+                const int nMsgs = 10;
                 var ids = new List<int>();
 
                 for (int i = 0; i < nMsgs; i++) {
@@ -74,8 +71,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 publisher = new DomainEventPublisher(publisherSettings, new NullLogger<DomainEventPublisher>(), receiver.Link.Session);
 
                 receiver.Link.SetCredit(2, false);
-                var message1 = receiver.Receive();
-                var message2 = receiver.Receive();
+                var message1 = await receiver.ReceiveAsync().ConfigureAwait(false);
+                var message2 = await receiver.ReceiveAsync().ConfigureAwait(false);
 
                 Console.Out.WriteLine($"message1: {message1.GetData<TestEvent>().IntValue}");
                 Console.Out.WriteLine($"message2: {message2.GetData<TestEvent>().IntValue}");
@@ -102,14 +99,14 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 // release the message, since it shouldn't have been accepted above
                 message2.Release();
-                Thread.Sleep(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
 
                 Assert.Equal(nMsgs, ids.Count);
 
                 // receive all messages. should see the effect of the first txn
                 receiver.Link.SetCredit(nMsgs, false);
                 for (int i = 0; i < nMsgs; i++) {
-                    var message = receiver.Receive();
+                    var message = await receiver.ReceiveAsync().ConfigureAwait(false);
                     message.Accept();
 
                     Assert.Contains(message.GetData<TestEvent>().IntValue, ids);
@@ -121,7 +118,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.Empty(ids);
 
                 // shouldn't be any messages left
-                var empty = receiver.Receive(TimeSpan.FromSeconds(2));
+                var empty = await receiver.ReceiveAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
                 if (empty != null) {
                     empty.Accept();
                     Assert.Equal(-1, empty.GetData<TestEvent>().IntValue);

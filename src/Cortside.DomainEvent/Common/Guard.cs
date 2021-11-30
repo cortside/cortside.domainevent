@@ -2,7 +2,6 @@ using System;
 
 namespace Cortside.DomainEvent.Common {
     public static class Guard {
-
         public static void Against<T>(Func<bool> check) where T : Exception, new() {
             if (check()) {
                 throw new T();

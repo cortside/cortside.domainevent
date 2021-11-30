@@ -3,7 +3,6 @@ using Amqp;
 using Amqp.Listener;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-
     public class TestMessageProcessor : IMessageProcessor {
         public TestMessageProcessor()
             : this(20, new List<Message>()) {

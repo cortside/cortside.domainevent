@@ -12,13 +12,13 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "tx error")]
         public void Retry() {
-            string name = "Retry";
+            const string name = "Retry";
             List<Message> messages = new List<Message>();
             host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
             linkProcessor = new TestLinkProcessor();
             host.RegisterLinkProcessor(linkProcessor);
 
-            int count = 80;
+            const int count = 80;
             var connection = new Connection(Address);
             var session = new Session(connection);
             var sender = new SenderLink(session, "send-link", name);
@@ -57,14 +57,14 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostProcessorOrderTest() {
-            string name = "ContainerHostProcessorOrderTest";
+            const string name = "ContainerHostProcessorOrderTest";
             List<Message> messages = new List<Message>();
             var processor = new TestMessageProcessor(50, messages);
             host.RegisterMessageProcessor(name, processor);
             linkProcessor = new TestLinkProcessor();
             host.RegisterLinkProcessor(linkProcessor);
 
-            int count = 80;
+            const int count = 80;
             var connection = new Connection(Address);
             var session = new Session(connection);
             var sender = new SenderLink(session, "send-link", name);
@@ -102,11 +102,11 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostMessageProcessorTest() {
-            string name = "ContainerHostMessageProcessorTest";
+            const string name = "ContainerHostMessageProcessorTest";
             var processor = new TestMessageProcessor();
             host.RegisterMessageProcessor(name, processor);
 
-            int count = 500;
+            const int count = 500;
             var connection = new Connection(Address);
             var session = new Session(connection);
             var sender = new SenderLink(session, "send-link", name);
@@ -130,8 +130,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostMessageSourceTest() {
-            string name = "ContainerHostMessageSourceTest";
-            int count = 100;
+            const string name = "ContainerHostMessageSourceTest";
+            const int count = 100;
             Queue<Message> messages = new Queue<Message>();
             for (int i = 0; i < count; i++) {
                 messages.Enqueue(new Message("test") { Properties = new Properties() { MessageId = name + i } });
@@ -173,15 +173,15 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostRequestProcessorTest() {
-            string name = "ContainerHostRequestProcessorTest";
+            const string name = "ContainerHostRequestProcessorTest";
             var processor = new TestRequestProcessor();
             host.RegisterRequestProcessor(name, processor);
 
-            int count = 500;
+            const int count = 500;
             var connection = new Connection(Address);
             var session = new Session(connection);
 
-            string replyTo = "client-reply-to";
+            const string replyTo = "client-reply-to";
             Attach recvAttach = new Attach() {
                 Source = new Source() { Address = name },
                 Target = new Target() { Address = replyTo }
@@ -220,6 +220,5 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 Assert.Equal("OK" + i, responses[i - 1]);
             }
         }
-
     }
 }

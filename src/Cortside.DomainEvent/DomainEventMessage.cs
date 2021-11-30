@@ -7,9 +7,7 @@ using Amqp;
 using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
-
     public class DomainEventMessage {
-
         internal static DomainEventMessage CreateGenericInstance(Type dataType, Message message) {
             string body = GetBody(message);
 
