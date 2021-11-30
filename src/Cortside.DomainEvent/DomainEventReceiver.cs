@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Transactions;
 using Amqp;
 using Amqp.Framing;
 using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
+
     public class DomainEventReceiver : IDomainEventReceiver, IDisposable {
+
         public event ReceiverClosedCallback Closed;
+
         public IServiceProvider Provider { get; protected set; }
         public IDictionary<string, Type> EventTypeLookup { get; protected set; }
         public ReceiverLink Link { get; protected set; }
@@ -67,17 +71,6 @@ namespace Cortside.DomainEvent {
             };
             Link = new ReceiverLink(session, Settings.AppName, attach, null);
             Link.Closed += OnClosed;
-
-            // moved from Erik's test to help know that receiver link is up
-            int waits = 0;
-            do {
-                Thread.Sleep(1000);
-                if (Link.LinkState == LinkState.Attached) {
-                    break;
-                }
-                waits++;
-            }
-            while (waits < 15);  // TODO: needs configuration value
         }
 
         protected void OnClosed(IAmqpObject sender, Error error) {
@@ -130,6 +123,9 @@ namespace Cortside.DomainEvent {
                 ["MessageType"] = messageTypeName
             };
 
+            var timer = new Stopwatch();
+            timer.Start();
+
             using (Logger.BeginScope(properties)) {
                 Logger.LogInformation($"Received message {message.Properties.MessageId}");
 
@@ -174,67 +170,68 @@ namespace Cortside.DomainEvent {
                         Logger.LogError(ex, $"Message {message.Properties.MessageId} caught unhandled exception {ex.Message}");
                         result = HandlerResult.Failed;
                     }
-                    Logger.LogInformation($"Handler executed for message {message.Properties.MessageId} and returned result of {result}");
 
-                    switch (result) {
-                        case HandlerResult.Success:
-                            receiver.Accept(message);
-                            Logger.LogInformation($"Message {message.Properties.MessageId} accepted");
-                            break;
-                        case HandlerResult.Retry:
-                            var deliveryCount = message.Header.DeliveryCount;
-                            var delay = 10 * deliveryCount;
-                            var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
-                            Logger.LogDebug($"Message {message.Properties.MessageId} being scheduled with delay of {delay} seconds for {scheduleTime}");
+                    timer.Stop();
+                    var duration = timer.ElapsedMilliseconds;
 
-                            // create a new message to be queued with scheduled delivery time
-                            var retry = new Message(body) {
-                                Header = message.Header,
-                                Footer = message.Footer,
-                                Properties = message.Properties,
-                                ApplicationProperties = message.ApplicationProperties
-                            };
-                            retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
-                            //using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                            receiver.Accept(message);
-                            Logger.LogDebug($"Message {message.Properties.MessageId} accepted");
+                    var dp = new Dictionary<string, object> {
+                        ["duration"] = duration
+                    };
 
+                    using (Logger.BeginScope(dp)) {
+                        Logger.LogInformation($"Handler executed for message {message.Properties.MessageId} and returned result of {result}");
 
-                            // make sure the link is still valid before attempting to send
-                            if (Link == null || Link.IsClosed) {
-                                Logger.LogDebug("Link was closed or null, restarting link");
-                                InternalStart(EventTypeLookup);
-                            }
+                        switch (result) {
+                            case HandlerResult.Success:
+                                receiver.Accept(message);
+                                Logger.LogInformation($"Message {message.Properties.MessageId} accepted");
+                                break;
 
-                            var linkName = Settings.AppName + "-" + Guid.NewGuid().ToString();
-                            var sender = new SenderLink(Link.Session, linkName, Settings.Queue);
-                            Logger.LogDebug($"Sender {linkName} created");
+                            case HandlerResult.Retry:
+                                var deliveryCount = message.Header.DeliveryCount;
+                                var delay = 10 * deliveryCount;
+                                var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
+                                using (var ts = new TransactionScope()) {
+                                    var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
+                                    // create a new message to be queued with scheduled delivery time
+                                    var retry = new Message(body) {
+                                        Header = message.Header,
+                                        Footer = message.Footer,
+                                        Properties = message.Properties,
+                                        ApplicationProperties = message.ApplicationProperties
+                                    };
+                                    retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
+                                    sender.Send(retry);
+                                    receiver.Accept(message);
+                                }
+                                Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
+                                break;
 
-                            sender.Send(retry);
-                            Logger.LogDebug($"Retry message {message.Properties.MessageId} scheduled");
-                            //tx.Complete();
-                            //}
-                            if (!sender.IsClosed) {
-                                await sender.CloseAsync().ConfigureAwait(false);
-                                Logger.LogDebug("Sender closed");
-                            }
-                            Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
-                            break;
-                        case HandlerResult.Failed:
-                            receiver.Reject(message);
-                            Logger.LogInformation($"Message {message.Properties.MessageId} rejected");
-                            break;
-                        case HandlerResult.Release:
-                            receiver.Release(message);
-                            Logger.LogInformation($"Message {message.Properties.MessageId} released");
-                            break;
-                        default:
-                            throw new NotImplementedException($"Unknown HandlerResult value of {result}");
+                            case HandlerResult.Failed:
+                                receiver.Reject(message);
+                                break;
+
+                            case HandlerResult.Release:
+                                receiver.Release(message);
+                                break;
+
+                            default:
+                                throw new NotImplementedException($"Unknown HandlerResult value of {result}");
+                        }
                     }
                 } catch (Exception ex) {
-                    Logger.LogError(ex, $"Message {message.Properties.MessageId} rejected because of unhandled exception {ex.Message}");
-                    receiver.Reject(message);
+                    timer.Stop();
+                    var duration = timer.ElapsedMilliseconds;
+
+                    var dp = new Dictionary<string, object> {
+                        ["duration"] = duration
+                    };
+
+                    using (Logger.BeginScope(dp)) {
+                        Logger.LogError(ex, $"Message {message.Properties.MessageId} rejected because of unhandled exception {ex.Message}");
+                        receiver.Reject(message);
+                    }
                 }
             }
         }
@@ -246,7 +243,7 @@ namespace Cortside.DomainEvent {
             Link?.Close(timeout.Value);
             Link = null;
             Error = null;
-            //EventTypeLookup = null;
+            EventTypeLookup = null;
         }
 
         public void Dispose() {

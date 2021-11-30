@@ -4,6 +4,7 @@ using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.Tests {
+
     public class TestEventHandler : IDomainEventHandler<TestEvent> {
         private readonly ILogger<TestEventHandler> logger;
 
