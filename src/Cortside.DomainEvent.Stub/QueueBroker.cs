@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using Amqp;
 
 namespace Cortside.DomainEvent.Stub {
-    public class QueueBroker : IQueueBroker {
+    public class QueueBroker : IStubBroker {
         private readonly ConcurrentQueue<Message> queue = new ConcurrentQueue<Message>();
         private readonly ConcurrentQueue<Message> dlq = new ConcurrentQueue<Message>();
 

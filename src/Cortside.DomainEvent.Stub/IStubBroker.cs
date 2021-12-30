@@ -1,7 +1,7 @@
-﻿using Amqp;
+using Amqp;
 
 namespace Cortside.DomainEvent.Stub {
-    public interface IQueueBroker {
+    public interface IStubBroker {
         bool HasItems { get; }
 
         void Accept(Message message);

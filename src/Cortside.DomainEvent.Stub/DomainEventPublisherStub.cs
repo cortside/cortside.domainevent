@@ -4,9 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.Stub {
     public class DomainEventPublisherStub : BaseDomainEventPublisher {
-        private readonly QueueBroker queue;
+        private readonly IStubBroker queue;
 
-        public DomainEventPublisherStub(DomainEventPublisherSettings settings, ILogger<DomainEventPublisherStub> logger, QueueBroker queue) : base(settings, logger) {
+        public DomainEventPublisherStub(DomainEventPublisherSettings settings, ILogger<DomainEventPublisherStub> logger, IStubBroker queue) : base(settings, logger) {
             this.queue = queue;
         }
 
