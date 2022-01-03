@@ -14,10 +14,10 @@ namespace Cortside.DomainEvent.Stub {
         private readonly IServiceProvider provider;
         private readonly DomainEventReceiverSettings settings;
         private readonly ILogger<DomainEventReceiverStub> logger;
-        private readonly QueueBroker receiver;
+        private readonly IStubBroker receiver;
         private IDictionary<string, Type> eventTypeLookup;
 
-        public DomainEventReceiverStub(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiverStub> logger, QueueBroker queue) {
+        public DomainEventReceiverStub(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiverStub> logger, IStubBroker queue) {
             this.provider = provider;
             this.settings = settings;
             this.logger = logger;
