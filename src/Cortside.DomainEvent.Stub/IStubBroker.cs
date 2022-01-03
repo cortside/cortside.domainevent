@@ -3,7 +3,7 @@ using Amqp;
 namespace Cortside.DomainEvent.Stub {
     public interface IStubBroker {
         bool HasItems { get; }
-
+        bool HasDeadLetterItems { get; }
         void Accept(Message message);
         void Enqueue(Message message);
         Message Peek();
