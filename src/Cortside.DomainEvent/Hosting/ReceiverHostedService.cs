@@ -49,7 +49,7 @@ namespace Cortside.DomainEvent.Hosting {
                             receiver.StartAndListen(settings.MessageTypes);
                             logger.LogInformation("Receiver started");
                         } catch (Exception e) {
-                            logger.LogCritical($"Unable to start receiver. \n {e}");
+                            logger.LogCritical(e, $"Unable to start receiver. \n {e}");
                         }
                         receiver.Closed += OnReceiverClosed;
                     }
