@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
@@ -27,11 +28,19 @@ namespace Cortside.DomainEvent.Stub.Tests {
             var receiver = new DomainEventReceiverStub(rsettings, provider, new NullLogger<DomainEventReceiverStub>(), broker);
 
             receiver.StartAndListen(eventTypeLookup);
-            await publisher.PublishAsync<TestEvent>(new TestEvent() { IntValue = 1 }).ConfigureAwait(false);
+            await publisher.PublishAsync(new TestEvent() { IntValue = 1 }).ConfigureAwait(false);
 
             await Task.Delay(2000).ConfigureAwait(false);
             Assert.False(broker.HasItems);
             Assert.False(broker.HasDeadLetterItems);
+            var messages = broker.GetAcceptedMessagesByType<TestEvent>();
+            Assert.NotNull(messages);
+            Assert.Equal(1, messages.First().IntValue);
+
+            // test the filter
+            messages = broker.GetAcceptedMessagesByType<TestEvent>(x => x.IntValue == 1);
+            Assert.NotNull(messages);
+            Assert.Equal(1, messages.First().IntValue);
         }
     }
 }

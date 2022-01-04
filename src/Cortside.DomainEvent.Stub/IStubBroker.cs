@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Amqp;
 
@@ -17,6 +19,7 @@ namespace Cortside.DomainEvent.Stub {
         void Enqueue(Message message);
         void Dequeue();
         Message Peek();
+        void ResetQueue();
 
         void Accept(Message message);
         void Reject(Message message);
@@ -25,6 +28,11 @@ namespace Cortside.DomainEvent.Stub {
         void Shovel();
 
         void EnqueueUnmapped(Message message);
+
+        List<T> GetAcceptedMessagesByType<T>(Func<T, bool> predicate = null);
+        List<T> GetActiveMessagesByType<T>(Func<T, bool> predicate = null);
+        List<T> GetDLQMessagesByType<T>(Func<T, bool> predicate = null);
+        List<T> GetUnmappedMessagesByType<T>(Func<T, bool> predicate = null);
 
         // WaitUntilConsumed()
     }

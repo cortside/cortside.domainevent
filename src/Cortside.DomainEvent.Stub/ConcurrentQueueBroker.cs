@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Amqp;
+using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent.Stub {
     public class ConcurrentQueueBroker : IStubBroker {
@@ -60,6 +63,40 @@ namespace Cortside.DomainEvent.Stub {
         }
         public void EnqueueUnmapped(Message message) {
             unmapped.Enqueue(message);
+        }
+
+        public void ResetQueue() {
+            queue.Clear();
+        }
+
+        public List<T> GetAcceptedMessagesByType<T>(Func<T, bool> predicate = null) {
+            return GetMessagesByType<T>(AcceptedItems, predicate);
+        }
+
+        public List<T> GetActiveMessagesByType<T>(Func<T, bool> predicate = null) {
+            return GetMessagesByType<T>(ActiveItems, predicate);
+        }
+
+        public List<T> GetDLQMessagesByType<T>(Func<T, bool> predicate = null) {
+            return GetMessagesByType<T>(DeadLetterItems, predicate);
+        }
+
+        public List<T> GetUnmappedMessagesByType<T>(Func<T, bool> predicate = null) {
+            return GetMessagesByType<T>(UnmappedItems, predicate);
+        }
+
+        private List<T> GetMessagesByType<T>(ReadOnlyCollection<Message> collection, Func<T, bool> predicate = null) {
+            var name = typeof(T).Name;
+            var messages = collection.Where(x => x.ApplicationProperties.Map.Values.Any(y => y.ToString().Contains(name)));
+            var result = messages
+                .Select(x => JsonConvert.DeserializeObject<T>(x.Body.ToString()))
+                .ToList();
+
+            if (predicate != null) {
+                result = result.Where(predicate).ToList();
+            }
+
+            return result;
         }
     }
 }
