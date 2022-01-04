@@ -10,7 +10,7 @@ using Xunit;
 namespace Cortside.DomainEvent.Stub.Tests {
     public class StubTest {
         [Fact]
-        public async Task ShouldPublishAndHandleMessage() {
+        public async Task ShouldPublishAndHandleMessageAsync() {
             var services = new ServiceCollection();
             services.AddLogging();
             services.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
@@ -27,9 +27,9 @@ namespace Cortside.DomainEvent.Stub.Tests {
             var receiver = new DomainEventReceiverStub(rsettings, provider, new NullLogger<DomainEventReceiverStub>(), broker);
 
             receiver.StartAndListen(eventTypeLookup);
-            await publisher.PublishAsync<TestEvent>(new TestEvent() { IntValue = 1 });
+            await publisher.PublishAsync<TestEvent>(new TestEvent() { IntValue = 1 }).ConfigureAwait(false);
 
-            await Task.Delay(2000);
+            await Task.Delay(2000).ConfigureAwait(false);
             Assert.False(broker.HasItems);
             Assert.False(broker.HasDeadLetterItems);
         }

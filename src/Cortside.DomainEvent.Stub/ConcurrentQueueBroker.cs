@@ -26,6 +26,9 @@ namespace Cortside.DomainEvent.Stub {
             queue.Enqueue(message);
             published++;
         }
+        public void Dequeue() {
+            queue.TryDequeue(out _);
+        }
 
         public Message Peek() {
             Message message;

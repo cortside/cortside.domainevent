@@ -17,7 +17,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
 
         [Fact]
-        public async Task ShouldPublishEvent1() {
+        public async Task ShouldPublishEvent1Async() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -43,7 +43,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent1WithSerializationSettings() {
+        public async Task ShouldPublishEvent1WithSerializationSettingsAsync() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -74,7 +74,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent2() {
+        public async Task ShouldPublishEvent2Async() {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -99,7 +99,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent3() {
+        public async Task ShouldPublishEvent3Async() {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -126,7 +126,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent4() {
+        public async Task ShouldPublishEvent4Async() {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -151,7 +151,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent5() {
+        public async Task ShouldPublishEvent5Async() {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -178,7 +178,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent1() {
+        public async Task ShouldScheduleEvent1Async() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -203,7 +203,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent2() {
+        public async Task ShouldScheduleEvent2Async() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -230,7 +230,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent3() {
+        public async Task ShouldScheduleEvent3Async() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -259,7 +259,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent4() {
+        public async Task ShouldScheduleEvent4Async() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -286,7 +286,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent5() {
+        public async Task ShouldScheduleEvent5Async() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -315,7 +315,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldPublishWithUsing() {
+        public async Task ShouldPublishWithUsingAsync() {
             // arrange
             string topic = Guid.NewGuid().ToString();
             List<Message> messages = new List<Message>();

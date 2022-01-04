@@ -12,7 +12,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
     public class E2ETransactionTest : E2EBase {
 
         [Fact]
-        public async Task ShouldBeAbleToSendAndReceive() {
+        public async Task ShouldBeAbleToSendAndReceiveAsync() {
             if (enabled) {
                 var @event = NewTestEvent();
                 var correlationId = Guid.NewGuid().ToString();
@@ -45,7 +45,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldUseTransactionScope() {
+        public async Task ShouldUseTransactionScopeAsync() {
             var s = Guid.NewGuid().ToString();
             if (enabled) {
                 int nMsgs = 10;

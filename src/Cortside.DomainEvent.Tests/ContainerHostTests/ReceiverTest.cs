@@ -8,7 +8,7 @@ using Xunit;
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
         [Fact]
-        public async Task ShouldReceiveMessage_Accept() {
+        public async Task ShouldReceiveMessage_AcceptAsync() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
@@ -41,7 +41,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldReceiveMessage_Reject() {
+        public async Task ShouldReceiveMessage_RejectAsync() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
@@ -64,7 +64,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 receiver.Start(eventTypes);
                 int waits = 0;
                 do {
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                     if (receiver.Link.LinkState == LinkState.Attached) {
                         break;
                     }
@@ -75,7 +75,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 for (int i = 0; i < count; i++) {
                     var message = receiver.Receive(TimeSpan.FromSeconds(10));
                     message.Reject();
-                    await Task.Delay(1000);
+                    await Task.Delay(1000).ConfigureAwait(false);
                 }
             }
 
@@ -84,7 +84,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact(Skip = "concurrency issue")]
-        public async Task ShouldReceiveMessage_Release() {
+        public async Task ShouldReceiveMessage_ReleaseAsync() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();

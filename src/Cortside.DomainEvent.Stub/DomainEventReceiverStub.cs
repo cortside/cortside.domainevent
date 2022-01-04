@@ -45,8 +45,9 @@ namespace Cortside.DomainEvent.Stub {
                     var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
                     if (!eventTypeLookup.ContainsKey(messageTypeName)) {
                         receiver.EnqueueUnmapped(message);
+                        receiver.Dequeue();
                     } else {
-                        AsyncUtil.RunSync(() => OnMessageCallback(message));
+                        AsyncUtil.RunSync(() => OnMessageCallbackAsync(message));
                     }
                 }
                 Thread.Sleep(500);
@@ -61,7 +62,7 @@ namespace Cortside.DomainEvent.Stub {
             }
         }
 
-        private async Task OnMessageCallback(Message message) {
+        private async Task OnMessageCallbackAsync(Message message) {
             var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
@@ -108,7 +109,7 @@ namespace Cortside.DomainEvent.Stub {
                     HandlerResult result;
                     dynamic dhandler = handler;
                     try {
-                        result = await dhandler.HandleAsync(domainEvent);
+                        result = await dhandler.HandleAsync(domainEvent).ConfigureAwait(false);
                     } catch (Exception ex) {
                         logger.LogError(ex, $"Message {message.Properties.MessageId} caught unhandled exception {ex.Message}");
                         result = HandlerResult.Failed;

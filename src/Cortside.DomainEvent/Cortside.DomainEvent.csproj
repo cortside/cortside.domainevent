@@ -19,6 +19,11 @@
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.4.3" />
     <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.3" />
+    <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Lindhart.Analyser.MissingAwaitWarning" Version="2.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.21" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.21" />

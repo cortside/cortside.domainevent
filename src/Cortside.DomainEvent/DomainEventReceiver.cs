@@ -43,7 +43,7 @@ namespace Cortside.DomainEvent {
 
             Link.Start(Settings.Credits, (link, msg) => {
                 // fire and forget
-                _ = OnMessageCallback(link, msg);
+                _ = OnMessageCallbackAsync(link, msg);
             });
         }
 
@@ -115,7 +115,7 @@ namespace Cortside.DomainEvent {
             return new EventMessage(domainEvent, message, Link);
         }
 
-        protected async Task OnMessageCallback(IReceiverLink receiver, Message message) {
+        protected async Task OnMessageCallbackAsync(IReceiverLink receiver, Message message) {
             var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
@@ -165,7 +165,7 @@ namespace Cortside.DomainEvent {
                     HandlerResult result;
                     dynamic dhandler = handler;
                     try {
-                        result = await dhandler.HandleAsync(domainEvent);
+                        result = await dhandler.HandleAsync(domainEvent).ConfigureAwait(false);
                     } catch (Exception ex) {
                         Logger.LogError(ex, $"Message {message.Properties.MessageId} caught unhandled exception {ex.Message}");
                         result = HandlerResult.Failed;

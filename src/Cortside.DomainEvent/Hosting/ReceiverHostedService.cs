@@ -24,9 +24,9 @@ namespace Cortside.DomainEvent.Hosting {
             this.settings = settings;
         }
 
-        public override async Task StartAsync(CancellationToken cancellationToken) {
+        public override Task StartAsync(CancellationToken cancellationToken) {
             logger.LogInformation($"ReceiverHostedService StartAsync() entered.");
-            await base.StartAsync(cancellationToken).ConfigureAwait(false);
+            return base.StartAsync(cancellationToken);
         }
 
         /// <summary>
@@ -79,18 +79,9 @@ namespace Cortside.DomainEvent.Hosting {
             receiver?.Close();
         }
 
-        /// <summary>
-        /// Dispose
-        /// </summary>
         public override void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-        /// <summary>
-        /// Finalizer.
-        /// </summary>
-        ~ReceiverHostedService() {
-            Dispose(false);
         }
 
         /// <summary>
@@ -99,6 +90,13 @@ namespace Cortside.DomainEvent.Hosting {
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             DisposeReceiver();
+        }
+
+        /// <summary>
+        /// Finalizer.
+        /// </summary>
+        ~ReceiverHostedService() {
+            Dispose(false);
         }
     }
 }

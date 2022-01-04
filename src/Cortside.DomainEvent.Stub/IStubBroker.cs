@@ -15,6 +15,7 @@ namespace Cortside.DomainEvent.Stub {
         public int Accepted { get; }
 
         void Enqueue(Message message);
+        void Dequeue();
         Message Peek();
 
         void Accept(Message message);
@@ -24,5 +25,7 @@ namespace Cortside.DomainEvent.Stub {
         void Shovel();
 
         void EnqueueUnmapped(Message message);
+
+        // WaitUntilConsumed()
     }
 }
