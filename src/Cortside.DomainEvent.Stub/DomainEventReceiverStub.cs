@@ -27,7 +27,7 @@ namespace Cortside.DomainEvent.Stub {
         public event ReceiverClosedCallback Closed;
 
         public void Close(TimeSpan? timeout = null) {
-            throw new NotImplementedException();
+            // do nothing
         }
 
         public void StartAndListen(IDictionary<string, Type> eventTypeLookup) {
