@@ -8,6 +8,7 @@ namespace Cortside.DomainEvent.Stub {
         private readonly ConcurrentQueue<Message> queue = new ConcurrentQueue<Message>();
         private readonly ConcurrentQueue<Message> accepted = new ConcurrentQueue<Message>();
         private readonly ConcurrentQueue<Message> dlq = new ConcurrentQueue<Message>();
+        private readonly ConcurrentQueue<Message> unmapped = new ConcurrentQueue<Message>();
         private int published = 0;
 
         public bool HasItems { get => queue.Count > 0; }
@@ -16,9 +17,15 @@ namespace Cortside.DomainEvent.Stub {
         public ReadOnlyCollection<Message> AcceptedItems { get => accepted.ToArray().ToList().AsReadOnly(); }
         public ReadOnlyCollection<Message> ActiveItems { get => queue.ToArray().ToList().AsReadOnly(); }
         public ReadOnlyCollection<Message> DeadLetterItems { get => dlq.ToArray().ToList().AsReadOnly(); }
+        public ReadOnlyCollection<Message> UnmappedItems { get => unmapped.ToArray().ToList().AsReadOnly(); }
 
         public int Published { get => published; }
         public int Accepted { get => accepted.Count; }
+
+        public void Enqueue(Message message) {
+            queue.Enqueue(message);
+            published++;
+        }
 
         public Message Peek() {
             Message message;
@@ -37,11 +44,6 @@ namespace Cortside.DomainEvent.Stub {
             accepted.Enqueue(message);
         }
 
-        public void Enqueue(Message message) {
-            queue.Enqueue(message);
-            published++;
-        }
-
         public void Release(Message message) {
             // leave item in queue
         }
@@ -52,6 +54,9 @@ namespace Cortside.DomainEvent.Stub {
                 dlq.TryDequeue(out message);
                 queue.Enqueue(message);
             }
+        }
+        public void EnqueueUnmapped(Message message) {
+            unmapped.Enqueue(message);
         }
     }
 }

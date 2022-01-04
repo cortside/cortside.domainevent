@@ -41,7 +41,13 @@ namespace Cortside.DomainEvent.Stub {
             do {
                 while (receiver.HasItems) {
                     var message = receiver.Peek();
-                    AsyncUtil.RunSync(() => OnMessageCallback(message));
+
+                    var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+                    if (!eventTypeLookup.ContainsKey(messageTypeName)) {
+                        receiver.EnqueueUnmapped(message);
+                    } else {
+                        AsyncUtil.RunSync(() => OnMessageCallback(message));
+                    }
                 }
                 Thread.Sleep(500);
             } while (true);

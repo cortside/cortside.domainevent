@@ -9,6 +9,7 @@ namespace Cortside.DomainEvent.Stub {
         ReadOnlyCollection<Message> AcceptedItems { get; }
         ReadOnlyCollection<Message> ActiveItems { get; }
         ReadOnlyCollection<Message> DeadLetterItems { get; }
+        ReadOnlyCollection<Message> UnmappedItems { get; }
 
         public int Published { get; }
         public int Accepted { get; }
@@ -21,5 +22,7 @@ namespace Cortside.DomainEvent.Stub {
         void Release(Message message);
 
         void Shovel();
+
+        void EnqueueUnmapped(Message message);
     }
 }
