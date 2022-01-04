@@ -20,7 +20,7 @@ namespace Cortside.DomainEvent.Stub.Tests {
                 {typeof(TestEvent).FullName, typeof(TestEvent)},
             };
 
-            IStubBroker broker = new QueueBroker();
+            IStubBroker broker = new ConcurrentQueueBroker();
             var psettings = new DomainEventPublisherSettings() { Topic = "topic" };
             var rsettings = new DomainEventReceiverSettings();
             var publisher = new DomainEventPublisherStub(psettings, new NullLogger<DomainEventPublisherStub>(), broker);

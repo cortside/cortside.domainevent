@@ -6,7 +6,8 @@ namespace Cortside.DomainEvent.Stub {
         bool HasItems { get; }
         bool HasDeadLetterItems { get; }
 
-        ReadOnlyCollection<Message> Items { get; }
+        ReadOnlyCollection<Message> AcceptedItems { get; }
+        ReadOnlyCollection<Message> ActiveItems { get; }
         ReadOnlyCollection<Message> DeadLetterItems { get; }
 
         public int Published { get; }
