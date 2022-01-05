@@ -42,8 +42,13 @@ namespace Cortside.DomainEvent.Stub {
                 while (receiver.HasItems) {
                     var message = receiver.Peek();
 
+                    // not sure how this ever happens but it does
+                    if (message == null) {
+                        receiver.Dequeue();
+                        continue;
+                    }
                     var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
-                    if (!eventTypeLookup.ContainsKey(messageTypeName)) {
+                    if (eventTypeLookup != null && !eventTypeLookup.ContainsKey(messageTypeName)) {
                         receiver.EnqueueUnmapped(message);
                         receiver.Dequeue();
                     } else {
