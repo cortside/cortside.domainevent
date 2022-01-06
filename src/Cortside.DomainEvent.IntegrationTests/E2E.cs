@@ -11,7 +11,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
     public class E2E : E2EBase {
 
         [Fact]
-        public async Task ShouldBeAbleToSendAndReceive() {
+        public async Task ShouldBeAbleToSendAndReceiveAsync() {
             if (enabled) {
                 var @event = new TestEvent {
                     IntValue = r.Next(),
@@ -38,7 +38,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldBeAbleToScheduleAndReceive() {
+        public async Task ShouldBeAbleToScheduleAndReceiveAsync() {
             if (enabled) {
                 var @event = new TestEvent {
                     IntValue = r.Next(),

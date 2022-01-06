@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
+  
   <PropertyGroup>
-    <PackageId>Cortside.DomainEvent</PackageId>
+    <PackageId>Cortside.DomainEvent.Stub</PackageId>
     <Company>Cortside Consulting</Company>
-    <Description>Library for sending and receiving AMQP 1.0 messages</Description>
+    <Description>Library for stubbing publisher and receiver for integration testing</Description>
     <Copyright>Copyright (c) 2017 Cortside Consulting and Contributors</Copyright>
-    <Summary>Library for sending and receiving AMQP 1.0 messages</Summary>
+    <Summary>Library for stubbing publisher and receiver for integration testing</Summary>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/cortside/cortside.domainevent.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -17,17 +17,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.4.3" />
-    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.3" />
     <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Cortside.Common.Threading" Version="1.1.197-develop" />
     <PackageReference Include="Lindhart.Analyser.MissingAwaitWarning" Version="2.0.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.21" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.21" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cortside.DomainEvent.EntityFramework\Cortside.DomainEvent.EntityFramework.csproj" />
+    <ProjectReference Include="..\Cortside.DomainEvent\Cortside.DomainEvent.csproj" />
   </ItemGroup>
 
 </Project>
