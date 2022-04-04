@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,8 +11,11 @@ using Xunit;
 
 namespace Cortside.DomainEvent.Stub.Tests {
     public class StubTest {
-        [Fact]
-        public async Task ShouldPublishAndHandleMessageAsync() {
+        private readonly DomainEventPublisherStub publisher;
+        private readonly DomainEventReceiverStub receiver;
+        private readonly IStubBroker broker;
+
+        public StubTest() {
             var services = new ServiceCollection();
             services.AddLogging();
             services.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
@@ -21,13 +25,17 @@ namespace Cortside.DomainEvent.Stub.Tests {
                 {typeof(TestEvent).FullName, typeof(TestEvent)},
             };
 
-            IStubBroker broker = new ConcurrentQueueBroker();
+            this.broker = new ConcurrentQueueBroker();
             var psettings = new DomainEventPublisherSettings() { Topic = "topic" };
             var rsettings = new DomainEventReceiverSettings();
-            var publisher = new DomainEventPublisherStub(psettings, new NullLogger<DomainEventPublisherStub>(), broker);
-            var receiver = new DomainEventReceiverStub(rsettings, provider, new NullLogger<DomainEventReceiverStub>(), broker);
+            this.publisher = new DomainEventPublisherStub(psettings, new NullLogger<DomainEventPublisherStub>(), broker);
+            this.receiver = new DomainEventReceiverStub(rsettings, provider, new NullLogger<DomainEventReceiverStub>(), broker);
 
-            receiver.StartAndListen(eventTypeLookup);
+            this.receiver.StartAndListen(eventTypeLookup);
+        }
+
+        [Fact]
+        public async Task ShouldPublishAndHandleMessageAsync() {
             await publisher.PublishAsync(new TestEvent() { IntValue = 1 }).ConfigureAwait(false);
 
             await Task.Delay(2000).ConfigureAwait(false);
@@ -41,6 +49,26 @@ namespace Cortside.DomainEvent.Stub.Tests {
             messages = broker.GetAcceptedMessagesByType<TestEvent>(x => x.IntValue == 1);
             Assert.NotNull(messages);
             Assert.Equal(1, messages.First().IntValue);
+        }
+
+        [Fact]
+        public async Task ShouldSetCorrelationId() {
+            var correlationId = Guid.NewGuid().ToString();
+            CorrelationContext.SetCorrelationId(Guid.NewGuid().ToString());
+
+            var intValue = int.MaxValue;
+            await publisher.PublishAsync(new TestEvent() { IntValue = intValue }, correlationId).ConfigureAwait(false);
+
+            await Task.Delay(2000).ConfigureAwait(false);
+            Assert.False(broker.HasItems);
+            var messages = broker.GetAcceptedMessagesByType<TestEvent>();
+            Assert.NotNull(messages);
+            Assert.Equal(intValue, messages.First().IntValue);
+
+            // test the filter
+            messages = broker.GetAcceptedMessagesByType<TestEvent>(x => x.IntValue == intValue);
+            Assert.NotNull(messages);
+            Assert.Equal(intValue, messages.First().IntValue);
         }
     }
 }
