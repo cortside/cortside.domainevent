@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Amqp;
 using Amqp.Framing;
 using Amqp.Types;
+using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Common;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -87,6 +88,10 @@ namespace Cortside.DomainEvent {
             Guard.Against(() => properties.RoutingKey == null, () => new ArgumentException("RoutingKey is a required argument"));
 
             properties.MessageId = properties.MessageId ?? Guid.NewGuid().ToString();
+            // if the correlationId is not set, set one from the current context
+            if (string.IsNullOrEmpty(properties.CorrelationId)) {
+                properties.CorrelationId = CorrelationContext.GetCorrelationId(true);
+            }
 
             var message = new Message(data) {
                 Header = new Header {

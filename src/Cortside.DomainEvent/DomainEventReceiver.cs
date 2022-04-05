@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Amqp;
 using Amqp.Framing;
+using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
@@ -122,6 +123,11 @@ namespace Cortside.DomainEvent {
                 ["MessageId"] = message.Properties.MessageId,
                 ["MessageType"] = messageTypeName
             };
+
+            // if message has correlationId, set it so that handling can be found by initial correlation
+            if (!string.IsNullOrWhiteSpace(message.Properties.CorrelationId)) {
+                CorrelationContext.SetCorrelationId(message.Properties.CorrelationId);
+            }
 
             var timer = new Stopwatch();
             timer.Start();

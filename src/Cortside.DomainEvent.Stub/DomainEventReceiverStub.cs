@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Amqp;
+using Cortside.Common.Correlation;
 using Cortside.Common.Threading;
 using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
@@ -74,6 +75,11 @@ namespace Cortside.DomainEvent.Stub {
                 ["MessageId"] = message.Properties.MessageId,
                 ["MessageType"] = messageTypeName
             };
+
+            // if message has correlationId, set it so that handling can be found by initial correlation
+            if (!string.IsNullOrWhiteSpace(message.Properties.CorrelationId)) {
+                CorrelationContext.SetCorrelationId(message.Properties.CorrelationId);
+            }
 
             using (logger.BeginScope(properties)) {
                 logger.LogInformation($"Received message {message.Properties.MessageId}");
