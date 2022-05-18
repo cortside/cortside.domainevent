@@ -8,8 +8,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.4.3" />
-    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.3" />
+    <PackageReference Include="AMQPNetLite.Core" Version="2.4.4" />
+    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.4" />
     <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
