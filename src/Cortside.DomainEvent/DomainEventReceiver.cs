@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Transactions;
 using Amqp;
 using Amqp.Framing;
 using Cortside.Common.Correlation;
@@ -194,34 +193,37 @@ namespace Cortside.DomainEvent {
                                 break;
 
                             case HandlerResult.Retry:
-                                var deliveryCount = message.Header.DeliveryCount;
-                                var delay = 10 * deliveryCount;
-                                var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
-
-                                using (var ts = new TransactionScope()) {
-                                    var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
-                                    // create a new message to be queued with scheduled delivery time
-                                    var retry = new Message(body) {
-                                        Header = message.Header,
-                                        Footer = message.Footer,
-                                        Properties = message.Properties,
-                                        ApplicationProperties = message.ApplicationProperties
-                                    };
-                                    retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
-                                    sender.Send(retry);
-                                    receiver.Accept(message);
-                                }
-                                Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
+                                // until i can figure out how to have a similar safe way to handle accept and requeue
+                                // without transactions, disabling this functionality.
+                                // https://github.com/cortside/cortside.domainevent/issues/21
+                                Logger.LogInformation($"Message {message.Properties.MessageId} being failed instead of expected retry.  See issue https://github.com/cortside/cortside.domainevent/issues/21");
+                                receiver.Reject(message);
                                 break;
+                            //var deliveryCount = message.Header.DeliveryCount;
+                            //var delay = 10 * deliveryCount;
+                            //var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
+                            //using (var ts = new TransactionScope()) {
+                            //    var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
+                            //    // create a new message to be queued with scheduled delivery time
+                            //    var retry = new Message(body) {
+                            //        Header = message.Header,
+                            //        Footer = message.Footer,
+                            //        Properties = message.Properties,
+                            //        ApplicationProperties = message.ApplicationProperties
+                            //    };
+                            //    retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
+                            //    sender.Send(retry);
+                            //    receiver.Accept(message);
+                            //}
+                            //Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
+                            //break;
                             case HandlerResult.Failed:
                                 receiver.Reject(message);
                                 break;
-
                             case HandlerResult.Release:
                                 receiver.Release(message);
                                 break;
-
                             default:
                                 throw new NotImplementedException($"Unknown HandlerResult value of {result}");
                         }
