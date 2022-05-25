@@ -239,7 +239,7 @@ namespace Cortside.DomainEvent.Tests {
             return message;
         }
 
-        public byte[] GetByteArray(string body) {
+        private byte[] GetByteArray(string body) {
             MemoryStream stream = new MemoryStream();
             DataContractSerializer s = new DataContractSerializer(typeof(string));
             XmlDictionaryWriter writer = XmlDictionaryWriter.CreateBinaryWriter(stream);
