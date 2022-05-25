@@ -13,7 +13,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
     public class E2ETransactionTest : E2EBase {
 
         [Fact]
-        public async Task ShouldBeAbleToSendAndReceive() {
+        public async Task ShouldBeAbleToSendAndReceiveAsync() {
             if (enabled) {
                 var @event = NewTestEvent();
                 var correlationId = Guid.NewGuid().ToString();
@@ -46,7 +46,6 @@ namespace Cortside.DomainEvent.IntegrationTests {
         /// domainevent version of amqptransaction test TransactedRetiringAndPosting
         /// </summary>
         /// <returns></returns>
-        [Fact(Skip = "hangs")]
         public async Task ShouldUseTransactionScope() {
             var s = Guid.NewGuid().ToString();
             if (enabled) {

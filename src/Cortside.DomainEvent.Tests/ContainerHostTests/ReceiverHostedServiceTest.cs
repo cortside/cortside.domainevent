@@ -11,7 +11,7 @@ using Xunit;
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "hangs build")]
-        public async Task ReceiverHostedService() {
+        public async Task ReceiverHostedServiceAsync() {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
             services.AddHostedService<ReceiverHostedService>();

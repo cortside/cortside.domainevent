@@ -8,8 +8,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.4.3" />
-    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.3" />
+    <PackageReference Include="AMQPNetLite.Core" Version="2.4.4" />
+    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.4" />
+    <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="coverlet.collector" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,6 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="Lindhart.Analyser.MissingAwaitWarning" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.21" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.21" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />

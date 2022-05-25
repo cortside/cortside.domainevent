@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
     public class DomainEventMessage {
-        internal static DomainEventMessage CreateGenericInstance(Type dataType, Message message) {
+        public static DomainEventMessage CreateGenericInstance(Type dataType, Message message) {
             string body = GetBody(message);
 
             List<string> errors = new List<string>();

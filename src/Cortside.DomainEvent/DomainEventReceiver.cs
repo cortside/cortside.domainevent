@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Transactions;
 using Amqp;
 using Amqp.Framing;
+using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
@@ -43,7 +43,7 @@ namespace Cortside.DomainEvent {
 
             Link.Start(Settings.Credits, (link, msg) => {
                 // fire and forget
-                _ = OnMessageCallback(link, msg);
+                _ = OnMessageCallbackAsync(link, msg);
             });
         }
 
@@ -116,13 +116,18 @@ namespace Cortside.DomainEvent {
             return new EventMessage(domainEvent, message, Link);
         }
 
-        protected async Task OnMessageCallback(IReceiverLink receiver, Message message) {
+        protected async Task OnMessageCallbackAsync(IReceiverLink receiver, Message message) {
             var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,
                 ["MessageType"] = messageTypeName
             };
+
+            // if message has correlationId, set it so that handling can be found by initial correlation
+            if (!string.IsNullOrWhiteSpace(message.Properties.CorrelationId)) {
+                CorrelationContext.SetCorrelationId(message.Properties.CorrelationId);
+            }
 
             var timer = new Stopwatch();
             timer.Start();
@@ -166,7 +171,7 @@ namespace Cortside.DomainEvent {
                     HandlerResult result;
                     dynamic dhandler = handler;
                     try {
-                        result = await dhandler.HandleAsync(domainEvent);
+                        result = await dhandler.HandleAsync(domainEvent).ConfigureAwait(false);
                     } catch (Exception ex) {
                         Logger.LogError(ex, $"Message {message.Properties.MessageId} caught unhandled exception {ex.Message}");
                         result = HandlerResult.Failed;
@@ -189,34 +194,37 @@ namespace Cortside.DomainEvent {
                                 break;
 
                             case HandlerResult.Retry:
-                                var deliveryCount = message.Header.DeliveryCount;
-                                var delay = 10 * deliveryCount;
-                                var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
-
-                                using (var ts = new TransactionScope()) {
-                                    var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
-                                    // create a new message to be queued with scheduled delivery time
-                                    var retry = new Message(body) {
-                                        Header = message.Header,
-                                        Footer = message.Footer,
-                                        Properties = message.Properties,
-                                        ApplicationProperties = message.ApplicationProperties
-                                    };
-                                    retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
-                                    sender.Send(retry);
-                                    receiver.Accept(message);
-                                }
-                                Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
+                                // until i can figure out how to have a similar safe way to handle accept and requeue
+                                // without transactions, disabling this functionality.
+                                // https://github.com/cortside/cortside.domainevent/issues/21
+                                Logger.LogInformation($"Message {message.Properties.MessageId} being failed instead of expected retry.  See issue https://github.com/cortside/cortside.domainevent/issues/21");
+                                receiver.Reject(message);
                                 break;
+                            //var deliveryCount = message.Header.DeliveryCount;
+                            //var delay = 10 * deliveryCount;
+                            //var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
 
+                            //using (var ts = new TransactionScope()) {
+                            //    var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
+                            //    // create a new message to be queued with scheduled delivery time
+                            //    var retry = new Message(body) {
+                            //        Header = message.Header,
+                            //        Footer = message.Footer,
+                            //        Properties = message.Properties,
+                            //        ApplicationProperties = message.ApplicationProperties
+                            //    };
+                            //    retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
+                            //    sender.Send(retry);
+                            //    receiver.Accept(message);
+                            //}
+                            //Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
+                            //break;
                             case HandlerResult.Failed:
                                 receiver.Reject(message);
                                 break;
-
                             case HandlerResult.Release:
                                 receiver.Release(message);
                                 break;
-
                             default:
                                 throw new ArgumentOutOfRangeException($"Unknown HandlerResult value of {result}");
                         }
