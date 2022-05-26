@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.Tests {
-
     public class TestEventHandler : IDomainEventHandler<TestEvent> {
         private readonly ILogger<TestEventHandler> logger;
 
@@ -19,6 +19,11 @@ namespace Cortside.DomainEvent.Tests {
                 ["MessageId"] = @event.MessageId,
                 ["MessageType"] = @event.MessageTypeName
             };
+
+            var correlationId = CorrelationContext.GetCorrelationId();
+            if (@event.Data.IntValue == int.MaxValue && correlationId != @event.CorrelationId) {
+                throw new ArgumentException($"CorrelationId {@event.CorrelationId} should equal {correlationId}");
+            }
 
             using (logger.BeginScope(properties)) {
                 TestEvent.Instances.Add(@event.MessageId, @event);

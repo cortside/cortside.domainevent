@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests {
-
     public class DomainEventReceiverTest {
         private readonly IServiceProvider serviceProvider;
         private readonly DomainEventReceiverSettings settings;
@@ -41,7 +40,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleWelformedJson() {
+        public async Task ShouldHandleWelformedJsonAsync() {
             // arrange
             var @event = new TestEvent() { IntValue = 1 };
             var eventType = @event.GetType().FullName;
@@ -51,7 +50,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -61,7 +60,7 @@ namespace Cortside.DomainEvent.Tests {
         [Theory]
         [InlineData("{")]
         [InlineData("{ \"contractorId\": \"6677\", \"contractorNumber\": \"1037\" \"sponsorNumber\": \"2910\" }")]
-        public async Task ShouldHandleMalformedJson(string body) {
+        public async Task ShouldHandleMalformedJsonAsync(string body) {
             // arrange
             var @event = new TestEvent();
             var eventType = @event.GetType().FullName;
@@ -70,7 +69,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -78,7 +77,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleInvalidType() {
+        public async Task ShouldHandleInvalidTypeAsync() {
             // arrange
             var @event = new TestEvent();
             var eventType = @event.GetType().FullName;
@@ -88,7 +87,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -96,7 +95,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleByteArray() {
+        public async Task ShouldHandleByteArrayAsync() {
             // arrange
             var @event = new TestEvent() { IntValue = 1 };
             var eventType = @event.GetType().FullName;
@@ -106,7 +105,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
@@ -114,7 +113,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleMessageTypeNotFound() {
+        public async Task ShouldHandleMessageTypeNotFoundAsync() {
             // arrange
             var @event = new TestEvent();
             var eventType = @event.GetType().FullName;
@@ -125,7 +124,7 @@ namespace Cortside.DomainEvent.Tests {
             receiver.Setup(new Dictionary<string, Type>());
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -133,7 +132,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleHandlerNotFound() {
+        public async Task ShouldHandleHandlerNotFoundAsync() {
             // arrange
             var @event = new TestEvent();
             var eventType = @event.GetType().FullName;
@@ -145,7 +144,7 @@ namespace Cortside.DomainEvent.Tests {
             receiver.SetProvider(provider);
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -153,7 +152,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleSuccessResult() {
+        public async Task ShouldHandleSuccessResultAsync() {
             // arrange
             var @event = new TestEvent() { IntValue = 2 };
             var eventType = @event.GetType().FullName;
@@ -163,7 +162,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -171,7 +170,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleFailedResult() {
+        public async Task ShouldHandleFailedResultAsync() {
             // arrange
             var @event = new TestEvent() { IntValue = -1 };
             var eventType = @event.GetType().FullName;
@@ -181,7 +180,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -189,7 +188,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact(Skip = "no tx handling with containerhost")]
-        public async Task ShouldHandleRetryResult() {
+        public async Task ShouldHandleRetryResultAsync() {
             // arrange
             var @event = new TestEvent() { IntValue = 0 };
             var eventType = @event.GetType().FullName;
@@ -199,7 +198,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -207,7 +206,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleUnhandledException() {
+        public async Task ShouldHandleUnhandledExceptionAsync() {
             // arrange
             var @event = new TestEvent() { IntValue = int.MinValue };
             var eventType = @event.GetType().FullName;
@@ -217,7 +216,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallback(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
 
             // assert
             receiverLink.VerifyAll();
@@ -239,7 +238,7 @@ namespace Cortside.DomainEvent.Tests {
             return message;
         }
 
-        public byte[] GetByteArray(string body) {
+        private byte[] GetByteArray(string body) {
             MemoryStream stream = new MemoryStream();
             DataContractSerializer s = new DataContractSerializer(typeof(string));
             XmlDictionaryWriter writer = XmlDictionaryWriter.CreateBinaryWriter(stream);

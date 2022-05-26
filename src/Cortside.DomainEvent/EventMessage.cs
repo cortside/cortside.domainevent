@@ -2,7 +2,6 @@ using Amqp;
 using Amqp.Types;
 
 namespace Cortside.DomainEvent {
-
     public class EventMessage {
         private readonly Message message;
         private readonly IReceiverLink link;

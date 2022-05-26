@@ -14,7 +14,7 @@ using Xunit;
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
     public class OutboxHostedReceiverTest {
         [Fact]
-        public async Task StartOutboxHostedService() {
+        public async Task StartOutboxHostedServiceAsync() {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
             services.AddHostedService<OutboxHostedService<EntityContext>>();
@@ -55,7 +55,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPurgePublishedMessages() {
+        public async Task ShouldPurgePublishedMessagesAsync() {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
             services.AddHostedService<OutboxHostedService<EntityContext>>();
