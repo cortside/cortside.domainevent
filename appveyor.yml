@@ -18,7 +18,7 @@ environment:
   JAVA_HOME: C:\Program Files\Java\jdk15
   SONAR_TOKEN:
     secure: fNmV/P8zSNwd3LWpzw2nnm807oe1Hr0gr11hTItGCXmnVQ0tHN1ESPUjLYjsXmpG
-  SONAR_PROJECT=cortside_cortside.domainevent
+  SONAR_PROJECT: cortside_cortside.domainevent
 
 init:
 - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
