@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using Amqp;
 using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
     public class DomainEventMessage {
-        internal static DomainEventMessage CreateGenericInstance(Type dataType, Message message) {
+        public static DomainEventMessage CreateGenericInstance(Type dataType, Message message) {
             string body = GetBody(message);
 
             List<string> errors = new List<string>();
@@ -19,7 +18,7 @@ namespace Cortside.DomainEvent {
                         args.ErrorContext.Handled = true;
                     }
                 });
-            if (errors.Any()) {
+            if (errors.Count > 0) {
                 throw new JsonSerializationException($"Message {message.Properties.MessageId} rejected because of errors deserializing messsage body: {string.Join(", ", errors)}");
             }
 

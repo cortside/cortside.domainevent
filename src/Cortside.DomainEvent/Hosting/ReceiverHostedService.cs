@@ -9,7 +9,7 @@ namespace Cortside.DomainEvent.Hosting {
     /// <summary>
     /// Message receiver hosted service
     /// </summary>
-    public class ReceiverHostedService : BackgroundService {
+    public class ReceiverHostedService : BackgroundService, IDisposable {
         private readonly ILogger logger;
         private readonly IServiceProvider services;
         private readonly ReceiverHostedServiceSettings settings;
@@ -24,15 +24,19 @@ namespace Cortside.DomainEvent.Hosting {
             this.settings = settings;
         }
 
-        public override async Task StartAsync(CancellationToken cancellationToken) {
-            logger.LogInformation($"ReceiverHostedService StartAsync() entered.");
-            await base.StartAsync(cancellationToken).ConfigureAwait(false);
+        public override Task StartAsync(CancellationToken cancellationToken) {
+            logger.LogInformation("ReceiverHostedService StartAsync() entered.");
+            return base.StartAsync(cancellationToken);
         }
 
         /// <summary>
         /// Interface method to start service
         /// </summary>
-        protected async override Task ExecuteAsync(CancellationToken stoppingToken) {
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
+            if (stoppingToken.IsCancellationRequested) {
+                throw new OperationCanceledException(stoppingToken);
+            }
+
             await Task.Yield();
 
             if (!settings.Enabled) {
@@ -41,19 +45,19 @@ namespace Cortside.DomainEvent.Hosting {
                 logger.LogError("Configuration error:  No event types have been configured for the receiverhostedeservice");
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
-                    if (receiver == null || receiver.Link == null || receiver.Link.IsClosed) {
+                    if (receiver == null || receiver.Link?.IsClosed != false) {
                         DisposeReceiver();
                         receiver = services.GetService<IDomainEventReceiver>();
-                        logger.LogInformation($"Starting receiver...");
+                        logger.LogInformation("Starting receiver...");
                         try {
                             receiver.StartAndListen(settings.MessageTypes);
                             logger.LogInformation("Receiver started");
                         } catch (Exception e) {
-                            logger.LogCritical($"Unable to start receiver. \n {e}");
+                            logger.LogCritical(e, $"Unable to start receiver. \n {e}");
                         }
                         receiver.Closed += OnReceiverClosed;
                     }
-                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval)).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval), stoppingToken).ConfigureAwait(false);
                 }
             }
         }
@@ -79,18 +83,9 @@ namespace Cortside.DomainEvent.Hosting {
             receiver?.Close();
         }
 
-        /// <summary>
-        /// Dispose
-        /// </summary>
         public override void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-        /// <summary>
-        /// Finalizer.
-        /// </summary>
-        ~ReceiverHostedService() {
-            Dispose(false);
         }
 
         /// <summary>
@@ -99,6 +94,13 @@ namespace Cortside.DomainEvent.Hosting {
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             DisposeReceiver();
+        }
+
+        /// <summary>
+        /// Finalizer.
+        /// </summary>
+        ~ReceiverHostedService() {
+            Dispose(false);
         }
     }
 }

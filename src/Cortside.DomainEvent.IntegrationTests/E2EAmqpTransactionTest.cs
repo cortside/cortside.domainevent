@@ -8,7 +8,6 @@ using Amqp.Framing;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
-
     public class E2EAmqpTransactionTest : E2EBase {
         private readonly Amqp.Address address;
         private string path;

@@ -14,8 +14,8 @@ namespace Cortside.DomainEvent.Tests {
             EventTypeLookup = eventTypeLookup;
         }
 
-        public async Task MessageCallback(IReceiverLink receiver, Message message) {
-            await OnMessageCallback(receiver, message).ConfigureAwait(false);
+        public Task MessageCallbackAsync(IReceiverLink receiver, Message message) {
+            return OnMessageCallbackAsync(receiver, message);
         }
 
         internal void SetProvider(ServiceProvider provider) {

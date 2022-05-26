@@ -6,11 +6,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-
     public partial class ContainerHostTest : BaseHostTest {
-
         [Fact]
-        public async Task ShouldReceiveMessage_Accept() {
+        public async Task ShouldReceiveMessage_AcceptAsync() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
@@ -43,7 +41,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldReceiveMessage_Reject() {
+        public async Task ShouldReceiveMessage_RejectAsync() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
@@ -86,7 +84,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact(Skip = "concurrency issue")]
-        public async Task ShouldReceiveMessage_Release() {
+        public async Task ShouldReceiveMessage_ReleaseAsync() {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();

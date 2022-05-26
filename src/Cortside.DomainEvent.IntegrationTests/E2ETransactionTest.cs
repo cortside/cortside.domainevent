@@ -9,11 +9,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
-
     public class E2ETransactionTest : E2EBase {
-
         [Fact]
-        public async Task ShouldBeAbleToSendAndReceive() {
+        public async Task ShouldBeAbleToSendAndReceiveAsync() {
             if (enabled) {
                 var @event = NewTestEvent();
                 var correlationId = Guid.NewGuid().ToString();
@@ -46,8 +44,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
         /// domainevent version of amqptransaction test TransactedRetiringAndPosting
         /// </summary>
         /// <returns></returns>
-        [Fact(Skip = "hangs")]
-        public async Task ShouldUseTransactionScope() {
+        [Fact]
+        public async Task ShouldUseTransactionScopeAsync() {
             var s = Guid.NewGuid().ToString();
             if (enabled) {
                 const int nMsgs = 10;
@@ -74,8 +72,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 var message1 = await receiver.ReceiveAsync().ConfigureAwait(false);
                 var message2 = await receiver.ReceiveAsync().ConfigureAwait(false);
 
-                Console.Out.WriteLine($"message1: {message1.GetData<TestEvent>().IntValue}");
-                Console.Out.WriteLine($"message2: {message2.GetData<TestEvent>().IntValue}");
+                await Console.Out.WriteLineAsync($"message1: {message1.GetData<TestEvent>().IntValue}").ConfigureAwait(false);
+                await Console.Out.WriteLineAsync($"message2: {message2.GetData<TestEvent>().IntValue}").ConfigureAwait(false);
 
                 // ack message1 and send a new message in a txn
                 using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
