@@ -9,7 +9,7 @@ namespace Cortside.DomainEvent.Hosting {
     /// <summary>
     /// Message receiver hosted service
     /// </summary>
-    public class ReceiverHostedService : BackgroundService, IDisposable {
+    public class ReceiverHostedService : BackgroundService {
         private readonly ILogger logger;
         private readonly IServiceProvider services;
         private readonly ReceiverHostedServiceSettings settings;
@@ -83,16 +83,10 @@ namespace Cortside.DomainEvent.Hosting {
             receiver?.Close();
         }
 
-        public override void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         /// <summary>
         /// Dispose
         /// </summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        public override void Dispose() {
             DisposeReceiver();
         }
 
@@ -100,7 +94,7 @@ namespace Cortside.DomainEvent.Hosting {
         /// Finalizer.
         /// </summary>
         ~ReceiverHostedService() {
-            Dispose(false);
+            Dispose();
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Cortside.DomainEvent.Stub {
             this.provider = provider;
             this.settings = settings;
             this.logger = logger;
-            this.receiver = queue;
+            receiver = queue;
         }
 
         public event ReceiverClosedCallback Closed;
@@ -39,7 +39,7 @@ namespace Cortside.DomainEvent.Stub {
         }
 
         private void Listen() {
-            do {
+            while (true) {
                 while (receiver.HasItems) {
                     var message = receiver.Peek();
 
@@ -49,7 +49,7 @@ namespace Cortside.DomainEvent.Stub {
                         continue;
                     }
                     var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
-                    if (eventTypeLookup != null && !eventTypeLookup.ContainsKey(messageTypeName)) {
+                    if (eventTypeLookup?.ContainsKey(messageTypeName) == false) {
                         receiver.EnqueueUnmapped(message);
                         receiver.Dequeue();
                     } else {
@@ -57,10 +57,12 @@ namespace Cortside.DomainEvent.Stub {
                     }
                 }
                 Thread.Sleep(500);
-            } while (true);
+            }
         }
 
         private void InternalStart(IDictionary<string, Type> eventTypeLookup) {
+            logger.LogInformation($"Starting {this.GetType().Name} for {settings.AppName}");
+
             this.eventTypeLookup = eventTypeLookup;
             logger.LogInformation($"Registering {eventTypeLookup.Count} event types:");
             foreach (var pair in eventTypeLookup) {

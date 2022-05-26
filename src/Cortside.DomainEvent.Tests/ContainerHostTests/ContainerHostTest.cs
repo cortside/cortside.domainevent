@@ -7,8 +7,6 @@ using Amqp.Framing;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    //[CollectionDefinition("dbcontexttests", DisableParallelization = true)]
-
     public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "tx error")]
         public void Retry() {
@@ -70,8 +68,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var sender = new SenderLink(session, "send-link", name);
 
             for (int i = 0; i < count; i++) {
-                var message = new Message("msg" + i);
-                message.Properties = new Properties() { GroupId = name };
+                var message = new Message("msg" + i) {
+                    Properties = new Properties() { GroupId = name }
+                };
                 sender.Send(message, Timeout);
             }
 
@@ -90,8 +89,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             sender = new SenderLink(session, "send-link", "any");
             for (int i = 0; i < count; i++) {
-                var message = new Message("msg" + i);
-                message.Properties = new Properties() { GroupId = name };
+                var message = new Message("msg" + i) {
+                    Properties = new Properties() { GroupId = name }
+                };
                 sender.Send(message, Timeout);
             }
 
@@ -112,8 +112,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var sender = new SenderLink(session, "send-link", name);
 
             for (int i = 0; i < count; i++) {
-                var message = new Message("msg" + i);
-                message.Properties = new Properties() { GroupId = name };
+                var message = new Message("msg" + i) {
+                    Properties = new Properties() { GroupId = name }
+                };
                 sender.Send(message, Timeout);
             }
 
@@ -187,27 +188,26 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 Target = new Target() { Address = replyTo }
             };
 
-            var doneEvent = new ManualResetEvent(false);
+            var doneEvent = new ManualResetEventSlim(false);
             List<string> responses = new List<string>();
             ReceiverLink receiver = new ReceiverLink(session, "request-client-receiver", recvAttach, null);
-            receiver.Start(
-                20,
-                (link, message) => {
-                    responses.Add(message.GetBody<string>());
-                    link.Accept(message);
-                    if (responses.Count == count) {
-                        doneEvent.Set();
-                    }
-                });
+            receiver.Start(20, (link, message) => {
+                responses.Add(message.GetBody<string>());
+                link.Accept(message);
+                if (responses.Count == count) {
+                    doneEvent.Set();
+                }
+            });
 
             SenderLink sender = new SenderLink(session, "request-client-sender", name);
             for (int i = 0; i < count; i++) {
-                Message request = new Message("Hello");
-                request.Properties = new Properties() { MessageId = "request" + i, ReplyTo = replyTo };
+                Message request = new Message("Hello") {
+                    Properties = new Properties() { MessageId = "request" + i, ReplyTo = replyTo }
+                };
                 sender.Send(request, null, null);
             }
 
-            Assert.True(doneEvent.WaitOne(10000), "Not completed in time");
+            Assert.True(doneEvent.Wait(10000), "Not completed in time");
 
             receiver.Close();
             sender.Close();

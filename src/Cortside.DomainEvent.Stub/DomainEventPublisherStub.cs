@@ -10,9 +10,10 @@ namespace Cortside.DomainEvent.Stub {
             this.queue = queue;
         }
 
-        protected override async Task SendAsync(Message message, EventProperties properties) {
+        protected override Task SendAsync(Message message, EventProperties properties) {
             queue.Enqueue(message);
             Logger.LogInformation($"Published message {message.Properties.MessageId}");
+            return Task.CompletedTask;
         }
     }
 }
