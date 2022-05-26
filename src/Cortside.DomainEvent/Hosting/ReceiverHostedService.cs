@@ -9,7 +9,7 @@ namespace Cortside.DomainEvent.Hosting {
     /// <summary>
     /// Message receiver hosted service
     /// </summary>
-    public class ReceiverHostedService : BackgroundService {
+    public class ReceiverHostedService : BackgroundService, IDisposable {
         private readonly ILogger logger;
         private readonly IServiceProvider services;
         private readonly ReceiverHostedServiceSettings settings;
@@ -25,14 +25,18 @@ namespace Cortside.DomainEvent.Hosting {
         }
 
         public override Task StartAsync(CancellationToken cancellationToken) {
-            logger.LogInformation($"ReceiverHostedService StartAsync() entered.");
+            logger.LogInformation("ReceiverHostedService StartAsync() entered.");
             return base.StartAsync(cancellationToken);
         }
 
         /// <summary>
         /// Interface method to start service
         /// </summary>
-        protected async override Task ExecuteAsync(CancellationToken stoppingToken) {
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
+            if (stoppingToken.IsCancellationRequested) {
+                throw new OperationCanceledException(stoppingToken);
+            }
+
             await Task.Yield();
 
             if (!settings.Enabled) {
@@ -41,10 +45,10 @@ namespace Cortside.DomainEvent.Hosting {
                 logger.LogError("Configuration error:  No event types have been configured for the receiverhostedeservice");
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
-                    if (receiver == null || receiver.Link == null || receiver.Link.IsClosed) {
+                    if (receiver == null || receiver.Link?.IsClosed != false) {
                         DisposeReceiver();
                         receiver = services.GetService<IDomainEventReceiver>();
-                        logger.LogInformation($"Starting receiver...");
+                        logger.LogInformation("Starting receiver...");
                         try {
                             receiver.StartAndListen(settings.MessageTypes);
                             logger.LogInformation("Receiver started");
@@ -53,7 +57,7 @@ namespace Cortside.DomainEvent.Hosting {
                         }
                         receiver.Closed += OnReceiverClosed;
                     }
-                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval)).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval), stoppingToken).ConfigureAwait(false);
                 }
             }
         }

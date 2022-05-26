@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 namespace Cortside.DomainEvent.Tests {
-    public enum StatusEnum {
+    public enum Status {
         New,
         PendingWork,
         Closed
@@ -12,6 +12,6 @@ namespace Cortside.DomainEvent.Tests {
 
         public int IntValue { set; get; }
         public string StringValue { set; get; }
-        public StatusEnum Status { set; get; }
+        public Status Status { set; get; }
     }
 }

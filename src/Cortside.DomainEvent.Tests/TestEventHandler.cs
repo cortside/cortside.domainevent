@@ -6,7 +6,6 @@ using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.Tests {
-
     public class TestEventHandler : IDomainEventHandler<TestEvent> {
         private readonly ILogger<TestEventHandler> logger;
 
@@ -22,7 +21,7 @@ namespace Cortside.DomainEvent.Tests {
             };
 
             var correlationId = CorrelationContext.GetCorrelationId();
-            if (@event.Data.IntValue == Int32.MaxValue && correlationId != @event.CorrelationId) {
+            if (@event.Data.IntValue == int.MaxValue && correlationId != @event.CorrelationId) {
                 throw new ArgumentException($"CorrelationId {@event.CorrelationId} should equal {correlationId}");
             }
 

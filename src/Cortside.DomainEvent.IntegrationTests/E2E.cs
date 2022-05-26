@@ -8,9 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
-
     public class E2E : E2EBase {
-
         [Fact]
         public async Task ShouldBeAbleToSendAndReceiveAsync() {
             if (enabled) {
@@ -30,7 +28,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 Assert.DoesNotContain(mockLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
-                Assert.True(TestEvent.Instances.Any());
+                Assert.True(TestEvent.Instances.Count > 0);
                 Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
                 var received = TestEvent.Instances.Single(x => x.Value.CorrelationId == correlationId).Value;
                 Assert.Equal(@event.StringValue, received.Data.StringValue);
@@ -59,7 +57,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 Assert.True(elapsed.TotalSeconds >= 17, $"{elapsed.TotalSeconds} >= 17");
 
-                Assert.True(TestEvent.Instances.Any());
+                Assert.True(TestEvent.Instances.Count > 0);
                 Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
                 var received = TestEvent.Instances.Single(x => x.Value.CorrelationId == correlationId).Value;
                 Assert.Equal(@event.StringValue, received.Data.StringValue);
@@ -68,7 +66,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldBeAbleHaveHandlerRetry() {
+        public async Task ShouldBeAbleHaveHandlerRetryAsync() {
             if (enabled) {
                 var @event = new TestEvent {
                     IntValue = 0,  // 0=retry
@@ -83,19 +81,19 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 ReceiveAndWait(correlationId);
-                Assert.True(TestEvent.Instances.Any());
+                Assert.True(TestEvent.Instances.Count > 0);
                 Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
 
                 TestEvent.Instances.Clear();
                 var elapsed = ReceiveAndWait(correlationId);
-                Assert.True(TestEvent.Instances.Any());
+                Assert.True(TestEvent.Instances.Count > 0);
                 Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
 
                 Assert.DoesNotContain(mockLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
                 Assert.True(elapsed.TotalSeconds >= 17, $"{elapsed.TotalSeconds} >= 17");
 
-                Assert.True(TestEvent.Instances.Any());
+                Assert.True(TestEvent.Instances.Count > 0);
                 Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
                 var received = TestEvent.Instances.Single(x => x.Value.CorrelationId == correlationId).Value;
                 Assert.Equal(@event.StringValue, received.Data.StringValue);

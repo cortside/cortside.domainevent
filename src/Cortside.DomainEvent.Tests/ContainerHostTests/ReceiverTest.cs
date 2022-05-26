@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-
     public partial class ContainerHostTest : BaseHostTest {
-
         [Fact]
         public async Task ShouldReceiveMessage_AcceptAsync() {
             receiverSettings.Queue = Guid.NewGuid().ToString();

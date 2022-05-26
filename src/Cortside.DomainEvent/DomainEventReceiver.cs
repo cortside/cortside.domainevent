@@ -9,9 +9,7 @@ using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
-
     public class DomainEventReceiver : IDomainEventReceiver, IDisposable {
-
         public event ReceiverClosedCallback Closed;
 
         public IServiceProvider Provider { get; protected set; }
@@ -246,7 +244,7 @@ namespace Cortside.DomainEvent {
         }
 
         public void Close(TimeSpan? timeout = null) {
-            timeout = timeout ?? TimeSpan.Zero;
+            timeout ??= TimeSpan.Zero;
             Link?.Session.Close(timeout.Value);
             Link?.Session.Connection.Close(timeout.Value);
             Link?.Close(timeout.Value);
@@ -256,6 +254,11 @@ namespace Cortside.DomainEvent {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
             Close();
         }
     }

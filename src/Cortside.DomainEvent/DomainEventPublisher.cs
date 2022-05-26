@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
-
     public class DomainEventPublisher : IDomainEventPublisher, IDisposable {
         private Connection conn;
         private readonly Session sharedSession;
@@ -84,9 +83,9 @@ namespace Cortside.DomainEvent {
             } else {
                 data = JsonConvert.SerializeObject(@event);
             }
-            properties.EventType = properties.EventType ?? @event.GetType().FullName;
-            properties.Topic = properties.Topic ?? Settings.Topic;
-            properties.RoutingKey = properties.RoutingKey ?? @event.GetType().Name;
+            properties.EventType ??= @event.GetType().FullName;
+            properties.Topic ??= Settings.Topic;
+            properties.RoutingKey ??= @event.GetType().Name;
 
             return CreateMessage(data, properties, scheduledEnqueueTimeUtc);
         }
@@ -96,7 +95,7 @@ namespace Cortside.DomainEvent {
             Guard.Against(() => properties.Topic == null, () => new ArgumentException("Topic is a required argument"));
             Guard.Against(() => properties.RoutingKey == null, () => new ArgumentException("RoutingKey is a required argument"));
 
-            properties.MessageId = properties.MessageId ?? Guid.NewGuid().ToString();
+            properties.MessageId ??= Guid.NewGuid().ToString();
 
             var message = new Message(data) {
                 Header = new Header {
@@ -191,13 +190,18 @@ namespace Cortside.DomainEvent {
         }
 
         public void Close(TimeSpan? timeout = null) {
-            timeout = timeout ?? TimeSpan.Zero;
+            timeout ??= TimeSpan.Zero;
             conn?.Close(timeout.Value);
             conn = null;
             Error = null;
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
             Close();
         }
     }

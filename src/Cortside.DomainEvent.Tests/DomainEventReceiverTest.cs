@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests {
-
     public class DomainEventReceiverTest {
         private readonly IServiceProvider serviceProvider;
         private readonly DomainEventReceiverSettings settings;
