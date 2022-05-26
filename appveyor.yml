@@ -43,7 +43,7 @@ build:
   verbosity: minimal
 
 build_script:
-- dotnet tool install --global dotnet-sonarscanner --version 5.5.3
+- dotnet tool install --global dotnet-sonarscanner --version 5.0.4
 - dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.domainevent" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 - dotnet build src --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
 - dotnet test src --no-restore --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
