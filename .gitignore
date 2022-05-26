@@ -26,4 +26,5 @@ src/packages/
 config.user.json
 
 coverage.opencover.xml
+coverage.cobertura.xml
 coverage.json
