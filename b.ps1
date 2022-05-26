@@ -5,3 +5,5 @@ dotnet sonarscanner begin /o:"cortside" /k:"cortside_cortside.domainevent" /d:so
 dotnet build src --configuration Debug /property:Version=1.1.174
 dotnet test src --no-restore --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 dotnet sonarscanner end /d:sonar.login="88c88c857e5710d2a8ec472b7b5c2e91eb79fc4d"
+
+gci -Path . -File -Recurse *.xml | Select Name
