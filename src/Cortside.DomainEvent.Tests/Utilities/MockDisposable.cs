@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Cortside.DomainEvent.Tests.Utilities {
     public class MockDisposable : IDisposable {
