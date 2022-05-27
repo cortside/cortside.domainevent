@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -14,6 +15,10 @@
     <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AsyncAnalyzers" Version="1.1.7.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Cortside.Common.Correlation" Version="1.1.226" />
     <PackageReference Include="Cortside.Common.Hosting" Version="1.1.226" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.25" />

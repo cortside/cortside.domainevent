@@ -83,9 +83,6 @@ namespace Cortside.DomainEvent.Hosting {
             receiver?.Close();
         }
 
-        /// <summary>
-        /// Dispose
-        /// </summary>
         public override void Dispose() {
             DisposeReceiver();
         }
