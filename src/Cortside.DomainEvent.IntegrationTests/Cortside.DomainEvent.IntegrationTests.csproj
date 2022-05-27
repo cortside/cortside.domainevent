@@ -9,9 +9,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
-      <PrivateAssets>all</PrivateAssets>
+    <PackageReference Include="AsyncAnalyzers" Version="1.1.7.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="coverlet.collector" Version="3.1.2">
       <PrivateAssets>all</PrivateAssets>
@@ -30,7 +30,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.25" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
