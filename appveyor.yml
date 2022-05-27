@@ -1,5 +1,4 @@
 ## https://www.appveyor.com/docs/appveyor-yml/
-
 image: Visual Studio 2019
 
 version: 1.1.{build}
@@ -44,11 +43,29 @@ build:
   verbosity: minimal
 
 build_script:
-- dotnet tool install --global dotnet-sonarscanner
-- dotnet sonarscanner begin /o:"cortside" /k:"%SONAR_PROJECT%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-- dotnet build src --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
-- dotnet test src --no-restore --no-build --collect:"XPlat Code Coverage" --settings ./src/coverlet.runsettings.xml /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-- dotnet sonarscanner end /d:sonar.login="%SONAR_TOKEN%"
+- ps: >-
+    $version = $env:APPVEYOR_BUILD_VERSION;
+    if (-not (Test-Path env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH)) {
+        $branch = $Env:APPVEYOR_REPO_BRANCH
+        $target = "develop"
+        if ($branch -eq "develop" -or $branch -like "release/*" ) {
+            $target = "master"
+        }
+        if ($branch -eq "master") {
+            $target = ""
+        }
+    } else {
+        $branch = $Env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH
+        $target = $Env:APPVEYOR_REPO_BRANCH
+    }
+    $sonarProject = $Env:SONAR_PROJECT
+    $sonarToken = $Env:SONAR_TOKEN
+    $configuration = $Env:Configuration
+    dotnet tool install --global dotnet-sonarscanner
+    dotnet sonarscanner begin /o:"cortside" /k:"$sonarProject" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="$sonarToken" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.branch.name="$branch" $target
+    dotnet build src --no-restore --configuration $configuration /property:Version=$version
+    dotnet test src --no-restore --no-build --collect:"XPlat Code Coverage" --settings ./src/coverlet.runsettings.xml /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    dotnet sonarscanner end /d:sonar.login="$sonarToken"
 
 after_build:
 - ps: >-
