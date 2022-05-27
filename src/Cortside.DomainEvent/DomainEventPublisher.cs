@@ -78,6 +78,8 @@ namespace Cortside.DomainEvent {
                         await session.Connection.CloseAsync().ConfigureAwait(false);
                         conn = null;
                     }
+                    await session.CloseAsync().ConfigureAwait(false);
+                    await session.Connection.CloseAsync().ConfigureAwait(false);
                 }
             }
         }

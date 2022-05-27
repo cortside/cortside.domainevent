@@ -88,6 +88,7 @@ namespace Cortside.DomainEvent {
             Guard.Against(() => properties.RoutingKey == null, () => new ArgumentException("RoutingKey is a required argument"));
 
             properties.MessageId ??= Guid.NewGuid().ToString();
+
             // if the correlationId is not set, set one from the current context
             if (string.IsNullOrEmpty(properties.CorrelationId)) {
                 properties.CorrelationId = CorrelationContext.GetCorrelationId(true);

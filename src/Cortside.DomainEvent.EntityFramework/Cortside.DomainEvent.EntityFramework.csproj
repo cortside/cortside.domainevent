@@ -17,6 +17,12 @@
   <ItemGroup>
     <PackageReference Include="Cortside.Common.Correlation" Version="1.1.226" />
     <PackageReference Include="Cortside.Common.Hosting" Version="1.1.226" />
+    <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Cortside.Common.Correlation" Version="1.1.226" />
+    <PackageReference Include="Cortside.Common.Hosting" Version="1.1.226" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.25" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.25" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.25" />
