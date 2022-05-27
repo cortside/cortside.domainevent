@@ -64,7 +64,8 @@ build_script:
     $env:SOURCE_BRANCH=$branch;
     $env:TARGET_BRANCH=$target;
 - dotnet tool install --global dotnet-sonarscanner
-- dotnet sonarscanner begin /o:"cortside" /k:"%SONAR_PROJECT%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.branch.name="%SOURCE_BRANCH%" %TARGET_BRANCH%
+- dotnet sonarscanner begin /o:"cortside" /k:"%SONAR_PROJECT%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+#-dotnet sonarscanner begin /o:"cortside" /k:"%SONAR_PROJECT%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.branch.name="%SOURCE_BRANCH%" %TARGET_BRANCH%
 - dotnet build src --no-restore --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
 - dotnet test src --no-restore --no-build --collect:"XPlat Code Coverage" --settings ./src/coverlet.runsettings.xml /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 - dotnet sonarscanner end /d:sonar.login="%SONAR_TOKEN%"
