@@ -52,7 +52,7 @@ build_script:
             $target = "master";
         }
         if ($branch -eq "master") {
-            $target = "";
+            $target = "master";
         }
     } else {
         $branch = $Env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH;
@@ -65,7 +65,6 @@ build_script:
     $env:TARGET_BRANCH=$target;
     echo "building version $version from branch $branch targeting $target";
 - dotnet tool install --global dotnet-sonarscanner
-#- dotnet sonarscanner begin /o:"cortside" /k:"%SONAR_PROJECT%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 - dotnet sonarscanner begin /o:"cortside" /k:"%SONAR_PROJECT%" /v:"%APPVEYOR_BUILD_VERSION%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.branch.name="%SOURCE_BRANCH%" /d:sonar.newCode.referenceBranch="%TARGET_BRANCH%"
 - dotnet build src --no-restore --configuration %Configuration% /property:Version=%APPVEYOR_BUILD_VERSION%
 - dotnet test src --no-restore --no-build --collect:"XPlat Code Coverage" --settings ./src/coverlet.runsettings.xml /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
