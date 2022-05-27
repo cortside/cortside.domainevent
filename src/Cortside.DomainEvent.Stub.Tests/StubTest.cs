@@ -52,7 +52,7 @@ namespace Cortside.DomainEvent.Stub.Tests {
         }
 
         [Fact]
-        public async Task ShouldSetCorrelationId() {
+        public async Task ShouldSetCorrelationIdAsync() {
             var correlationId = Guid.NewGuid().ToString();
             CorrelationContext.SetCorrelationId(Guid.NewGuid().ToString());
 
