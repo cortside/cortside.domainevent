@@ -5,7 +5,7 @@ using Amqp;
 using Amqp.Framing;
 using Amqp.Types;
 using Cortside.Common.Correlation;
-using Cortside.DomainEvent.Common;
+using Cortside.Common.Validation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 

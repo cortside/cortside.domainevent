@@ -2,7 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Cortside.DomainEvent.Common;
+using Cortside.Common.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -25,42 +25,42 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         public event PublisherClosedCallback Closed;
 
-        public async Task PublishAsync<T>(T @event) where T : class {
+        public Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();
-            await InnerSendAsync(@event, properties).ConfigureAwait(false);
+            return InnerSendAsync(@event, properties);
         }
 
-        public async Task PublishAsync<T>(T @event, string correlationId) where T : class {
+        public Task PublishAsync<T>(T @event, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
-            await InnerSendAsync(@event, properties).ConfigureAwait(false);
+            return InnerSendAsync(@event, properties);
         }
 
-        public async Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
-            await InnerSendAsync(@event, properties).ConfigureAwait(false);
+        public Task PublishAsync<T>(T @event, EventProperties properties) where T : class {
+            return InnerSendAsync(@event, properties);
         }
 
-        public async Task PublishAsync(string body, EventProperties properties) {
-            await InnerSendAsync(body, properties).ConfigureAwait(false);
+        public Task PublishAsync(string body, EventProperties properties) {
+            return InnerSendAsync(body, properties);
         }
 
-        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
+        public Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc) where T : class {
             var properties = new EventProperties();
-            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
+            return InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
         }
 
-        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
+        public Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, string correlationId) where T : class {
             var properties = new EventProperties() { CorrelationId = correlationId };
-            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
+            return InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
         }
-        public async Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
-            await InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
-        }
-
-        public async Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
-            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
+        public Task ScheduleAsync<T>(T @event, DateTime scheduledEnqueueTimeUtc, EventProperties properties) where T : class {
+            return InnerSendAsync(@event, properties, scheduledEnqueueTimeUtc);
         }
 
-        private async Task InnerSendAsync(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
+        public Task ScheduleAsync(string body, DateTime scheduledEnqueueTimeUtc, EventProperties properties) {
+            return InnerSendAsync(body, properties, scheduledEnqueueTimeUtc);
+        }
+
+        private Task InnerSendAsync(object @event, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
             string body;
             if (Settings.SerializerSettings != null) {
                 body = JsonConvert.SerializeObject(@event, Settings.SerializerSettings);
@@ -71,7 +71,7 @@ namespace Cortside.DomainEvent.EntityFramework {
             properties.Topic ??= Settings.Topic;
             properties.RoutingKey ??= @event.GetType().Name;
 
-            await InnerSendAsync(body, properties, scheduledEnqueueTimeUtc).ConfigureAwait(false);
+            return InnerSendAsync(body, properties, scheduledEnqueueTimeUtc);
         }
 
         private async Task InnerSendAsync(string body, EventProperties properties, DateTime? scheduledEnqueueTimeUtc = null) {
