@@ -13,9 +13,7 @@ using Newtonsoft.Json.Serialization;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-
     public partial class ContainerHostTest : BaseHostTest {
-
         [Fact]
         public async Task ShouldPublishEvent1Async() {
             // arrange
@@ -28,7 +26,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
 
             // act
-            var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = StatusEnum.PendingWork };
+            var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = Status.PendingWork };
             await publisher.PublishAsync(@event).ConfigureAwait(false);
 
             // assert
@@ -59,7 +57,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>());
 
             // act
-            var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = StatusEnum.PendingWork };
+            var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = Status.PendingWork };
             await publisher.PublishAsync(@event).ConfigureAwait(false);
 
             // assert

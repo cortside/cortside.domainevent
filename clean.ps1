@@ -1,5 +1,3 @@
-
-
 Function remove {
     param([string]$item)
     If (Test-Path $item){
@@ -13,7 +11,7 @@ Function Invoke-Cleanup {
         Write-Host "Invoke-Cleanup"
         Write-Host "---------------------"
         # clean package, bin and obj folders
-        Get-ChildItem .\ -include packages,bin,obj,node_modules -Recurse | Where-Object {$_.FullName -NotMatch "BuildScripts"} | foreach ($_) { Write-Host "Removing " + $_.fullname; remove-item $_.fullname -Force -Recurse }
+        Get-ChildItem .\ -include .sonarqube,packages,bin,obj,node_modules -Recurse | Where-Object {$_.FullName -NotMatch "BuildScripts"} | foreach ($_) { Write-Host "Removing " + $_.fullname; remove-item $_.fullname -Force -Recurse }
 
         #Find nunit files
         Get-ChildItem -include *.nunit -Recurse |
@@ -35,4 +33,11 @@ Function Invoke-Cleanup {
         #return $true
 }
 
+# stop extraneous processes
+dotnet build-server shutdown
+
+# cleanup all nuget resources
+#dotnet nuget locals --clear all
+
+# remove all bin/obj folders
 Invoke-Cleanup

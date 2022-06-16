@@ -8,8 +8,10 @@ using Amqp.Listener;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
+
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
+    //[CollectionDefinition("dbcontexttests", DisableParallelization = true)]
     public class BaseHostTest : IDisposable {
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
@@ -56,6 +58,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             };
 
             var services = new ServiceCollection();
+            services.AddLogging();
             provider = services.BuildServiceProvider();
         }
 

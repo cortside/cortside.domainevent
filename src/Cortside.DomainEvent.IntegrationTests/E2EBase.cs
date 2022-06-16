@@ -5,13 +5,17 @@ using Cortside.DomainEvent.Tests;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
 namespace Cortside.DomainEvent.IntegrationTests {
+    [CollectionDefinition("e2etests", DisableParallelization = true)]
     public class E2EBase {
         protected readonly IServiceProvider serviceProvider;
         protected readonly Dictionary<string, Type> eventTypes;
         protected readonly Random r;
-        protected readonly DomainEventPublisher publisher;
+        protected DomainEventPublisher publisher;
         protected readonly MockLogger<DomainEventPublisher> mockLogger;
         protected readonly DomainEventReceiverSettings receiverSettings;
         protected readonly DomainEventPublisherSettings publisherSettings;
@@ -29,6 +33,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
             //IoC
             var collection = new ServiceCollection();
             collection.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
+            collection.AddLogging();
             serviceProvider = collection.BuildServiceProvider();
 
             eventTypes = new Dictionary<string, Type> {
@@ -37,14 +42,15 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
             mockLogger = new MockLogger<DomainEventPublisher>();
 
-            var publisherSection = configRoot.GetSection("Publisher.Settings");
-            publisherSettings = GetSettings<DomainEventPublisherSettings>(publisherSection);
-            publisherSettings.Topic = publisherSection["Address"];
+            var domainEventSection = configRoot.GetSection("DomainEventSettings");
+            receiverSettings = GetSettings<DomainEventReceiverSettings>(domainEventSection);
+            receiverSettings.Queue = domainEventSection["Queue"];
+
+            publisherSettings = GetSettings<DomainEventPublisherSettings>(domainEventSection);
+            publisherSettings.Topic = domainEventSection["Topic"];
+
             publisher = new DomainEventPublisher(publisherSettings, mockLogger);
 
-            var receiverSection = configRoot.GetSection("Receiver.Settings");
-            receiverSettings = GetSettings<DomainEventReceiverSettings>(receiverSection);
-            receiverSettings.Queue = publisherSection["Address"];
             enabled = configRoot.GetValue<bool>("EnableE2ETests");
         }
 

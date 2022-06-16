@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 
 namespace Cortside.DomainEvent {
-
     public delegate void PublisherClosedCallback(IDomainEventPublisher publisher, DomainEventError error);
 
     public interface IDomainEventPublisher {

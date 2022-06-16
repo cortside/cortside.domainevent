@@ -9,9 +9,7 @@ using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
-
     public class DomainEventReceiver : IDomainEventReceiver, IDisposable {
-
         public event ReceiverClosedCallback Closed;
 
         public IServiceProvider Provider { get; protected set; }
@@ -52,6 +50,8 @@ namespace Cortside.DomainEvent {
                 throw new InvalidOperationException("Already receiving.");
             }
 
+            Logger.LogInformation($"Starting {GetType().Name} for {Settings.AppName}");
+
             EventTypeLookup = eventTypeLookup;
             Logger.LogInformation($"Registering {eventTypeLookup.Count} event types:");
             foreach (var pair in eventTypeLookup) {
@@ -75,19 +75,20 @@ namespace Cortside.DomainEvent {
 
         protected void OnClosed(IAmqpObject sender, Error error) {
             if (sender.Error != null) {
-                Error = new DomainEventError();
-                Error.Condition = sender.Error.Condition.ToString();
-                Error.Description = sender.Error.Description;
+                Error = new DomainEventError {
+                    Condition = sender.Error.Condition.ToString(),
+                    Description = sender.Error.Description
+                };
             }
             Closed?.Invoke(this, Error);
         }
 
-        public EventMessage Receive() {
-            return Receive(TimeSpan.FromSeconds(60));
+        public Task<EventMessage> ReceiveAsync() {
+            return ReceiveAsync(TimeSpan.FromSeconds(60));
         }
 
-        public EventMessage Receive(TimeSpan timeout) {
-            Message message = Link.Receive(timeout);
+        public async Task<EventMessage> ReceiveAsync(TimeSpan timeout) {
+            Message message = await Link.ReceiveAsync(timeout).ConfigureAwait(false);
             if (message == null) {
                 return null;
             }
@@ -199,25 +200,6 @@ namespace Cortside.DomainEvent {
                                 Logger.LogInformation($"Message {message.Properties.MessageId} being failed instead of expected retry.  See issue https://github.com/cortside/cortside.domainevent/issues/21");
                                 receiver.Reject(message);
                                 break;
-                            //var deliveryCount = message.Header.DeliveryCount;
-                            //var delay = 10 * deliveryCount;
-                            //var scheduleTime = DateTime.UtcNow.AddSeconds(delay);
-
-                            //using (var ts = new TransactionScope()) {
-                            //    var sender = new SenderLink(Link.Session, Settings.AppName + "-retry", Settings.Queue);
-                            //    // create a new message to be queued with scheduled delivery time
-                            //    var retry = new Message(body) {
-                            //        Header = message.Header,
-                            //        Footer = message.Footer,
-                            //        Properties = message.Properties,
-                            //        ApplicationProperties = message.ApplicationProperties
-                            //    };
-                            //    retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
-                            //    sender.Send(retry);
-                            //    receiver.Accept(message);
-                            //}
-                            //Logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
-                            //break;
                             case HandlerResult.Failed:
                                 receiver.Reject(message);
                                 break;
@@ -225,7 +207,7 @@ namespace Cortside.DomainEvent {
                                 receiver.Release(message);
                                 break;
                             default:
-                                throw new NotImplementedException($"Unknown HandlerResult value of {result}");
+                                throw new ArgumentOutOfRangeException($"Unknown HandlerResult value of {result}");
                         }
                     }
                 } catch (Exception ex) {
@@ -245,7 +227,7 @@ namespace Cortside.DomainEvent {
         }
 
         public void Close(TimeSpan? timeout = null) {
-            timeout = timeout ?? TimeSpan.Zero;
+            timeout ??= TimeSpan.Zero;
             Link?.Session.Close(timeout.Value);
             Link?.Session.Connection.Close(timeout.Value);
             Link?.Close(timeout.Value);
@@ -255,6 +237,11 @@ namespace Cortside.DomainEvent {
         }
 
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
             Close();
         }
     }

@@ -2,7 +2,6 @@ using Amqp;
 using Amqp.Listener;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-
     public class TestLinkEndpoint : LinkEndpoint {
         public override void OnMessage(MessageContext messageContext) {
             messageContext.Complete();
@@ -19,5 +18,4 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             dispositionContext.Complete();
         }
     }
-
 }

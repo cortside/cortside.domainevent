@@ -24,6 +24,9 @@ src/packages/
 *.ncrunchsolution
 *.ncrunchproject
 config.user.json
+config.local.json
 
-coverage.opencover.xml
+coverage.*.xml
 coverage.json
+
+.sonarqube

@@ -7,18 +7,16 @@ using Amqp.Framing;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    [CollectionDefinition("dbcontexttests", DisableParallelization = true)]
-
     public partial class ContainerHostTest : BaseHostTest {
         [Fact(Skip = "tx error")]
         public void Retry() {
-            string name = "Retry";
+            const string name = "Retry";
             List<Message> messages = new List<Message>();
             host.RegisterMessageProcessor(name, new TestMessageProcessor(50, messages));
             linkProcessor = new TestLinkProcessor();
             host.RegisterLinkProcessor(linkProcessor);
 
-            int count = 80;
+            const int count = 80;
             var connection = new Connection(Address);
             var session = new Session(connection);
             var sender = new SenderLink(session, "send-link", name);
@@ -57,21 +55,22 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostProcessorOrderTest() {
-            string name = "ContainerHostProcessorOrderTest";
+            const string name = "ContainerHostProcessorOrderTest";
             List<Message> messages = new List<Message>();
             var processor = new TestMessageProcessor(50, messages);
             host.RegisterMessageProcessor(name, processor);
             linkProcessor = new TestLinkProcessor();
             host.RegisterLinkProcessor(linkProcessor);
 
-            int count = 80;
+            const int count = 80;
             var connection = new Connection(Address);
             var session = new Session(connection);
             var sender = new SenderLink(session, "send-link", name);
 
             for (int i = 0; i < count; i++) {
-                var message = new Message("msg" + i);
-                message.Properties = new Properties() { GroupId = name };
+                var message = new Message("msg" + i) {
+                    Properties = new Properties() { GroupId = name }
+                };
                 sender.Send(message, Timeout);
             }
 
@@ -90,8 +89,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             sender = new SenderLink(session, "send-link", "any");
             for (int i = 0; i < count; i++) {
-                var message = new Message("msg" + i);
-                message.Properties = new Properties() { GroupId = name };
+                var message = new Message("msg" + i) {
+                    Properties = new Properties() { GroupId = name }
+                };
                 sender.Send(message, Timeout);
             }
 
@@ -102,18 +102,19 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostMessageProcessorTest() {
-            string name = "ContainerHostMessageProcessorTest";
+            const string name = "ContainerHostMessageProcessorTest";
             var processor = new TestMessageProcessor();
             host.RegisterMessageProcessor(name, processor);
 
-            int count = 500;
+            const int count = 500;
             var connection = new Connection(Address);
             var session = new Session(connection);
             var sender = new SenderLink(session, "send-link", name);
 
             for (int i = 0; i < count; i++) {
-                var message = new Message("msg" + i);
-                message.Properties = new Properties() { GroupId = name };
+                var message = new Message("msg" + i) {
+                    Properties = new Properties() { GroupId = name }
+                };
                 sender.Send(message, Timeout);
             }
 
@@ -130,8 +131,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostMessageSourceTest() {
-            string name = "ContainerHostMessageSourceTest";
-            int count = 100;
+            const string name = "ContainerHostMessageSourceTest";
+            const int count = 100;
             Queue<Message> messages = new Queue<Message>();
             for (int i = 0; i < count; i++) {
                 messages.Enqueue(new Message("test") { Properties = new Properties() { MessageId = name + i } });
@@ -173,41 +174,40 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         [Fact]
         public void ContainerHostRequestProcessorTest() {
-            string name = "ContainerHostRequestProcessorTest";
+            const string name = "ContainerHostRequestProcessorTest";
             var processor = new TestRequestProcessor();
             host.RegisterRequestProcessor(name, processor);
 
-            int count = 500;
+            const int count = 500;
             var connection = new Connection(Address);
             var session = new Session(connection);
 
-            string replyTo = "client-reply-to";
+            const string replyTo = "client-reply-to";
             Attach recvAttach = new Attach() {
                 Source = new Source() { Address = name },
                 Target = new Target() { Address = replyTo }
             };
 
-            var doneEvent = new ManualResetEvent(false);
+            var doneEvent = new ManualResetEventSlim(false);
             List<string> responses = new List<string>();
             ReceiverLink receiver = new ReceiverLink(session, "request-client-receiver", recvAttach, null);
-            receiver.Start(
-                20,
-                (link, message) => {
-                    responses.Add(message.GetBody<string>());
-                    link.Accept(message);
-                    if (responses.Count == count) {
-                        doneEvent.Set();
-                    }
-                });
+            receiver.Start(20, (link, message) => {
+                responses.Add(message.GetBody<string>());
+                link.Accept(message);
+                if (responses.Count == count) {
+                    doneEvent.Set();
+                }
+            });
 
             SenderLink sender = new SenderLink(session, "request-client-sender", name);
             for (int i = 0; i < count; i++) {
-                Message request = new Message("Hello");
-                request.Properties = new Properties() { MessageId = "request" + i, ReplyTo = replyTo };
+                Message request = new Message("Hello") {
+                    Properties = new Properties() { MessageId = "request" + i, ReplyTo = replyTo }
+                };
                 sender.Send(request, null, null);
             }
 
-            Assert.True(doneEvent.WaitOne(10000), "Not completed in time");
+            Assert.True(doneEvent.Wait(10000), "Not completed in time");
 
             receiver.Close();
             sender.Close();
@@ -220,6 +220,5 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 Assert.Equal("OK" + i, responses[i - 1]);
             }
         }
-
     }
 }

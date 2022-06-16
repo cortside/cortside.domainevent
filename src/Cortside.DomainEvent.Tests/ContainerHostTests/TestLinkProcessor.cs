@@ -2,7 +2,6 @@ using System;
 using Amqp.Listener;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-
     public class TestLinkProcessor : ILinkProcessor {
         Func<AttachContext, bool> attachHandler;
         readonly Func<ListenerLink, LinkEndpoint> factory;
@@ -28,5 +27,4 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 attachContext.Attach.Role ? 0 : 30);
         }
     }
-
 }

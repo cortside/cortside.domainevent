@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
-
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
         private readonly IServiceProvider serviceProvider;
         private readonly OutboxHostedServiceConfiguration config;

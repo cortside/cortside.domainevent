@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Cortside.DomainEvent.EntityFramework {
-
     [Table("Outbox", Schema = "dbo")]
     public class Outbox {
-
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public int OutboxId { get; set; }

@@ -21,25 +21,29 @@ namespace Cortside.DomainEvent.Tests {
             };
 
             var correlationId = CorrelationContext.GetCorrelationId();
-            if (@event.Data.IntValue == Int32.MaxValue && correlationId != @event.CorrelationId) {
+            if (@event.Data.IntValue == int.MaxValue && correlationId != @event.CorrelationId) {
                 throw new ArgumentException($"CorrelationId {@event.CorrelationId} should equal {correlationId}");
             }
 
             using (logger.BeginScope(properties)) {
-                TestEvent.Instances.Add(@event.MessageId, @event.Data);
+                TestEvent.Instances.Add(@event.MessageId, @event);
 
+                // intentionally cause exception, used to assert unhandled exception handling
                 if (@event.Data.IntValue == int.MinValue) {
-                    var x = 0;
-                    _ = 1 / x;
+                    throw new ArgumentException("IntValue is int.MinValue");
                 }
+
+                await Task.Delay(10).ConfigureAwait(false);
 
                 if (@event.Data.IntValue > 0) {
-                    return await Task.FromResult(HandlerResult.Success).ConfigureAwait(false);
+                    return HandlerResult.Success;
+                } else if (@event.Data.IntValue == 0 && @event.DeliveryCount > 1) {
+                    return HandlerResult.Success;
                 } else if (@event.Data.IntValue == 0) {
-                    return await Task.FromResult(HandlerResult.Retry).ConfigureAwait(false);
-                } else {
-                    return await Task.FromResult(HandlerResult.Failed).ConfigureAwait(false);
+                    return HandlerResult.Retry;
                 }
+
+                return HandlerResult.Failed;
             }
         }
     }

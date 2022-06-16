@@ -19,6 +19,5 @@ namespace Cortside.DomainEvent {
         public string Topic { set; get; }
 
         public JsonSerializerSettings SerializerSettings { get; set; }
-
     }
 }

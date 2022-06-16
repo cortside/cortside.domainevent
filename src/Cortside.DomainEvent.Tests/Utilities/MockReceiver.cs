@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent.Tests {
     public class MockReceiver : DomainEventReceiver {
-
         public MockReceiver(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) : base(settings, provider, logger) {
         }
 

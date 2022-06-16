@@ -13,7 +13,6 @@ using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
     public class OutboxHostedReceiverTest {
-
         [Fact]
         public async Task StartOutboxHostedServiceAsync() {
             IServiceCollection services = new ServiceCollection();
@@ -91,6 +90,5 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             source.Cancel();
         }
-
     }
 }

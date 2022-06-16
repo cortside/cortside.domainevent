@@ -5,15 +5,14 @@ namespace Cortside.DomainEvent {
     public class EventMessage {
         private readonly Message message;
         private readonly IReceiverLink link;
-        private readonly DomainEventMessage domainEvent;
 
         internal EventMessage(DomainEventMessage domainEvent, Message message, IReceiverLink link) {
             this.message = message;
             this.link = link;
-            this.domainEvent = domainEvent;
+            Message = domainEvent;
         }
 
-        public DomainEventMessage Message => domainEvent;
+        public DomainEventMessage Message { get; }
 
         public void Reject() {
             link.Reject(message);
@@ -32,7 +31,7 @@ namespace Cortside.DomainEvent {
         }
 
         public T GetData<T>() {
-            return (T)domainEvent.Data;
+            return (T)Message.Data;
         }
     }
 }
