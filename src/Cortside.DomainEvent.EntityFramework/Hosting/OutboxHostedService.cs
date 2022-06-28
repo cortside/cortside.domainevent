@@ -36,6 +36,9 @@ select @rows = count(*) from Outbox with (nolock) where (LockId is null and Stat
 
 if (@rows > 0)
   BEGIN
+    -- explicitly set the isolation level incase it was set on the connection already or default for read committed snapshot is on
+    SET TRANSACTION ISOLATION LEVEL READ COMMITTED
+
 	UPDATE Q
 	SET LockId = '{lockId}', Status='Publishing', LastModifiedDate=GETUTCDATE()
 	FROM (
