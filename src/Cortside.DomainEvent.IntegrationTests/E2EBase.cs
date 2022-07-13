@@ -28,7 +28,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("config.json")
                 .AddJsonFile("config.user.json", true);
-            var configRoot = config.Build();
+            IConfiguration configRoot = config.Build();
 
             //IoC
             var collection = new ServiceCollection();
