@@ -19,8 +19,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Cortside.Common.Correlation" Version="1.1.272" />
-    <PackageReference Include="Cortside.Common.Hosting" Version="1.1.272" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="1.1.278" />
+    <PackageReference Include="Cortside.Common.Hosting" Version="1.1.278" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.27" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.27" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.27" />
