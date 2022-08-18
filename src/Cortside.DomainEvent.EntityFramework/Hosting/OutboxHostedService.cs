@@ -80,7 +80,9 @@ if (@rows > 0)
                             Topic = message.Topic,
                             RoutingKey = message.RoutingKey,
                             CorrelationId = message.CorrelationId,
-                            MessageId = message.MessageId
+                            MessageId = message.MessageId,
+                            CreationTime = message.CreatedDate,
+                            Priority = message.Priority
                         };
 
                         var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();

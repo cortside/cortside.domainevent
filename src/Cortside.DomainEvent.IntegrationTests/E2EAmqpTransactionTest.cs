@@ -9,11 +9,9 @@ using Xunit;
 
 namespace Cortside.DomainEvent.IntegrationTests {
     public class E2EAmqpTransactionTest : E2EBase {
-        private readonly Amqp.Address address;
         private string path;
 
         public E2EAmqpTransactionTest() : base() {
-            address = new Amqp.Address($"{base.publisherSettings.Protocol}://{base.publisherSettings.PolicyName}:{base.publisherSettings.Key}@{base.publisherSettings.Namespace}");
             path = base.publisherSettings.Topic;
         }
 

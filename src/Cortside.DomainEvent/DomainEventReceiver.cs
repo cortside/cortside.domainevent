@@ -16,9 +16,7 @@ namespace Cortside.DomainEvent {
         public IDictionary<string, Type> EventTypeLookup { get; protected set; }
         public ReceiverLink Link { get; protected set; }
         public DomainEventError Error { get; set; }
-
         protected DomainEventReceiverSettings Settings { get; }
-
         protected ILogger<DomainEventReceiver> Logger { get; }
 
         protected virtual Session CreateSession() {
@@ -32,12 +30,12 @@ namespace Cortside.DomainEvent {
             Logger = logger;
         }
 
-        public void Start(IDictionary<string, Type> eventTypeLookup) {
-            InternalStart(eventTypeLookup);
+        public void Start(IDictionary<string, Type> eventTypeLookup, Amqp.Types.Map filter = null) {
+            InternalStart(eventTypeLookup, filter);
         }
 
-        public void StartAndListen(IDictionary<string, Type> eventTypeLookup) {
-            InternalStart(eventTypeLookup);
+        public void StartAndListen(IDictionary<string, Type> eventTypeLookup, Amqp.Types.Map filter = null) {
+            InternalStart(eventTypeLookup, filter);
 
             Link.Start(Settings.Credits, (link, msg) => {
                 // fire and forget
@@ -45,7 +43,7 @@ namespace Cortside.DomainEvent {
             });
         }
 
-        private void InternalStart(IDictionary<string, Type> eventTypeLookup) {
+        private void InternalStart(IDictionary<string, Type> eventTypeLookup, Amqp.Types.Map filter = null) {
             if (Link != null) {
                 throw new InvalidOperationException("Already receiving.");
             }
@@ -63,7 +61,8 @@ namespace Cortside.DomainEvent {
             var attach = new Attach() {
                 Source = new Source() {
                     Address = Settings.Queue,
-                    Durable = Settings.Durable
+                    Durable = Settings.Durable,
+                    FilterSet = filter
                 },
                 Target = new Target() {
                     Address = null

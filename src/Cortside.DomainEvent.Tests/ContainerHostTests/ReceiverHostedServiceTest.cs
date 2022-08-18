@@ -17,7 +17,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             services.AddHostedService<ReceiverHostedService>();
 
             var receiver = new Mock<IDomainEventReceiver>();
-            receiver.Setup(x => x.StartAndListen(It.IsAny<IDictionary<string, Type>>()));
+            receiver.Setup(x => x.StartAndListen(It.IsAny<IDictionary<string, Type>>(), null));
             services.AddSingleton<IDomainEventReceiver>(receiver.Object);
             services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
 

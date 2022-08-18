@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Cortside.DomainEvent {
     public class EventProperties {
         public string CorrelationId { get; set; }
@@ -7,5 +10,9 @@ namespace Cortside.DomainEvent {
         public string RoutingKey { get; set; }
 
         public string Address => Topic + RoutingKey;
+
+        public DateTime? CreationTime { get; set; }
+        public byte Priority { get; set; }
+        public Dictionary<string, object> ApplicationProperties { get; set; }
     }
 }

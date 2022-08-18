@@ -48,5 +48,8 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         [Required]
         public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public byte Priority { get; set; }
     }
 }

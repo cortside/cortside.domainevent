@@ -100,28 +100,5 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.Equal(@event.IntValue, received.Data.IntValue);
             }
         }
-
-        private TimeSpan ReceiveAndWait(string correlationId) {
-            var tokenSource = new CancellationTokenSource();
-            var start = DateTime.Now;
-
-            using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>())) {
-                receiver.Closed += (r, e) => tokenSource.Cancel();
-                receiver.StartAndListen(eventTypes);
-
-                while (!TestEvent.Instances.ContainsKey(correlationId) && (DateTime.Now - start) < new TimeSpan(0, 0, 60)) {
-                    if (tokenSource.Token.IsCancellationRequested) {
-                        if (receiver.Error != null) {
-                            Assert.Equal(string.Empty, receiver.Error.Description);
-                            Assert.Equal(string.Empty, receiver.Error.Condition);
-                        }
-                        Assert.True(receiver.Error == null);
-                    }
-                    Thread.Sleep(1000);
-                } // run for 30 seconds
-            }
-
-            return DateTime.Now.Subtract(start);
-        }
     }
 }

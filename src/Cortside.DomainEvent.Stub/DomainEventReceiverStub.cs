@@ -31,8 +31,8 @@ namespace Cortside.DomainEvent.Stub {
             // do nothing
         }
 
-        public void StartAndListen(IDictionary<string, Type> eventTypeLookup) {
-            InternalStart(eventTypeLookup);
+        public void StartAndListen(IDictionary<string, Type> eventTypeLookup, Amqp.Types.Map filter = null) {
+            InternalStart(eventTypeLookup, filter);
 
             var thread = new Thread(Listen);
             thread.Start();
@@ -60,7 +60,7 @@ namespace Cortside.DomainEvent.Stub {
             }
         }
 
-        private void InternalStart(IDictionary<string, Type> eventTypeLookup) {
+        private void InternalStart(IDictionary<string, Type> eventTypeLookup, Amqp.Types.Map filter = null) {
             logger.LogInformation($"Starting {GetType().Name} for {settings.AppName}");
 
             this.eventTypeLookup = eventTypeLookup;

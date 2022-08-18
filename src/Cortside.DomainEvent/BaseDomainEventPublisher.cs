@@ -96,17 +96,28 @@ namespace Cortside.DomainEvent {
 
             var message = new Message(data) {
                 Header = new Header {
-                    Durable = (Settings.Durable == 2)
+                    Durable = (Settings.Durable == 2),
+                    Priority = properties.Priority  // TODO: ??
                 },
                 ApplicationProperties = new ApplicationProperties(),
                 MessageAnnotations = new MessageAnnotations(),
                 Properties = new Properties {
                     MessageId = properties.MessageId,
                     GroupId = properties.EventType,
-                    CorrelationId = properties.CorrelationId
+                    CorrelationId = properties.CorrelationId,
+                    CreationTime = properties.CreationTime ?? DateTime.UtcNow
                 }
             };
+
+            // add all application properties before setting well known ones
+            foreach (var property in properties.ApplicationProperties ?? new Dictionary<string, object>()) {
+                message.ApplicationProperties[property.Key] = property.Value;
+            }
+
+            // well known, expected application properties
             message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] = properties.EventType;
+            message.ApplicationProperties["event-type"] = properties.EventType;
+
             if (scheduledEnqueueTimeUtc.HasValue) {
                 message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)] = scheduledEnqueueTimeUtc;
             }
