@@ -128,7 +128,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.Contains(logger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("message type was not registered for type"));
+            Assert.Contains(logger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("event type was not registered for type"));
         }
 
         [Fact]
