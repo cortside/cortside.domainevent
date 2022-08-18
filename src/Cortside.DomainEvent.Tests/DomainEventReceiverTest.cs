@@ -113,7 +113,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleMessageTypeNotFoundAsync() {
+        public async Task ShouldHandleEventTypeNotFoundAsync() {
             // arrange
             var @event = new TestEvent();
             var eventType = @event.GetType().FullName;

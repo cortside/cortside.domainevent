@@ -92,14 +92,14 @@ namespace Cortside.DomainEvent {
                 return null;
             }
 
-            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
-            if (!EventTypeLookup.ContainsKey(messageTypeName)) {
-                Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
+            var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
+            if (!EventTypeLookup.ContainsKey(eventType)) {
+                Logger.LogError($"Message {message.Properties.MessageId} rejected because event type was not registered for type {eventType}");
                 Link.Reject(message);
                 return null;
             }
 
-            var dataType = EventTypeLookup[messageTypeName];
+            var dataType = EventTypeLookup[eventType];
             Logger.LogDebug($"Event type: {dataType}");
 
             dynamic domainEvent;
@@ -116,11 +116,12 @@ namespace Cortside.DomainEvent {
         }
 
         protected async Task OnMessageCallbackAsync(IReceiverLink receiver, Message message) {
-            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+            var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,
-                ["MessageType"] = messageTypeName
+                ["MessageType"] = eventType,
+                ["EventType"] = eventType
             };
 
             // if message has correlationId, set it so that handling can be found by initial correlation
@@ -138,20 +139,20 @@ namespace Cortside.DomainEvent {
                     string body = DomainEventMessage.GetBody(message);
                     Logger.LogTrace("Received message {MessageId} with body: {MessageBody}", message.Properties.MessageId, body);
 
-                    Logger.LogDebug($"Event type key: {messageTypeName}");
-                    if (!EventTypeLookup.ContainsKey(messageTypeName)) {
-                        Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
+                    Logger.LogDebug($"Event type key: {eventType}");
+                    if (!EventTypeLookup.ContainsKey(eventType)) {
+                        Logger.LogError($"Message {message.Properties.MessageId} rejected because event type was not registered for type {eventType}");
                         receiver.Reject(message);
                         return;
                     }
 
-                    var dataType = EventTypeLookup[messageTypeName];
+                    var dataType = EventTypeLookup[eventType];
                     Logger.LogDebug($"Event type: {dataType}");
                     var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(dataType);
                     Logger.LogDebug($"Event type handler interface: {handlerType}");
                     var handler = Provider.GetService(handlerType);
                     if (handler == null) {
-                        Logger.LogError($"Message {message.Properties.MessageId} rejected because handler was not found for type {messageTypeName}");
+                        Logger.LogError($"Message {message.Properties.MessageId} rejected because handler was not found for type {eventType}");
                         receiver.Reject(message);
                         return;
                     }

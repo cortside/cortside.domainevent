@@ -54,9 +54,52 @@ namespace Cortside.DomainEvent {
         internal Message Message { get; set; }
         public string MessageId => Message?.Properties?.MessageId;
         public string CorrelationId => Message?.Properties?.CorrelationId;
-        public string MessageTypeName => Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+        [Obsolete("Use EventType instead.")]
+        public string MessageTypeName => EventType;
+        public string EventType => Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
         public int DeliveryCount => Convert.ToInt32(Message?.Header?.DeliveryCount);
         public object Data { get; set; }
+
+
+        // header
+        //private bool durable;
+
+        //private byte priority;
+
+        //private uint ttl;
+
+        //private bool firstAcquirer;
+
+        //private uint deliveryCount;
+
+
+        // properties
+        //private object messageId;
+
+        //private byte[] userId;
+
+        //private string to;
+
+        //private string subject;
+
+        //private string replyTo;
+
+        //private object correlationId;
+
+        //private Symbol contentType;
+
+        //private Symbol contentEncoding;
+
+        //private DateTime absoluteExpiryTime;
+
+        //private DateTime creationTime;
+
+        //private string groupId;
+
+        //private uint groupSequence;
+
+        //private string replyToGroupId;
+
     }
 
     public class DomainEventMessage<T> : DomainEventMessage {

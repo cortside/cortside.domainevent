@@ -41,7 +41,7 @@ namespace Cortside.DomainEvent.Hosting {
 
             if (!settings.Enabled) {
                 logger.LogInformation("ReceiverHostedService is not enabled");
-            } else if (settings.MessageTypes == null) {
+            } else if (settings.EventTypes == null) {
                 logger.LogError("Configuration error:  No event types have been configured for the receiverhostedeservice");
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
@@ -50,7 +50,7 @@ namespace Cortside.DomainEvent.Hosting {
                         receiver = services.GetService<IDomainEventReceiver>();
                         logger.LogInformation("Starting receiver...");
                         try {
-                            receiver.StartAndListen(settings.MessageTypes);
+                            receiver.StartAndListen(settings.EventTypes);
                             logger.LogInformation("Receiver started");
                         } catch (Exception e) {
                             logger.LogCritical(e, $"Unable to start receiver. \n {e}");

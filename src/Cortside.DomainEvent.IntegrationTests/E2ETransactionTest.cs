@@ -33,7 +33,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.NotNull(message);
                 Assert.Equal(correlationId, message.Message.CorrelationId);
                 Assert.NotNull(message.Message.MessageId);
-                Assert.NotNull(message.Message.MessageTypeName);
+                Assert.NotNull(message.Message.EventType);
 
                 Assert.Equal(@event.StringValue, ((TestEvent)message.Message.Data).StringValue);
                 Assert.Equal(@event.IntValue, ((TestEvent)message.Message.Data).IntValue);

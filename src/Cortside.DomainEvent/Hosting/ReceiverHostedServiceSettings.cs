@@ -9,7 +9,7 @@ namespace Cortside.DomainEvent.Hosting {
         /// <summary>
         /// Message types for the Domain Event Receiver to handle
         /// </summary>
-        public Dictionary<string, Type> MessageTypes { get; set; }
+        public Dictionary<string, Type> EventTypes { get; set; }
 
         /// <summary>
         /// Controls whether receiver hosted service is enabled

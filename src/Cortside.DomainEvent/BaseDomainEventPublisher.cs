@@ -103,7 +103,6 @@ namespace Cortside.DomainEvent {
                 MessageAnnotations = new MessageAnnotations(),
                 Properties = new Properties {
                     MessageId = properties.MessageId,
-                    GroupId = properties.EventType,
                     CorrelationId = properties.CorrelationId,
                     CreationTime = properties.CreationTime ?? DateTime.UtcNow
                 }
@@ -116,7 +115,7 @@ namespace Cortside.DomainEvent {
 
             // well known, expected application properties
             message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] = properties.EventType;
-            message.ApplicationProperties["event-type"] = properties.EventType;
+            message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] = properties.EventType;
 
             if (scheduledEnqueueTimeUtc.HasValue) {
                 message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)] = scheduledEnqueueTimeUtc;
@@ -125,10 +124,12 @@ namespace Cortside.DomainEvent {
         }
 
         private async Task InnerSendAsync(Message message, EventProperties properties) {
+            var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
             using (Logger.BeginScope(new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,
-                ["MessageType"] = message.Properties.GroupId
+                ["MessageType"] = eventType,
+                ["EventType"] = eventType
             })) {
                 Logger.LogTrace("Publishing message {MessageId} to {Address} with body: {MessageBody}", message.Properties.MessageId, properties.Address, message.Body);
                 await SendAsync(message, properties);

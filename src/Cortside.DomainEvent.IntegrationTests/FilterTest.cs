@@ -21,6 +21,11 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
         [Fact]
         public async Task ShouldFilterByCorrelationIdAsync() {
+            // https://github.com/Azure/amqpnetlite/issues/524
+
+            // https://www.ibm.com/docs/en/ibm-mq/9.2?topic=applications-mapping-amqp-mq-message-fields
+            // https://people.apache.org/~rgodfrey/amqp-1.0/apache-filters.html#type-jms-selector-filter
+
             ////https://www.eurex.com/resource/blob/2559044/8d3a36bdbfcceba6e56a182c824bbc00/data/eurex-clearing-messaging-connectivity-B-v.7.1.pdf
             //Map filters = new Map();
             //filters.Add(new Symbol("apache.org:selector-filter:string"), new
@@ -39,7 +44,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), $"correlation-id = '{properties.CorrelationId}'") }
                 };
 
-                DomainEventMessage<TestEvent> received = await PublishAndAssert(properties, filter).ConfigureAwait(false);
+                DomainEventMessage<TestEvent> received = await PublishAndAssertAsync(properties, filter).ConfigureAwait(false);
             }
         }
 
@@ -54,8 +59,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), $"event-type = '{typeof(TestEvent).FullName}'") }
                 };
 
-                DomainEventMessage<TestEvent> received = await PublishAndAssert(properties, filter).ConfigureAwait(false);
-                Assert.Equal(typeof(TestEvent).FullName, received.MessageTypeName);
+                DomainEventMessage<TestEvent> received = await PublishAndAssertAsync(properties, filter).ConfigureAwait(false);
+                Assert.Equal(typeof(TestEvent).FullName, received.EventType);
             }
         }
 
@@ -70,8 +75,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), $"group-id = '{typeof(TestEvent).FullName}'") }
                 };
 
-                DomainEventMessage<TestEvent> received = await PublishAndAssert(properties, filter).ConfigureAwait(false);
-                Assert.Equal(typeof(TestEvent).FullName, received.MessageTypeName);
+                DomainEventMessage<TestEvent> received = await PublishAndAssertAsync(properties, filter).ConfigureAwait(false);
+                Assert.Equal(typeof(TestEvent).FullName, received.EventType);
             }
         }
 
@@ -149,12 +154,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
                     { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), "sn = 100") }
                 };
 
-                DomainEventMessage<TestEvent> received = await PublishAndAssert(properties, filter).ConfigureAwait(false);
+                DomainEventMessage<TestEvent> received = await PublishAndAssertAsync(properties, filter).ConfigureAwait(false);
                 //Assert.Equal(100, received.ApplicationProperties["sn"]);
             }
         }
 
-        private async Task<DomainEventMessage<TestEvent>> PublishAndAssert(EventProperties properties, Map filter) {
+        private async Task<DomainEventMessage<TestEvent>> PublishAndAssertAsync(EventProperties properties, Map filter) {
             var @event = new TestEvent {
                 IntValue = r.Next() + 1,
                 StringValue = Guid.NewGuid().ToString()

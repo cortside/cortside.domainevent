@@ -17,7 +17,8 @@ namespace Cortside.DomainEvent.Tests {
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = @event.CorrelationId,
                 ["MessageId"] = @event.MessageId,
-                ["MessageType"] = @event.MessageTypeName
+                ["MessageType"] = @event.EventType,
+                ["EventType"] = @event.EventType
             };
 
             var correlationId = CorrelationContext.GetCorrelationId();
