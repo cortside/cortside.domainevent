@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using Amqp;
 
-namespace Cortside.DomainEvent {
+namespace Cortside.DomainEvent
+{
     public delegate void ReceiverClosedCallback(IDomainEventReceiver receiver, DomainEventError error);
-    public interface IDomainEventReceiver {
+    public interface IDomainEventReceiver
+    {
         event ReceiverClosedCallback Closed;
         void StartAndListen(IDictionary<string, Type> eventTypeLookup, Amqp.Types.Map filter = null);
         void Close(TimeSpan? timeout = null);

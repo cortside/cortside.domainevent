@@ -1,5 +1,7 @@
-namespace Cortside.DomainEvent {
-    public abstract class DomainEventSettings {
+namespace Cortside.DomainEvent
+{
+    public abstract class DomainEventSettings
+    {
         /// <summary>
         /// Gets or sets the name of the application.
         /// </summary>

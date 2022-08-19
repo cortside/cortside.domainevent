@@ -10,9 +10,11 @@ using Xunit;
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
-namespace Cortside.DomainEvent.Tests.ContainerHostTests {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests
+{
     //[CollectionDefinition("dbcontexttests", DisableParallelization = true)]
-    public class BaseHostTest : IDisposable {
+    public class BaseHostTest : IDisposable
+    {
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
         protected ILinkProcessor linkProcessor;
@@ -24,12 +26,14 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
         protected Address Address { get; set; }
 
-        public BaseHostTest() {
+        public BaseHostTest()
+        {
             random = new Random();
             var start = random.Next(10000, Int16.MaxValue);
             var port = GetAvailablePort(start);
 
-            receiverSettings = new DomainEventReceiverSettings() {
+            receiverSettings = new DomainEventReceiverSettings()
+            {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
@@ -38,7 +42,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 AppName = "unittest" + port.ToString()
             };
 
-            publisterSettings = new DomainEventPublisherSettings() {
+            publisterSettings = new DomainEventPublisherSettings()
+            {
                 Protocol = "amqp",
                 PolicyName = "guest",
                 Key = "guest",
@@ -62,8 +67,10 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             provider = services.BuildServiceProvider();
         }
 
-        public void Dispose() {
-            if (host != null) {
+        public void Dispose()
+        {
+            if (host != null)
+            {
                 host.Close();
             }
         }
@@ -72,7 +79,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         /// checks for used ports and retrieves the first free port
         /// </summary>
         /// <returns>the free port or 0 if it did not find a free port</returns>
-        private int GetAvailablePort(int startingPort) {
+        private int GetAvailablePort(int startingPort)
+        {
             IPEndPoint[] endPoints;
             List<int> portArray = new List<int>();
 

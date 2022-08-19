@@ -1,5 +1,7 @@
-namespace Cortside.DomainEvent.Handlers {
-    public enum HandlerResult {
+namespace Cortside.DomainEvent.Handlers
+{
+    public enum HandlerResult
+    {
         Success,
         Failed,
         Retry,

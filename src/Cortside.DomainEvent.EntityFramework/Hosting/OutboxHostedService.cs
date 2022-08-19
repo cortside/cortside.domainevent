@@ -10,22 +10,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.DomainEvent.EntityFramework.Hosting {
-    public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
+namespace Cortside.DomainEvent.EntityFramework.Hosting
+{
+    public class OutboxHostedService<T> : TimedHostedService where T : DbContext
+    {
         private readonly IServiceProvider serviceProvider;
         private readonly OutboxHostedServiceConfiguration config;
 
-        public OutboxHostedService(ILogger<OutboxHostedService<T>> logger, OutboxHostedServiceConfiguration config, IServiceProvider serviceProvider) : base(logger, config.Enabled, config.Interval, true) {
+        public OutboxHostedService(ILogger<OutboxHostedService<T>> logger, OutboxHostedServiceConfiguration config, IServiceProvider serviceProvider) : base(logger, config.Enabled, config.Interval, true)
+        {
             this.serviceProvider = serviceProvider;
             this.config = config;
         }
 
-        public override Task StartAsync(CancellationToken cancellationToken) {
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
             logger.LogInformation("OutboxHostedService StartAsync() entered.");
             return base.StartAsync(cancellationToken);
         }
 
-        protected override async Task ExecuteIntervalAsync() {
+        protected override async Task ExecuteIntervalAsync()
+        {
             await Task.Yield();
 
             var lockId = CorrelationContext.GetCorrelationId();
@@ -51,16 +56,21 @@ if (@rows > 0)
   END
 ";
 
-            using (var scope = serviceProvider.CreateScope()) {
+            using (var scope = serviceProvider.CreateScope())
+            {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
 
                 var messageCount = 0;
-                if (isRelational) {
+                if (isRelational)
+                {
                     messageCount = await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
-                } else {
+                }
+                else
+                {
                     var messages = db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow).Take(config.BatchSize);
-                    foreach (var message in messages) {
+                    foreach (var message in messages)
+                    {
                         message.Status = OutboxStatus.Publishing;
                         message.LockId = lockId;
                         message.LastModifiedDate = DateTime.UtcNow;
@@ -70,12 +80,15 @@ if (@rows > 0)
                 }
                 logger.LogInformation($"messages to publish: {messageCount}");
 
-                try {
+                try
+                {
                     List<Outbox> messages = await db.Set<Outbox>().Where(x => x.LockId == lockId).ToListAsync().ConfigureAwait(false);
                     logger.LogInformation($"messages claimed: {messages.Count}");
 
-                    foreach (var message in messages) {
-                        var properties = new EventProperties() {
+                    foreach (var message in messages)
+                    {
+                        var properties = new EventProperties()
+                        {
                             EventType = message.EventType,
                             Topic = message.Topic,
                             RoutingKey = message.RoutingKey,
@@ -93,20 +106,29 @@ if (@rows > 0)
                     }
 
                     await db.SaveChangesAsync().ConfigureAwait(false);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex)
+                {
                     logger.LogError(ex, "Exception attempting to publish from outbox");
                 }
 
-                if (config.PurgePublished) {
-                    try {
-                        if (isRelational) {
+                if (config.PurgePublished)
+                {
+                    try
+                    {
+                        if (isRelational)
+                        {
                             var query = $"DELETE TOP ({config.BatchSize}) FROM Outbox Where Status = '{OutboxStatus.Published}'";
                             await db.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
-                        } else {
+                        }
+                        else
+                        {
                             db.RemoveRange(db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Published).Take(config.BatchSize));
                             await db.SaveChangesAsync().ConfigureAwait(false);
                         }
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex)
+                    {
                         logger.LogError(ex, "Exception attempting to purge published from outbox");
                     }
                 }

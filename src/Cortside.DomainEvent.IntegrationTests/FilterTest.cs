@@ -22,6 +22,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         [Fact]
         public async Task ShouldFilterByCorrelationIdAsync() {
             // https://github.com/Azure/amqpnetlite/issues/524
+            // https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-amqp-request-response#rule-operations
 
             // https://www.ibm.com/docs/en/ibm-mq/9.2?topic=applications-mapping-amqp-mq-message-fields
             // https://people.apache.org/~rgodfrey/amqp-1.0/apache-filters.html#type-jms-selector-filter
@@ -34,14 +35,17 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
             if (enabled) {
                 var properties = new EventProperties() {
-                    CorrelationId = Guid.NewGuid().ToString(),
-                    ApplicationProperties = new Dictionary<string, object> {
-                            { "sn", 100 }
-                        }
+                    CorrelationId = Guid.NewGuid().ToString()
                 };
 
+                var filterValue = new List<object>() { $"correlation-id='{properties.CorrelationId}'", 0 };
+
+                //Map filter = new Map();
+                //filter.Add(new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), $"correlation-id='{properties.CorrelationId}'"));
+                //filter.Add(new Symbol("com.microsoft:correlation-filter:list"), new DescribedValue(new Symbol("com.microsoft:correlation-filter:list"), $"correlation-id='{properties.CorrelationId}'"));
+
                 var filter = new Map {
-                    { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), $"correlation-id = '{properties.CorrelationId}'") }
+                    { new Symbol("com.microsoft:sql-filter:list"), new DescribedValue(new Symbol("com.microsoft:sql-filter:list"), filterValue) }
                 };
 
                 DomainEventMessage<TestEvent> received = await PublishAndAssertAsync(properties, filter).ConfigureAwait(false);
@@ -52,11 +56,13 @@ namespace Cortside.DomainEvent.IntegrationTests {
         public async Task ShouldFilterByEventTypeAsync() {
             if (enabled) {
                 var properties = new EventProperties() {
-                    CorrelationId = Guid.NewGuid().ToString()
+                    CorrelationId = Guid.NewGuid().ToString(),
+                    EventType = Guid.NewGuid().ToString()
                 };
 
+                var filterValue = new List<object>() { $"{Constants.EVENT_TYPE_KEY}='{properties.EventType}'", 0 };
                 var filter = new Map {
-                    { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), $"event-type = '{typeof(TestEvent).FullName}'") }
+                    { new Symbol("com.microsoft:sql-filter:list"), new DescribedValue(new Symbol("com.microsoft:sql-filter:list"), filterValue) }
                 };
 
                 DomainEventMessage<TestEvent> received = await PublishAndAssertAsync(properties, filter).ConfigureAwait(false);
@@ -83,12 +89,17 @@ namespace Cortside.DomainEvent.IntegrationTests {
         [Fact]
         public async Task ShouldReceiveNoneBecauseOfFilterAsync() {
             if (enabled) {
+                var sn = r.Next() + 1;
                 var properties = new EventProperties() {
-                    CorrelationId = Guid.NewGuid().ToString()
+                    CorrelationId = Guid.NewGuid().ToString(),
+                    ApplicationProperties = new Dictionary<string, object> {
+                        { "foo", sn }
+                    }
                 };
 
+                var filterValue = new List<object>() { $"foo={sn + 1}", 0 };
                 var filter = new Map {
-                    { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), "foo-bar = 'baz'") }
+                    { new Symbol("com.microsoft:sql-filter:list"), new DescribedValue(new Symbol("com.microsoft:sql-filter:list"), filterValue) }
                 };
 
                 var @event = new TestEvent {
@@ -105,7 +116,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 ReceiveAndWait(properties.CorrelationId, filter);
 
                 Assert.DoesNotContain(mockLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
-                Assert.True(TestEvent.Instances.Count == 0);
+                Assert.DoesNotContain(TestEvent.Instances, x => x.Value.CorrelationId == properties.CorrelationId);
             }
         }
 
@@ -119,18 +130,20 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Message message = new Message("I can match a filter");
                 message.Properties = new Properties() { GroupId = "abcdefg" };
                 message.ApplicationProperties = new ApplicationProperties();
-                message.ApplicationProperties["sn"] = 100;
+                var sn = r.Next() + 1;
+                message.ApplicationProperties["foo"] = sn;
 
                 SenderLink sender = new SenderLink(session, "sender-" + testName, queue);
                 sender.Send(message, null, null);
 
-                // update the filter descriptor and expression according to the broker
-                Map filters = new Map();
-                // JMS selector filter: code = 0x0000468C00000004L, symbol="apache.org:selector-filter:string", symbol="jms-selector"
-                filters.Add(new Symbol("f1"), new DescribedValue(0x0000468C00000004UL, "sn = 100"));
-                ReceiverLink receiver = new ReceiverLink(session, "receiver-" + testName, new Source() { Address = queue, FilterSet = filters }, null);
+                var filterValue = new List<object>() { $"foo={sn}", 0 };
+                var filter = new Map {
+                    { new Symbol("com.microsoft:sql-filter:list"), new DescribedValue(new Symbol("com.microsoft:sql-filter:list"), filterValue) }
+                };
+
+                ReceiverLink receiver = new ReceiverLink(session, "receiver-" + testName, new Source() { Address = queue, FilterSet = filter }, null);
                 Message message2 = receiver.Receive();
-                Assert.Equal(message.ApplicationProperties["sn"], message2.ApplicationProperties["sn"]);
+                Assert.Equal(message.ApplicationProperties["foo"], message2.ApplicationProperties["foo"]);
                 receiver.Accept(message2);
 
                 sender.Close();
@@ -143,24 +156,38 @@ namespace Cortside.DomainEvent.IntegrationTests {
         [Fact]
         public async Task DomainEvent_ReceiveWithFilterAsync() {
             if (enabled) {
+                var sn = r.Next() + 1;
                 var properties = new EventProperties() {
                     CorrelationId = Guid.NewGuid().ToString(),
                     ApplicationProperties = new Dictionary<string, object> {
-                            { "sn", 100 }
-                        }
+                        { "foo", sn }
+                    }
                 };
 
+                var filterValue = new List<object>() { $"foo={sn}", 0 };
                 var filter = new Map {
-                    { new Symbol("f1"), new DescribedValue(new Symbol("jms-selector"), "sn = 100") }
+                    { new Symbol("com.microsoft:sql-filter:list"), new DescribedValue(new Symbol("com.microsoft:sql-filter:list"), filterValue) }
                 };
 
                 DomainEventMessage<TestEvent> received = await PublishAndAssertAsync(properties, filter).ConfigureAwait(false);
-                //Assert.Equal(100, received.ApplicationProperties["sn"]);
+                Assert.Equal(sn, received.ApplicationProperties["foo"]);
             }
         }
 
         private async Task<DomainEventMessage<TestEvent>> PublishAndAssertAsync(EventProperties properties, Map filter) {
+            // publish one message that should not be received
             var @event = new TestEvent {
+                IntValue = r.Next() + 1,
+                StringValue = Guid.NewGuid().ToString()
+            };
+
+            try {
+                await publisher.PublishAsync(@event).ConfigureAwait(false);
+            } finally {
+                Assert.Null(publisher.Error);
+            }
+
+            @event = new TestEvent {
                 IntValue = r.Next() + 1,
                 StringValue = Guid.NewGuid().ToString()
             };

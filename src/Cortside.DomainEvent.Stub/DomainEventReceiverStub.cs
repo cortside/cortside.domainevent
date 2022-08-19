@@ -48,7 +48,7 @@ namespace Cortside.DomainEvent.Stub {
                         receiver.Dequeue();
                         continue;
                     }
-                    var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
+                    var eventType = message.ApplicationProperties[Constants.EVENT_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
                     if (eventTypeLookup?.ContainsKey(eventType) == false) {
                         receiver.EnqueueUnmapped(message);
                         receiver.Dequeue();
@@ -71,7 +71,7 @@ namespace Cortside.DomainEvent.Stub {
         }
 
         private async Task OnMessageCallbackAsync(Message message) {
-            var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
+            var eventType = message.ApplicationProperties[Constants.EVENT_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,

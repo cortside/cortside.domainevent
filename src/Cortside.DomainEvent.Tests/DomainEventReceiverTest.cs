@@ -234,7 +234,7 @@ namespace Cortside.DomainEvent.Tests {
                     DeliveryCount = 1
                 }
             };
-            message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] = eventType;
+            message.ApplicationProperties[Constants.EVENT_TYPE_KEY] = eventType;
             return message;
         }
 

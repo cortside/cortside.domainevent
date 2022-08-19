@@ -8,22 +8,30 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace Cortside.DomainEvent.IntegrationTests {
-    public class E2ETransactionTest : E2EBase {
+namespace Cortside.DomainEvent.IntegrationTests
+{
+    public class E2ETransactionTest : E2EBase
+    {
         [Fact]
-        public async Task ShouldBeAbleToSendAndReceiveAsync() {
-            if (enabled) {
+        public async Task ShouldBeAbleToSendAndReceiveAsync()
+        {
+            if (enabled)
+            {
                 var @event = NewTestEvent();
                 var correlationId = Guid.NewGuid().ToString();
-                try {
+                try
+                {
                     await publisher.PublishAsync(@event, correlationId).ConfigureAwait(false);
-                } finally {
+                }
+                finally
+                {
                     Assert.Null(publisher.Error);
                 }
 
                 EventMessage message;
                 var logger = new MockLogger<DomainEventReceiver>();
-                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
+                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger))
+                {
                     receiver.Start(eventTypes);
                     message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                     message?.Accept();
@@ -45,14 +53,18 @@ namespace Cortside.DomainEvent.IntegrationTests {
         /// </summary>
         /// <returns></returns>
         [Fact]
-        public async Task ShouldUseTransactionScopeAsync() {
+        public async Task ShouldUseTransactionScopeAsync()
+        {
             var s = Guid.NewGuid().ToString();
-            if (enabled) {
+            if (enabled)
+            {
                 const int nMsgs = 10;
                 var ids = new List<int>();
 
-                for (int i = 0; i < nMsgs; i++) {
-                    var @event = new TestEvent() {
+                for (int i = 0; i < nMsgs; i++)
+                {
+                    var @event = new TestEvent()
+                    {
                         IntValue = i,
                         StringValue = s
                     };
@@ -76,7 +88,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 await Console.Out.WriteLineAsync($"message2: {message2.GetData<TestEvent>().IntValue}").ConfigureAwait(false);
 
                 // ack message1 and send a new message in a txn
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
                     message1.Accept();
                     ids.Remove(message1.GetData<TestEvent>().IntValue);
 
@@ -90,7 +103,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.Equal(nMsgs, ids.Count);
 
                 // ack message2 and send a new message in a txn but abort the txn
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
                     message2.Accept();
                     await publisher.PublishAsync(message2.GetData<TestEvent>()).ConfigureAwait(false);
                 }
@@ -103,7 +117,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 // receive all messages. should see the effect of the first txn
                 receiver.Link.SetCredit(nMsgs, false);
-                for (int i = 0; i < nMsgs; i++) {
+                for (int i = 0; i < nMsgs; i++)
+                {
                     var message = await receiver.ReceiveAsync().ConfigureAwait(false);
                     message.Accept();
 
@@ -117,7 +132,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 // shouldn't be any messages left
                 var empty = await receiver.ReceiveAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
-                if (empty != null) {
+                if (empty != null)
+                {
                     empty.Accept();
                     Assert.Equal(-1, empty.GetData<TestEvent>().IntValue);
                 }

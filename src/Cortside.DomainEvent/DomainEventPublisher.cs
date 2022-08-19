@@ -26,7 +26,7 @@ namespace Cortside.DomainEvent {
         }
 
         protected override async Task SendAsync(Message message, EventProperties properties) {
-            var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
+            var eventType = message.ApplicationProperties[Constants.EVENT_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
             using (Logger.BeginScope(new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,

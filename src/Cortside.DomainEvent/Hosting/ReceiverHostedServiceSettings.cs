@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Cortside.DomainEvent.Hosting {
+namespace Cortside.DomainEvent.Hosting
+{
     /// <summary>
     /// Settings for the ReceiverHostedService
     /// </summary>
-    public class ReceiverHostedServiceSettings {
+    public class ReceiverHostedServiceSettings
+    {
         /// <summary>
         /// Message types for the Domain Event Receiver to handle
         /// </summary>

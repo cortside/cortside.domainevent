@@ -1,7 +1,9 @@
 using Newtonsoft.Json;
 
-namespace Cortside.DomainEvent {
-    public class DomainEventPublisherSettings : DomainEventSettings {
+namespace Cortside.DomainEvent
+{
+    public class DomainEventPublisherSettings : DomainEventSettings
+    {
         /// <summary>
         /// Gets or sets the address. Topic (azure SB) or exchange/queue (RabbitMQ)
         /// </summary>

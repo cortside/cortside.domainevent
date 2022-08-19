@@ -13,11 +13,14 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Xunit;
 
-namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
-    public class OutboxPublisherTest {
+namespace Cortside.DomainEvent.EntityFramework.IntegrationTests
+{
+    public class OutboxPublisherTest
+    {
         private readonly IServiceProvider provider;
 
-        public OutboxPublisherTest() {
+        public OutboxPublisherTest()
+        {
             var services = new ServiceCollection();
             services.AddLogging();
 
@@ -34,7 +37,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             provider = services.BuildServiceProvider();
         }
 
-        private void Seed(EntityContext context) {
+        private void Seed(EntityContext context)
+        {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
@@ -46,7 +50,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task CanGetWidgetsAsync() {
+        public async Task CanGetWidgetsAsync()
+        {
             // arrange
             var context = provider.GetService<EntityContext>();
 
@@ -60,7 +65,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent1Async() {
+        public async Task ShouldPublishEvent1Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -76,7 +82,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent2Async() {
+        public async Task ShouldPublishEvent2Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -94,7 +101,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent3Async() {
+        public async Task ShouldPublishEvent3Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -114,7 +122,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent4Async() {
+        public async Task ShouldPublishEvent4Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -135,7 +144,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEvent5Async() {
+        public async Task ShouldPublishEvent5Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -158,7 +168,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent1Async() {
+        public async Task ShouldScheduleEvent1Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -176,7 +187,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent2Async() {
+        public async Task ShouldScheduleEvent2Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -196,7 +208,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent3Async() {
+        public async Task ShouldScheduleEvent3Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -218,7 +231,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent4Async() {
+        public async Task ShouldScheduleEvent4Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -241,7 +255,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent5Async() {
+        public async Task ShouldScheduleEvent5Async()
+        {
             // arrange
             var publisher = provider.GetService<IDomainEventOutboxPublisher>();
             var db = provider.GetService<EntityContext>();
@@ -266,10 +281,12 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPublishEventWithSerializerSettingsAsync() {
+        public async Task ShouldPublishEventWithSerializerSettingsAsync()
+        {
             // arrange
             var settings = provider.GetService<DomainEventPublisherSettings>();
-            settings.SerializerSettings = new JsonSerializerSettings() {
+            settings.SerializerSettings = new JsonSerializerSettings()
+            {
                 Converters = new List<JsonConverter> {
                     new StringEnumConverter(new SnakeCaseNamingStrategy())
                 }

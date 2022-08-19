@@ -1,4 +1,6 @@
-namespace Cortside.DomainEvent {
-    public interface IDomainEventOutboxPublisher : IDomainEventPublisher {
+namespace Cortside.DomainEvent
+{
+    public interface IDomainEventOutboxPublisher : IDomainEventPublisher
+    {
     }
 }

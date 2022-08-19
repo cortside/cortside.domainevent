@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Amqp;
 
-namespace Cortside.DomainEvent.Stub {
-    public interface IStubBroker {
+namespace Cortside.DomainEvent.Stub
+{
+    public interface IStubBroker
+    {
         bool HasItems { get; }
         bool HasDeadLetterItems { get; }
 

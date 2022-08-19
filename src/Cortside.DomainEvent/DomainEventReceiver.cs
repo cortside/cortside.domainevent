@@ -92,7 +92,7 @@ namespace Cortside.DomainEvent {
                 return null;
             }
 
-            var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
+            var eventType = message.ApplicationProperties[Constants.EVENT_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
             if (!EventTypeLookup.ContainsKey(eventType)) {
                 Logger.LogError($"Message {message.Properties.MessageId} rejected because event type was not registered for type {eventType}");
                 Link.Reject(message);
@@ -116,7 +116,7 @@ namespace Cortside.DomainEvent {
         }
 
         protected async Task OnMessageCallbackAsync(IReceiverLink receiver, Message message) {
-            var eventType = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
+            var eventType = message.ApplicationProperties[Constants.EVENT_TYPE_KEY] as string ?? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,

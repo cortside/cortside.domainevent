@@ -1,10 +1,12 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Cortside.DomainEvent {
+namespace Cortside.DomainEvent
+{
     public delegate void PublisherClosedCallback(IDomainEventPublisher publisher, DomainEventError error);
 
-    public interface IDomainEventPublisher {
+    public interface IDomainEventPublisher
+    {
         event PublisherClosedCallback Closed;
         DomainEventError Error { get; set; }
 

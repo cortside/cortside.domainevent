@@ -8,13 +8,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace Cortside.DomainEvent.Stub.Tests {
-    public class StubTest {
+namespace Cortside.DomainEvent.Stub.Tests
+{
+    public class StubTest
+    {
         private readonly DomainEventPublisherStub publisher;
         private readonly DomainEventReceiverStub receiver;
         private readonly IStubBroker broker;
 
-        public StubTest() {
+        public StubTest()
+        {
             var services = new ServiceCollection();
             services.AddLogging();
             services.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
@@ -34,7 +37,8 @@ namespace Cortside.DomainEvent.Stub.Tests {
         }
 
         [Fact]
-        public async Task ShouldPublishAndHandleMessageAsync() {
+        public async Task ShouldPublishAndHandleMessageAsync()
+        {
             await publisher.PublishAsync(new TestEvent() { IntValue = 1 }).ConfigureAwait(false);
 
             await Task.Delay(2000).ConfigureAwait(false);
@@ -51,7 +55,8 @@ namespace Cortside.DomainEvent.Stub.Tests {
         }
 
         [Fact]
-        public async Task ShouldSetCorrelationIdAsync() {
+        public async Task ShouldSetCorrelationIdAsync()
+        {
             var correlationId = Guid.NewGuid().ToString();
             CorrelationContext.SetCorrelationId(Guid.NewGuid().ToString());
 

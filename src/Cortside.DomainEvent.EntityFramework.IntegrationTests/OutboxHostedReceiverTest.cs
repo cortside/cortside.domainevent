@@ -11,10 +11,13 @@ using Microsoft.Extensions.Hosting;
 using Moq;
 using Xunit;
 
-namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
-    public class OutboxHostedReceiverTest {
+namespace Cortside.DomainEvent.EntityFramework.IntegrationTests
+{
+    public class OutboxHostedReceiverTest
+    {
         [Fact]
-        public async Task StartOutboxHostedServiceAsync() {
+        public async Task StartOutboxHostedServiceAsync()
+        {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
             services.AddHostedService<OutboxHostedService<EntityContext>>();
@@ -55,7 +58,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldPurgePublishedMessagesAsync() {
+        public async Task ShouldPurgePublishedMessagesAsync()
+        {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
             services.AddHostedService<OutboxHostedService<EntityContext>>();

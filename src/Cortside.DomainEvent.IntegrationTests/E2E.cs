@@ -1,26 +1,32 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace Cortside.DomainEvent.IntegrationTests {
-    public class E2E : E2EBase {
+namespace Cortside.DomainEvent.IntegrationTests
+{
+    public class E2E : E2EBase
+    {
         [Fact]
-        public async Task ShouldBeAbleToSendAndReceiveAsync() {
-            if (enabled) {
-                var @event = new TestEvent {
+        public async Task ShouldBeAbleToSendAndReceiveAsync()
+        {
+            if (enabled)
+            {
+                var @event = new TestEvent
+                {
                     IntValue = r.Next() + 1,
                     StringValue = Guid.NewGuid().ToString()
                 };
 
                 var correlationId = Guid.NewGuid().ToString();
-                try {
+                try
+                {
                     await publisher.PublishAsync(@event, correlationId).ConfigureAwait(false);
-                } finally {
+                }
+                finally
+                {
                     Assert.Null(publisher.Error);
                 }
 
@@ -37,17 +43,23 @@ namespace Cortside.DomainEvent.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldBeAbleToScheduleAndReceiveAsync() {
-            if (enabled) {
-                var @event = new TestEvent {
+        public async Task ShouldBeAbleToScheduleAndReceiveAsync()
+        {
+            if (enabled)
+            {
+                var @event = new TestEvent
+                {
                     IntValue = r.Next(),
                     StringValue = Guid.NewGuid().ToString()
                 };
 
                 var correlationId = Guid.NewGuid().ToString();
-                try {
+                try
+                {
                     await publisher.ScheduleAsync(@event, DateTime.UtcNow.AddSeconds(20), correlationId).ConfigureAwait(false);
-                } finally {
+                }
+                finally
+                {
                     Assert.Null(publisher.Error);
                 }
 
@@ -66,17 +78,23 @@ namespace Cortside.DomainEvent.IntegrationTests {
         }
 
         [Fact]
-        public async Task ShouldBeAbleHaveHandlerRetryAsync() {
-            if (enabled) {
-                var @event = new TestEvent {
+        public async Task ShouldBeAbleHaveHandlerRetryAsync()
+        {
+            if (enabled)
+            {
+                var @event = new TestEvent
+                {
                     IntValue = 0,  // 0=retry
                     StringValue = Guid.NewGuid().ToString()
                 };
 
                 var correlationId = Guid.NewGuid().ToString();
-                try {
+                try
+                {
                     await publisher.ScheduleAsync(@event, DateTime.UtcNow.AddSeconds(20), correlationId).ConfigureAwait(false);
-                } finally {
+                }
+                finally
+                {
                     Assert.Null(publisher.Error);
                 }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml;
 using Amqp;
@@ -56,8 +57,21 @@ namespace Cortside.DomainEvent {
         public string CorrelationId => Message?.Properties?.CorrelationId;
         [Obsolete("Use EventType instead.")]
         public string MessageTypeName => EventType;
-        public string EventType => Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string ?? Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
+        public string EventType => Message?.ApplicationProperties[Constants.EVENT_TYPE_KEY] as string ?? Message?.ApplicationProperties[Constants.MESSAGE_TYPE_KEY_OLD] as string;
         public int DeliveryCount => Convert.ToInt32(Message?.Header?.DeliveryCount);
+
+        public ReadOnlyDictionary<string, object> ApplicationProperties {
+            get {
+                var properties = new Dictionary<string, object>();
+                foreach (var key in Message?.ApplicationProperties.Map.Keys) {
+                    properties.Add(key.ToString(), Message?.ApplicationProperties[key]);
+                }
+
+                return new ReadOnlyDictionary<string, object>(properties);
+            }
+        }
+
+
         public object Data { get; set; }
 
 

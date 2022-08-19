@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace Cortside.DomainEvent {
-    public class EventProperties {
+namespace Cortside.DomainEvent
+{
+    public class EventProperties
+    {
         public string CorrelationId { get; set; }
         public string MessageId { get; set; }
         public string EventType { get; set; }

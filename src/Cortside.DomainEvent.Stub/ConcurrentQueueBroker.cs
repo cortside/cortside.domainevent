@@ -6,8 +6,10 @@ using System.Linq;
 using Amqp;
 using Newtonsoft.Json;
 
-namespace Cortside.DomainEvent.Stub {
-    public class ConcurrentQueueBroker : IStubBroker {
+namespace Cortside.DomainEvent.Stub
+{
+    public class ConcurrentQueueBroker : IStubBroker
+    {
         private readonly ConcurrentQueue<Message> queue = new ConcurrentQueue<Message>();
         private readonly ConcurrentQueue<Message> accepted = new ConcurrentQueue<Message>();
         private readonly ConcurrentQueue<Message> dlq = new ConcurrentQueue<Message>();
@@ -25,74 +27,90 @@ namespace Cortside.DomainEvent.Stub {
         public int Published { get => published; }
         public int Accepted { get => accepted.Count; }
 
-        public void Enqueue(Message message) {
+        public void Enqueue(Message message)
+        {
             queue.Enqueue(message);
             published++;
         }
-        public void Dequeue() {
+        public void Dequeue()
+        {
             queue.TryDequeue(out _);
         }
 
-        public Message Peek() {
+        public Message Peek()
+        {
             Message message;
             queue.TryPeek(out message);
 
             return message;
         }
 
-        public void Reject(Message message) {
+        public void Reject(Message message)
+        {
             queue.TryDequeue(out _);
             dlq.Enqueue(message);
         }
 
-        public void Accept(Message message) {
+        public void Accept(Message message)
+        {
             queue.TryDequeue(out _);
             accepted.Enqueue(message);
         }
 
-        public void Release(Message message) {
+        public void Release(Message message)
+        {
             // leave item in queue
         }
 
-        public void Shovel() {
-            while (dlq.Count > 0) {
+        public void Shovel()
+        {
+            while (dlq.Count > 0)
+            {
                 Message message;
                 dlq.TryDequeue(out message);
                 queue.Enqueue(message);
             }
         }
-        public void EnqueueUnmapped(Message message) {
+        public void EnqueueUnmapped(Message message)
+        {
             unmapped.Enqueue(message);
         }
 
-        public void ResetQueue() {
+        public void ResetQueue()
+        {
             queue.Clear();
         }
 
-        public List<T> GetAcceptedMessagesByType<T>(Func<T, bool> predicate = null) {
+        public List<T> GetAcceptedMessagesByType<T>(Func<T, bool> predicate = null)
+        {
             return GetMessagesByType<T>(AcceptedItems, predicate);
         }
 
-        public List<T> GetActiveMessagesByType<T>(Func<T, bool> predicate = null) {
+        public List<T> GetActiveMessagesByType<T>(Func<T, bool> predicate = null)
+        {
             return GetMessagesByType<T>(ActiveItems, predicate);
         }
 
-        public List<T> GetDLQMessagesByType<T>(Func<T, bool> predicate = null) {
+        public List<T> GetDLQMessagesByType<T>(Func<T, bool> predicate = null)
+        {
             return GetMessagesByType<T>(DeadLetterItems, predicate);
         }
 
-        public List<T> GetUnmappedMessagesByType<T>(Func<T, bool> predicate = null) {
+        public List<T> GetUnmappedMessagesByType<T>(Func<T, bool> predicate = null)
+        {
             return GetMessagesByType<T>(UnmappedItems, predicate);
         }
 
-        private List<T> GetMessagesByType<T>(ReadOnlyCollection<Message> collection, Func<T, bool> predicate = null) {
+        private List<T> GetMessagesByType<T>(ReadOnlyCollection<Message> collection, Func<T, bool> predicate = null)
+        {
             var name = typeof(T).Name;
             var messages = collection.Where(x => x.ApplicationProperties.Map.Values.Any(y => y.ToString().Contains(name)));
             var result = messages
                 .Select(x => JsonConvert.DeserializeObject<T>(x.Body.ToString()))
                 .ToList();
 
-            if (predicate != null) {
+            if (predicate != null)
+            {
                 result = result.Where(predicate).ToList();
             }
 

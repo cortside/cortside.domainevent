@@ -12,10 +12,13 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Xunit;
 
-namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    public partial class ContainerHostTest : BaseHostTest {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests
+{
+    public partial class ContainerHostTest : BaseHostTest
+    {
         [Fact]
-        public async Task ShouldPublishEvent1Async() {
+        public async Task ShouldPublishEvent1Async()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -37,11 +40,12 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(body).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(body).StringValue);
             Assert.Equal(@event.Status, JsonConvert.DeserializeObject<TestEvent>(body).Status);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
         }
 
         [Fact]
-        public async Task ShouldPublishEvent1WithSerializationSettingsAsync() {
+        public async Task ShouldPublishEvent1WithSerializationSettingsAsync()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -49,7 +53,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             var settings = publisterSettings.Copy();
             settings.Topic = topic;
-            settings.SerializerSettings = new JsonSerializerSettings() {
+            settings.SerializerSettings = new JsonSerializerSettings()
+            {
                 Converters = new List<JsonConverter> {
                     new StringEnumConverter(new CamelCaseNamingStrategy())
                 }
@@ -68,11 +73,12 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(body).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(body).StringValue);
             Assert.Equal(@event.Status, JsonConvert.DeserializeObject<TestEvent>(body).Status);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
         }
 
         [Fact]
-        public async Task ShouldPublishEvent2Async() {
+        public async Task ShouldPublishEvent2Async()
+        {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -92,12 +98,13 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
         }
 
         [Fact]
-        public async Task ShouldPublishEvent3Async() {
+        public async Task ShouldPublishEvent3Async()
+        {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -118,13 +125,14 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
         }
 
         [Fact]
-        public async Task ShouldPublishEvent4Async() {
+        public async Task ShouldPublishEvent4Async()
+        {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -144,12 +152,13 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
         }
 
         [Fact]
-        public async Task ShouldPublishEvent5Async() {
+        public async Task ShouldPublishEvent5Async()
+        {
             // arange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -170,13 +179,14 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent1Async() {
+        public async Task ShouldScheduleEvent1Async()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -196,12 +206,13 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent2Async() {
+        public async Task ShouldScheduleEvent2Async()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -222,13 +233,14 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent3Async() {
+        public async Task ShouldScheduleEvent3Async()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -250,14 +262,15 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
             ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent4Async() {
+        public async Task ShouldScheduleEvent4Async()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -278,13 +291,14 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
 
         [Fact]
-        public async Task ShouldScheduleEvent5Async() {
+        public async Task ShouldScheduleEvent5Async()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             var processor = new TestMessageProcessor();
@@ -306,14 +320,15 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             var message = processor.Messages[0];
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
-            Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
+            Assert.Equal("foo", message.ApplicationProperties[Constants.EVENT_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
             ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
 
         [Fact]
-        public async Task ShouldPublishWithUsingAsync() {
+        public async Task ShouldPublishWithUsingAsync()
+        {
             // arrange
             string topic = Guid.NewGuid().ToString();
             List<Message> messages = new List<Message>();
@@ -325,9 +340,11 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             const int count = 10;
 
             // act
-            using (var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>())) {
+            using (var publisher = new DomainEventPublisher(settings, new NullLogger<DomainEventPublisher>()))
+            {
                 publisher.Connect();
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++)
+                {
                     var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
                     await publisher.PublishAsync(@event).ConfigureAwait(false);
                 }

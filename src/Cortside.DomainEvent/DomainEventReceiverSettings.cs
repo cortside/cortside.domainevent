@@ -1,5 +1,7 @@
-namespace Cortside.DomainEvent {
-    public class DomainEventReceiverSettings : DomainEventSettings {
+namespace Cortside.DomainEvent
+{
+    public class DomainEventReceiverSettings : DomainEventSettings
+    {
         /// <summary>
         /// Gets or sets the address. Topic (azure SB) or exchange/queue (RabbitMQ)
         /// </summary>

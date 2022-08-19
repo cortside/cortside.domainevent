@@ -2,15 +2,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Cortside.DomainEvent.EntityFramework {
-    public static class ModelBuilderExtensions {
-        public static void AddDomainEventOutbox(this ModelBuilder builder) {
+namespace Cortside.DomainEvent.EntityFramework
+{
+    public static class ModelBuilderExtensions
+    {
+        public static void AddDomainEventOutbox(this ModelBuilder builder)
+        {
             builder.ApplyConfiguration(new OutboxMessageEntityConfiguration());
         }
     }
 
-    internal class OutboxMessageEntityConfiguration : IEntityTypeConfiguration<Outbox> {
-        public void Configure(EntityTypeBuilder<Outbox> builder) {
+    internal class OutboxMessageEntityConfiguration : IEntityTypeConfiguration<Outbox>
+    {
+        public void Configure(EntityTypeBuilder<Outbox> builder)
+        {
             builder.ToTable("Outbox");
             builder.HasKey(t => t.OutboxId);
 

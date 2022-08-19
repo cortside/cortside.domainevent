@@ -1,10 +1,13 @@
 using System;
 
-namespace Cortside.DomainEvent.Tests.Utilities {
-    public class MockDisposable : IDisposable {
+namespace Cortside.DomainEvent.Tests.Utilities
+{
+    public class MockDisposable : IDisposable
+    {
         bool _disposed = false;
 
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void Dispose(bool disposing)
+        {
             if (!_disposed && disposing) // only dispose once!
             {
                 // perform cleanup for this object
@@ -12,14 +15,16 @@ namespace Cortside.DomainEvent.Tests.Utilities {
             _disposed = true;
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             Dispose(true);
 
             // tell the GC not to finalize
             GC.SuppressFinalize(this);
         }
 
-        ~MockDisposable() {
+        ~MockDisposable()
+        {
             Dispose(false);
         }
     }

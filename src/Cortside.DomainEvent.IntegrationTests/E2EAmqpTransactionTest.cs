@@ -7,17 +7,22 @@ using Amqp;
 using Amqp.Framing;
 using Xunit;
 
-namespace Cortside.DomainEvent.IntegrationTests {
-    public class E2EAmqpTransactionTest : E2EBase {
+namespace Cortside.DomainEvent.IntegrationTests
+{
+    public class E2EAmqpTransactionTest : E2EBase
+    {
         private string path;
 
-        public E2EAmqpTransactionTest() : base() {
+        public E2EAmqpTransactionTest() : base()
+        {
             path = base.publisherSettings.Topic;
         }
 
         [Fact]
-        public void TransactedPosting() {
-            if (enabled) {
+        public void TransactedPosting()
+        {
+            if (enabled)
+            {
                 const string testName = "TransactedPosting";
                 path = "test." + testName;
                 const int nMsgs = 5;
@@ -27,9 +32,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 SenderLink sender = new SenderLink(session, "sender-" + testName, path);
 
                 // commit
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                    for (int i = 0; i < nMsgs; i++) {
-                        Message message = new Message("test") {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    for (int i = 0; i < nMsgs; i++)
+                    {
+                        Message message = new Message("test")
+                        {
                             Properties = new Properties() { MessageId = "commit" + i, GroupId = testName }
                         };
                         sender.Send(message);
@@ -39,9 +47,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 // rollback
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                    for (int i = nMsgs; i < nMsgs * 2; i++) {
-                        Message message = new Message("test") {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    for (int i = nMsgs; i < nMsgs * 2; i++)
+                    {
+                        Message message = new Message("test")
+                        {
                             Properties = new Properties() { MessageId = "rollback" + i, GroupId = testName }
                         };
                         sender.Send(message);
@@ -49,9 +60,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 // commit
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                    for (int i = 0; i < nMsgs; i++) {
-                        Message message = new Message("test") {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    for (int i = 0; i < nMsgs; i++)
+                    {
+                        Message message = new Message("test")
+                        {
                             Properties = new Properties() { MessageId = "commit" + i, GroupId = testName }
                         };
                         sender.Send(message);
@@ -63,7 +77,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Connection connection2 = new Connection(address);
                 Session session2 = new Session(connection2);
                 ReceiverLink receiver = new ReceiverLink(session2, "receiver-" + testName, path);
-                for (int i = 0; i < nMsgs * 2; i++) {
+                for (int i = 0; i < nMsgs * 2; i++)
+                {
                     Message message = receiver.Receive();
                     Trace.WriteLine(TraceLevel.Information, "receive: {0}", message.Properties.MessageId);
                     receiver.Accept(message);
@@ -80,8 +95,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
         }
 
         [Fact]
-        public void TransactedRetiring() {
-            if (enabled) {
+        public void TransactedRetiring()
+        {
+            if (enabled)
+            {
                 const string testName = "TransactedRetiring";
                 path = "test." + testName;
                 const int nMsgs = 10;
@@ -92,8 +109,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 SenderLink sender = new SenderLink(session, "sender-" + testName, path);
 
                 // send one extra for validation
-                for (int i = 0; i < nMsgs + 1; i++) {
-                    Message message = new Message("test") {
+                for (int i = 0; i < nMsgs + 1; i++)
+                {
+                    Message message = new Message("test")
+                    {
                         Properties = new Properties() { MessageId = "msg" + i, GroupId = testName }
                     };
                     ids.Add(message.Properties.MessageId);
@@ -102,14 +121,17 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 ReceiverLink receiver = new ReceiverLink(session, "receiver-" + testName, path);
                 Message[] messages = new Message[nMsgs];
-                for (int i = 0; i < nMsgs; i++) {
+                for (int i = 0; i < nMsgs; i++)
+                {
                     messages[i] = receiver.Receive();
                     Trace.WriteLine(TraceLevel.Information, "receive: {0}", messages[i].Properties.MessageId);
                 }
 
                 // commit half
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                    for (int i = 0; i < nMsgs / 2; i++) {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    for (int i = 0; i < nMsgs / 2; i++)
+                    {
                         receiver.Accept(messages[i]);
                         ids.Remove(messages[i].Properties.MessageId);
                     }
@@ -118,8 +140,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 // rollback
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                    for (int i = nMsgs / 2; i < nMsgs; i++) {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    for (int i = nMsgs / 2; i < nMsgs; i++)
+                    {
                         receiver.Accept(messages[i]);
                     }
                 }
@@ -132,8 +156,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 // commit
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
-                    for (int i = nMsgs / 2; i < nMsgs; i++) {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    for (int i = nMsgs / 2; i < nMsgs; i++)
+                    {
                         receiver.Accept(messages[i]);
                         ids.Remove(messages[i].Properties.MessageId);
                     }
@@ -161,8 +187,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
         }
 
         [Fact]
-        public void TransactedRetiringAndPosting() {
-            if (enabled) {
+        public void TransactedRetiringAndPosting()
+        {
+            if (enabled)
+            {
                 const string testName = "TransactedRetiringAndPosting";
                 path = "test." + testName;
                 const int nMsgs = 10;
@@ -173,9 +201,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 SenderLink sender = new SenderLink(session, "sender-" + testName, path);
 
-                for (int i = 0; i < nMsgs; i++) {
-                    Message message = new Message("test") {
-                        Properties = new Properties() {
+                for (int i = 0; i < nMsgs; i++)
+                {
+                    Message message = new Message("test")
+                    {
+                        Properties = new Properties()
+                        {
                             MessageId = "msg" + i,
                             GroupId = testName
                         }
@@ -191,11 +222,13 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Message message2 = receiver.Receive();
 
                 // ack message1 and send a new message in a txn
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
                     receiver.Accept(message1);
                     ids.Remove(message1.Properties.MessageId);
 
-                    Message message = new Message("test") {
+                    Message message = new Message("test")
+                    {
                         Properties = new Properties() { MessageId = "msg" + nMsgs, GroupId = testName }
                     };
                     ids.Add(message.Properties.MessageId);
@@ -205,10 +238,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 // ack message2 and send a new message in a txn but abort the txn
-                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled)) {
+                using (var ts = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
                     receiver.Accept(message2);
 
-                    Message message = new Message("test") {
+                    Message message = new Message("test")
+                    {
                         Properties = new Properties() { MessageId = "msg" + (nMsgs + 1), GroupId = testName }
                     };
                     sender.Send(message);
@@ -219,7 +254,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 // receive all messages. should see the effect of the first txn
                 receiver.SetCredit(nMsgs, false);
-                for (int i = 1; i <= nMsgs; i++) {
+                for (int i = 1; i <= nMsgs; i++)
+                {
                     Message message = receiver.Receive();
                     Trace.WriteLine(TraceLevel.Information, "receive: {0}", message.Properties.MessageId);
                     receiver.Accept(message);

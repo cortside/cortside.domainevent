@@ -5,16 +5,21 @@ using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Handlers;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.DomainEvent.Tests {
-    public class TestEventHandler : IDomainEventHandler<TestEvent> {
+namespace Cortside.DomainEvent.Tests
+{
+    public class TestEventHandler : IDomainEventHandler<TestEvent>
+    {
         private readonly ILogger<TestEventHandler> logger;
 
-        public TestEventHandler(ILogger<TestEventHandler> logger) {
+        public TestEventHandler(ILogger<TestEventHandler> logger)
+        {
             this.logger = logger;
         }
 
-        public async Task<HandlerResult> HandleAsync(DomainEventMessage<TestEvent> @event) {
-            var properties = new Dictionary<string, object> {
+        public async Task<HandlerResult> HandleAsync(DomainEventMessage<TestEvent> @event)
+        {
+            var properties = new Dictionary<string, object>
+            {
                 ["CorrelationId"] = @event.CorrelationId,
                 ["MessageId"] = @event.MessageId,
                 ["MessageType"] = @event.EventType,
@@ -22,25 +27,33 @@ namespace Cortside.DomainEvent.Tests {
             };
 
             var correlationId = CorrelationContext.GetCorrelationId();
-            if (@event.Data.IntValue == int.MaxValue && correlationId != @event.CorrelationId) {
+            if (@event.Data.IntValue == int.MaxValue && correlationId != @event.CorrelationId)
+            {
                 throw new ArgumentException($"CorrelationId {@event.CorrelationId} should equal {correlationId}");
             }
 
-            using (logger.BeginScope(properties)) {
+            using (logger.BeginScope(properties))
+            {
                 TestEvent.Instances.Add(@event.MessageId, @event);
 
                 // intentionally cause exception, used to assert unhandled exception handling
-                if (@event.Data.IntValue == int.MinValue) {
+                if (@event.Data.IntValue == int.MinValue)
+                {
                     throw new ArgumentException("IntValue is int.MinValue");
                 }
 
                 await Task.Delay(10).ConfigureAwait(false);
 
-                if (@event.Data.IntValue > 0) {
+                if (@event.Data.IntValue > 0)
+                {
                     return HandlerResult.Success;
-                } else if (@event.Data.IntValue == 0 && @event.DeliveryCount > 1) {
+                }
+                else if (@event.Data.IntValue == 0 && @event.DeliveryCount > 1)
+                {
                     return HandlerResult.Success;
-                } else if (@event.Data.IntValue == 0) {
+                }
+                else if (@event.Data.IntValue == 0)
+                {
                     return HandlerResult.Retry;
                 }
 

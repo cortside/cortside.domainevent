@@ -5,10 +5,13 @@ using Amqp;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
-namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    public partial class ContainerHostTest : BaseHostTest {
+namespace Cortside.DomainEvent.Tests.ContainerHostTests
+{
+    public partial class ContainerHostTest : BaseHostTest
+    {
         [Fact]
-        public async Task ShouldReceiveMessage_AcceptAsync() {
+        public async Task ShouldReceiveMessage_AcceptAsync()
+        {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
@@ -20,16 +23,19 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             publisterSettings.Topic = receiverSettings.Queue;
             var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
                 await publisher.PublishAsync(@event).ConfigureAwait(false);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
             host.RegisterMessageSource(receiverSettings.Queue, source);
-            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
+            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>()))
+            {
                 receiver.Start(eventTypes);
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++)
+                {
                     var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                     Assert.NotNull(message.GetData<TestEvent>());
                     message.Accept();
@@ -41,7 +47,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact]
-        public async Task ShouldReceiveMessage_RejectAsync() {
+        public async Task ShouldReceiveMessage_RejectAsync()
+        {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
@@ -53,26 +60,31 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             publisterSettings.Topic = receiverSettings.Queue;
             var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
                 await publisher.PublishAsync(@event).ConfigureAwait(false);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
             host.RegisterMessageSource(receiverSettings.Queue, source);
-            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
+            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>()))
+            {
                 receiver.Start(eventTypes);
                 int waits = 0;
-                do {
+                do
+                {
                     await Task.Delay(1000).ConfigureAwait(false);
-                    if (receiver.Link.LinkState == LinkState.Attached) {
+                    if (receiver.Link.LinkState == LinkState.Attached)
+                    {
                         break;
                     }
                     waits++;
                 }
                 while (waits < 20);
 
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++)
+                {
                     var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
                     message.Reject();
                     await Task.Delay(1000).ConfigureAwait(false);
@@ -84,7 +96,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         }
 
         [Fact(Skip = "concurrency issue")]
-        public async Task ShouldReceiveMessage_ReleaseAsync() {
+        public async Task ShouldReceiveMessage_ReleaseAsync()
+        {
             receiverSettings.Queue = Guid.NewGuid().ToString();
 
             List<Message> messages = new List<Message>();
@@ -96,16 +109,19 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             publisterSettings.Topic = receiverSettings.Queue;
             var publisher = new DomainEventPublisher(publisterSettings, new NullLogger<DomainEventPublisher>());
 
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
                 await publisher.PublishAsync(@event).ConfigureAwait(false);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
             host.RegisterMessageSource(receiverSettings.Queue, source);
-            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
+            using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>()))
+            {
                 receiver.Start(eventTypes);
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < count; i++)
+                {
                     var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                     message.Release();
                 }

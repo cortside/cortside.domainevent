@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Cortside.DomainEvent.EntityFramework.IntegrationTests.Database {
+namespace Cortside.DomainEvent.EntityFramework.IntegrationTests.Database
+{
     [Table("Widget")]
-    public class Widget {
+    public class Widget
+    {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int WidgetId { get; set; }

@@ -12,9 +12,11 @@ using Xunit;
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
-namespace Cortside.DomainEvent.IntegrationTests {
+namespace Cortside.DomainEvent.IntegrationTests
+{
     [CollectionDefinition("e2etests", DisableParallelization = true)]
-    public class E2EBase {
+    public class E2EBase
+    {
         protected readonly IServiceProvider serviceProvider;
         protected readonly Dictionary<string, Type> eventTypes;
         protected readonly Random r;
@@ -26,7 +28,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
         protected readonly string queue;
         protected readonly Address address;
 
-        public E2EBase() {
+        public E2EBase()
+        {
             r = new Random();
 
             //Config
@@ -62,8 +65,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
             address = new Address(receiverSettings.ConnectionString);
         }
 
-        protected T GetSettings<T>(IConfigurationSection section) where T : DomainEventSettings, new() {
-            return new T {
+        protected T GetSettings<T>(IConfigurationSection section) where T : DomainEventSettings, new()
+        {
+            return new T
+            {
                 AppName = section["AppName"],
                 Key = section["Key"],
                 Namespace = section["Namespace"],
@@ -73,25 +78,32 @@ namespace Cortside.DomainEvent.IntegrationTests {
             };
         }
 
-        protected TestEvent NewTestEvent() {
-            var @event = new TestEvent {
+        protected TestEvent NewTestEvent()
+        {
+            var @event = new TestEvent
+            {
                 IntValue = r.Next(),
                 StringValue = Guid.NewGuid().ToString()
             };
             return @event;
         }
 
-        protected TimeSpan ReceiveAndWait(string correlationId, Amqp.Types.Map filter = null) {
+        protected TimeSpan ReceiveAndWait(string correlationId, Amqp.Types.Map filter = null)
+        {
             var tokenSource = new CancellationTokenSource();
             var start = DateTime.Now;
 
-            using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>())) {
+            using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>()))
+            {
                 receiver.Closed += (r, e) => tokenSource.Cancel();
                 receiver.StartAndListen(eventTypes, filter);
 
-                while (!TestEvent.Instances.ContainsKey(correlationId) && (DateTime.Now - start) < new TimeSpan(0, 0, 60)) {
-                    if (tokenSource.Token.IsCancellationRequested) {
-                        if (receiver.Error != null) {
+                while (!TestEvent.Instances.ContainsKey(correlationId) && (DateTime.Now - start) < new TimeSpan(0, 0, 60))
+                {
+                    if (tokenSource.Token.IsCancellationRequested)
+                    {
+                        if (receiver.Error != null)
+                        {
                             Assert.Equal(string.Empty, receiver.Error.Description);
                             Assert.Equal(string.Empty, receiver.Error.Condition);
                         }

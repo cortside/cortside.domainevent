@@ -1,9 +1,12 @@
 using Xunit;
 
-namespace Cortside.DomainEvent.Tests {
-    public class DomainEventMessageTest {
+namespace Cortside.DomainEvent.Tests
+{
+    public class DomainEventMessageTest
+    {
         [Fact]
-        public void ShouldBeAbleToAssignData() {
+        public void ShouldBeAbleToAssignData()
+        {
             // act
             var @event = new DomainEventMessage() { Data = new TestEvent() };
 
@@ -12,7 +15,8 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public void ShouldBeAbleToAssignTData() {
+        public void ShouldBeAbleToAssignTData()
+        {
             // act
             var @event = new DomainEventMessage<TestEvent>() { Data = new TestEvent() };
 
