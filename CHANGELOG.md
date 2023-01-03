@@ -1,5 +1,23 @@
-# Release 1.0
+# Release 1.3
 
+|Commit|Date|Author|Message|
+|---|---|---|---|
+| d1cd743 | <span style="white-space:nowrap;">2022-07-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  [feature/BOT-20220713] updated nuget packages
+| 7221b09 | <span style="white-space:nowrap;">2022-07-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  handle git flow named branches
+| bdc3170 | <span style="white-space:nowrap;">2022-07-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #28 from cortside/feature/BOT-20220713
+| cb34723 | <span style="white-space:nowrap;">2022-07-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  [feature/BOT-20220713] updated nuget packages
+| 5b7d03a | <span style="white-space:nowrap;">2022-12-21</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update nuget api key
+| 577c951 | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  [feature/BOT-20230102] updated nuget packages
+| 4a6a70a | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update helper scripts; update nuget packages
+| f733055 | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update helper scripts; update nuget packages
+| 46e2adc | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update helper scripts; update nuget packages
+| 92a47f5 | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update helper scripts; update nuget packages
+| 14cf238 | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  initial changelog
+| b8ec2b1 | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (origin/feature/BOT-20230102, feature/BOT-20230102) update version in prep for next release
+| 4c1ffae | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/1.3, origin/develop, origin/HEAD, develop) Merge pull request #30 from cortside/feature/BOT-20230102
+****
+
+# Release 1.0
 |Commit|Date|Author|Message|
 |---|---|---|---|
 | 73eec9b | <span style="white-space:nowrap;">2013-01-23</span> | <span style="white-space:nowrap;">cort@Pahia.spring2tech.com</span> |  move from SVN
