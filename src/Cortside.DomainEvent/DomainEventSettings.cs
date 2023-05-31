@@ -10,6 +10,7 @@ namespace Cortside.DomainEvent {
 
         public string AppName {
             set { Service = value; }
+            get { return Service; }
         }
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace Cortside.DomainEvent {
 
         public string PolicyName {
             set { Policy = value; }
+            get { return Policy; }
         }
 
         /// <summary>

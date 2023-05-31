@@ -16,10 +16,11 @@ namespace Cortside.DomainEvent {
         /// Azure SB {topic}/Subscriptions/{subscription}
         /// RabbitMQ {queue}
         /// </remarks>
-        public string Topic { set; get; }
+        public string Topic { get; set; }
 
         public string Exchange {
             set { Topic = value; }
+            get => Topic;
         }
 
         public JsonSerializerSettings SerializerSettings { get; set; }

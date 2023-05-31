@@ -8,6 +8,7 @@ using Amqp;
 using Amqp.Framing;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests.Utilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -37,6 +38,48 @@ namespace Cortside.DomainEvent.Tests {
             });
 
             receiverLink = new Mock<IReceiverLink>();
+        }
+
+        [Theory]
+        [InlineData("ServiceBus:Service")]
+        [InlineData("ServiceBus:AppName")]
+        public async Task ShouldParseService(string key) {
+            // arrange
+            var value = Guid.NewGuid().ToString();
+            var dictionary = new Dictionary<string, string> {
+                {key, value},
+            };
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(dictionary)
+                .Build();
+
+            // act
+            var settings = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
+
+            // assert
+            Assert.Equal(value, settings.Service);
+        }
+
+        [Theory]
+        [InlineData("ServiceBus:Policy")]
+        [InlineData("ServiceBus:PolicyName")]
+        public async Task ShouldParsePolicy(string key) {
+            // arrange
+            var value = Guid.NewGuid().ToString();
+            var dictionary = new Dictionary<string, string> {
+                {key, value},
+            };
+
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(dictionary)
+                .Build();
+
+            // act
+            var settings = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
+
+            // assert
+            Assert.Equal(value, settings.Policy);
         }
 
         [Fact]
