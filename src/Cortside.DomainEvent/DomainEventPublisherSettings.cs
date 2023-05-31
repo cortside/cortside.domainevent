@@ -18,6 +18,10 @@ namespace Cortside.DomainEvent {
         /// </remarks>
         public string Topic { set; get; }
 
+        public string Exchange {
+            set { Topic = value; }
+        }
+
         public JsonSerializerSettings SerializerSettings { get; set; }
     }
 }

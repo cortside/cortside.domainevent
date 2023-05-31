@@ -1,7 +1,6 @@
-﻿using Cortside.DomainEvent.Stub;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Cortside.DomainEvent.EntityFramework {
+namespace Cortside.DomainEvent.Stub {
     public static class ServiceCollectionExtensions {
         /// <summary>
         /// Registers in memory stub publisher and receiver
