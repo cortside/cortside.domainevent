@@ -5,7 +5,7 @@ using Amqp;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.Utilities {
     public class MockReceiver : DomainEventReceiver {
         public MockReceiver(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) : base(settings, provider, logger) {
         }
@@ -19,7 +19,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         internal void SetProvider(ServiceProvider provider) {
-            base.Provider = provider;
+            Provider = provider;
         }
     }
 }

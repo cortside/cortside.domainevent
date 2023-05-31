@@ -31,20 +31,20 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             receiverSettings = new DomainEventReceiverSettings() {
                 Protocol = "amqp",
-                PolicyName = "guest",
+                Policy = "guest",
                 Key = "guest",
                 Namespace = $"localhost:{port}",
                 Queue = "queue",
-                AppName = "unittest" + port.ToString()
+                Service = "unittest" + port.ToString()
             };
 
             publisterSettings = new DomainEventPublisherSettings() {
                 Protocol = "amqp",
-                PolicyName = "guest",
+                Policy = "guest",
                 Key = "guest",
                 Namespace = $"localhost:{port}",
                 Topic = "/exchange/test/",
-                AppName = "unittest" + port.ToString()
+                Service = "unittest" + port.ToString()
             };
             Address = new Address(publisterSettings.ConnectionString);
 

@@ -55,7 +55,7 @@ namespace Cortside.DomainEvent {
                         Source = new Source()
                     };
                 }
-                var sender = new SenderLink(session, Settings.AppName + Guid.NewGuid().ToString(), attach, null);
+                var sender = new SenderLink(session, Settings.Service + Guid.NewGuid().ToString(), attach, null);
                 sender.Closed += OnClosed;
 
                 try {

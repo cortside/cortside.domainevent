@@ -61,7 +61,7 @@ namespace Cortside.DomainEvent.Stub {
         }
 
         private void InternalStart(IDictionary<string, Type> eventTypeLookup) {
-            logger.LogInformation($"Starting {GetType().Name} for {settings.AppName}");
+            logger.LogInformation($"Starting {GetType().Name} for {settings.Service}");
 
             this.eventTypeLookup = eventTypeLookup;
             logger.LogInformation($"Registering {eventTypeLookup.Count} event types:");
