@@ -50,7 +50,7 @@ namespace Cortside.DomainEvent {
                 throw new InvalidOperationException("Already receiving.");
             }
 
-            Logger.LogInformation($"Starting {GetType().Name} for {Settings.AppName}");
+            Logger.LogInformation($"Starting {GetType().Name} for {Settings.Service}");
 
             EventTypeLookup = eventTypeLookup;
             Logger.LogInformation($"Registering {eventTypeLookup.Count} event types:");
@@ -69,7 +69,7 @@ namespace Cortside.DomainEvent {
                     Address = null
                 }
             };
-            Link = new ReceiverLink(session, Settings.AppName, attach, null);
+            Link = new ReceiverLink(session, Settings.Service, attach, null);
             Link.Closed += OnClosed;
         }
 

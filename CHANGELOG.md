@@ -1,3 +1,18 @@
+# Release 1.4
+
+|Commit|Date|Author|Message|
+|---|---|---|---|
+| aa93fac | <span style="white-space:nowrap;">2023-01-02</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
+| 020d638 | <span style="white-space:nowrap;">2023-01-03</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 3f78ee9 | <span style="white-space:nowrap;">2023-05-30</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add extension methods for registering varying publishers and receivers
+| 555b11d | <span style="white-space:nowrap;">2023-05-30</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'develop' of github.com:cortside/cortside.domainevent into develop
+| f04f3d6 | <span style="white-space:nowrap;">2023-05-31</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add property to ease update to latest
+| c0246b0 | <span style="white-space:nowrap;">2023-05-31</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add property to ease update to latest
+| bb36107 | <span style="white-space:nowrap;">2023-06-12</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Create codeql.yml
+| 5f7dfd5 | <span style="white-space:nowrap;">2023-06-15</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update powershell scripts
+| 549ee44 | <span style="white-space:nowrap;">2023-06-15</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/1.4, origin/develop, origin/HEAD, develop) update to latest cortside libraries
+****
+
 # Release 1.3
 
 |Commit|Date|Author|Message|

@@ -56,10 +56,10 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
         protected T GetSettings<T>(IConfigurationSection section) where T : DomainEventSettings, new() {
             return new T {
-                AppName = section["AppName"],
+                Service = section["Service"],
                 Key = section["Key"],
                 Namespace = section["Namespace"],
-                PolicyName = section["Policy"],
+                Policy = section["Policy"],
                 Protocol = section["Protocol"],
                 Durable = Convert.ToUInt32(section["Durable"])
             };
