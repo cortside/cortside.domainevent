@@ -22,7 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Cortside.Common.Threading" Version="1.2.322" />
+    <PackageReference Include="Cortside.Common.Threading" Version="1.3.353" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.27">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
