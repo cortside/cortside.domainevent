@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
@@ -9,7 +8,7 @@ namespace Cortside.DomainEvent.Tests {
         [Theory]
         [InlineData("ServiceBus:Topic")]
         [InlineData("ServiceBus:Exchange")]
-        public async Task ShouldParseTopic(string key) {
+        public void ShouldParseTopic(string key) {
             // arrange
             var value = Guid.NewGuid().ToString();
             var dictionary = new Dictionary<string, string> {
@@ -28,7 +27,7 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleExchange() {
+        public void ShouldHandleExchange() {
             // arrange
             var value = Guid.NewGuid().ToString();
 
