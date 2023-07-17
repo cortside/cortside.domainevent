@@ -21,8 +21,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Cortside.Common.Correlation" Version="6.0.368-develop" />
-    <PackageReference Include="Cortside.Common.Validation" Version="6.0.368-develop" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="6.0.369-develop" />
+    <PackageReference Include="Cortside.Common.Validation" Version="6.0.369-develop" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
