@@ -4,14 +4,20 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Cortside.DomainEvent.EntityFramework {
     public static class ModelBuilderExtensions {
-        public static void AddDomainEventOutbox(this ModelBuilder builder) {
-            builder.ApplyConfiguration(new OutboxMessageEntityConfiguration());
+        public static void AddDomainEventOutbox(this ModelBuilder builder, string schema = "dbo") {
+            builder.ApplyConfiguration(new OutboxMessageEntityConfiguration(schema));
         }
     }
 
     internal class OutboxMessageEntityConfiguration : IEntityTypeConfiguration<Outbox> {
+        private readonly string schema;
+
+        internal OutboxMessageEntityConfiguration(string schema) {
+            this.schema = schema;
+        }
+
         public void Configure(EntityTypeBuilder<Outbox> builder) {
-            builder.ToTable("Outbox");
+            builder.ToTable("Outbox", schema);
             builder.HasKey(t => t.OutboxId);
 
             builder.HasIndex(t => t.MessageId)
@@ -53,10 +59,10 @@ namespace Cortside.DomainEvent.EntityFramework {
 
             builder.HasIndex(p => new { p.ScheduledDate, p.Status })
                 .IncludeProperties(p => new { p.EventType })
-                .HasName("IX_ScheduleDate_Status");
+                .HasDatabaseName("IX_ScheduleDate_Status");
 
             builder.HasIndex(p => new { p.Status, p.LockId, p.ScheduledDate })
-                .HasName("IX_Status_LockId_ScheduleDate");
+                .HasDatabaseName("IX_Status_LockId_ScheduleDate");
         }
     }
 }

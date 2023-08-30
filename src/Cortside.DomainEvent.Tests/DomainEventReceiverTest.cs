@@ -43,7 +43,7 @@ namespace Cortside.DomainEvent.Tests {
         [Theory]
         [InlineData("ServiceBus:Service")]
         [InlineData("ServiceBus:AppName")]
-        public async Task ShouldParseService(string key) {
+        public void ShouldParseService(string key) {
             // arrange
             var value = Guid.NewGuid().ToString();
             var dictionary = new Dictionary<string, string> {
@@ -55,16 +55,16 @@ namespace Cortside.DomainEvent.Tests {
                 .Build();
 
             // act
-            var settings = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
+            var model = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
 
             // assert
-            Assert.Equal(value, settings.Service);
+            Assert.Equal(value, model.Service);
         }
 
         [Theory]
         [InlineData("ServiceBus:Policy")]
         [InlineData("ServiceBus:PolicyName")]
-        public async Task ShouldParsePolicy(string key) {
+        public void ShouldParsePolicy(string key) {
             // arrange
             var value = Guid.NewGuid().ToString();
             var dictionary = new Dictionary<string, string> {
@@ -76,10 +76,10 @@ namespace Cortside.DomainEvent.Tests {
                 .Build();
 
             // act
-            var settings = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
+            var model = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
 
             // assert
-            Assert.Equal(value, settings.Policy);
+            Assert.Equal(value, model.Policy);
         }
 
         [Fact]

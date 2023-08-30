@@ -1,3 +1,23 @@
+# Release 6.0
+
+* Update version number to match framework version (6.x)
+* Update projects to be net6.0
+* Update nuget dependencies to latest stable versions
+* Allow for schema to be specified for outbox table, default to dbo
+
+|Commit|Date|Author|Message|
+|---|---|---|---|
+| 24d8c49 | <span style="white-space:nowrap;">2023-06-15</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
+| e977b4b | <span style="white-space:nowrap;">2023-06-20</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| d5238e7 | <span style="white-space:nowrap;">2023-06-26</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (origin/net6, net6) [net6] update to net6
+| 86f3556 | <span style="white-space:nowrap;">2023-06-26</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #33 from cortside/net6
+| adec754 | <span style="white-space:nowrap;">2023-07-17</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version to 6.x to be in line with dotnet and net6 version numbers
+| f6083e6 | <span style="white-space:nowrap;">2023-07-17</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version to 6.x to be in line with dotnet and net6 version numbers
+| e328fa7 | <span style="white-space:nowrap;">2023-07-19</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  [net6] update nuget packages
+| d9e04af | <span style="white-space:nowrap;">2023-07-31</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  allow for schema to be specified for outbox table, default to dbo
+| 007edf3 | <span style="white-space:nowrap;">2023-08-29</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/6.0, origin/develop, origin/HEAD, develop) update to latest nuget packages
+****
+
 # Release 1.4
 
 |Commit|Date|Author|Message|
