@@ -1,5 +1,10 @@
 # Release 6.0
 
+* Update version number to match framework version (6.x)
+* Update projects to be net6.0
+* Update nuget dependencies to latest stable versions
+* Allow for schema to be specified for outbox table, default to dbo
+
 |Commit|Date|Author|Message|
 |---|---|---|---|
 | 24d8c49 | <span style="white-space:nowrap;">2023-06-15</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
