@@ -5,10 +5,7 @@
     <NoWarn>1701;1702;VSTHRD200;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="appsettings.local.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="appsettings.json">
+    <Content Include="appsettings*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
