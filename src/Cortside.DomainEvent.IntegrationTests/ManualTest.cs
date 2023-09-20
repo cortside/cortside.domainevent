@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
-[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
-
 namespace Cortside.DomainEvent.IntegrationTests {
-    [CollectionDefinition("e2etests", DisableParallelization = true)]
-    public class E2EBase {
+    public class ManualTest {
         protected readonly IServiceProvider serviceProvider;
         protected readonly Dictionary<string, Type> eventTypes;
         protected readonly Random r;
@@ -21,7 +20,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         protected readonly DomainEventPublisherSettings publisherSettings;
         protected readonly bool enabled;
 
-        public E2EBase() {
+        public ManualTest() {
             r = new Random();
 
             //Config
@@ -49,12 +48,19 @@ namespace Cortside.DomainEvent.IntegrationTests {
             enabled = configRoot.GetValue<bool>("EnableE2ETests");
         }
 
-        protected TestEvent NewTestEvent() {
-            var @event = new TestEvent {
-                IntValue = r.Next(),
-                StringValue = Guid.NewGuid().ToString()
-            };
-            return @event;
+        [Fact(Skip = "for manual testing")]
+        public async Task ReceiveOne() {
+            EventMessage message;
+            var logger = new MockLogger<DomainEventReceiver>();
+
+            do {
+                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
+                    receiver.Start(eventTypes);
+                    message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                    message?.Accept();
+                }
+                Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            } while (message != null);
         }
     }
 }
