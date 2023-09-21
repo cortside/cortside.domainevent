@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,13 +104,13 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
         private TimeSpan ReceiveAndWait(string correlationId) {
             var tokenSource = new CancellationTokenSource();
-            var start = DateTime.Now;
+            var stopWatch = Stopwatch.StartNew();
 
             using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Closed += (r, e) => tokenSource.Cancel();
                 receiver.StartAndListen(eventTypes);
 
-                while (!TestEvent.Instances.ContainsKey(correlationId) && (DateTime.Now - start) < new TimeSpan(0, 0, 60)) {
+                while (!TestEvent.Instances.ContainsKey(correlationId) && stopWatch.Elapsed.Seconds < 30) {
                     if (tokenSource.Token.IsCancellationRequested) {
                         if (receiver.Error != null) {
                             Assert.Equal(string.Empty, receiver.Error.Description);
@@ -121,7 +122,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 } // run for 30 seconds
             }
 
-            return DateTime.Now.Subtract(start);
+            stopWatch.Stop();
+            return stopWatch.Elapsed;
         }
     }
 }

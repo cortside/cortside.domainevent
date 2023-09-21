@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Amqp;
@@ -138,12 +139,30 @@ namespace Cortside.DomainEvent.Tests {
         }
 
         [Fact]
-        public async Task ShouldHandleByteArrayAsync() {
+        public async Task ShouldHandleXmlDictionaryByteArrayAsync() {
             // arrange
             var @event = new TestEvent() { IntValue = 1 };
             var eventType = @event.GetType().FullName;
             var body = JsonConvert.SerializeObject(@event);
             Message message = CreateMessage(eventType, GetByteArray(body));
+
+            receiverLink.Setup(x => x.Accept(message));
+
+            // act
+            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+
+            // assert
+            Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            receiverLink.VerifyAll();
+        }
+
+        [Fact]
+        public async Task ShouldHandleUtf8StringByteArrayAsync() {
+            // arrange
+            var @event = new TestEvent() { IntValue = 1 };
+            var eventType = @event.GetType().FullName;
+            var body = JsonConvert.SerializeObject(@event);
+            Message message = CreateMessage(eventType, Encoding.UTF8.GetBytes(body));
 
             receiverLink.Setup(x => x.Accept(message));
 
