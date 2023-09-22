@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Xml;
 using Amqp;
 using Newtonsoft.Json;
@@ -33,16 +34,17 @@ namespace Cortside.DomainEvent {
         public static string GetBody(Message message) {
             string body = null;
             // Get the body
-            if (message.Body is string) {
-                body = message.Body as string;
-            } else if (message.Body is byte[]) {
-                using (var reader = XmlDictionaryReader.CreateBinaryReader(
-                    new MemoryStream(message.Body as byte[]),
-                    null,
-                    XmlDictionaryReaderQuotas.Max)) {
-                    var doc = new XmlDocument();
-                    doc.Load(reader);
-                    body = doc.InnerText;
+            if (message.Body is string s) {
+                body = s;
+            } else if (message.Body is byte[] bytes) {
+                if (bytes[0] == 64) {
+                    using (var reader = XmlDictionaryReader.CreateBinaryReader(new MemoryStream(bytes), null, XmlDictionaryReaderQuotas.Max)) {
+                        var doc = new XmlDocument();
+                        doc.Load(reader);
+                        body = doc.InnerText;
+                    }
+                } else {
+                    body = Encoding.UTF8.GetString(bytes);
                 }
             } else {
                 throw new ArgumentException($"Message {message.Properties.MessageId} has body with an invalid type {message.Body.GetType()}");
