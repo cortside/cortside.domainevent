@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Amqp;
 using Amqp.Framing;
+using Cortside.Common.Testing.Logging;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,7 @@ namespace Cortside.DomainEvent.Tests {
     public class DomainEventReceiverTest {
         private readonly IServiceProvider serviceProvider;
         private readonly DomainEventReceiverSettings settings;
-        private readonly MockLogger<DomainEventReceiver> logger;
+        private readonly LogEventLogger<DomainEventReceiver> logger;
         private readonly MockReceiver receiver;
         private readonly Mock<IReceiverLink> receiverLink;
 
@@ -32,7 +33,7 @@ namespace Cortside.DomainEvent.Tests {
 
             settings = new DomainEventReceiverSettings();
 
-            logger = new MockLogger<DomainEventReceiver>();
+            logger = new LogEventLogger<DomainEventReceiver>();
             receiver = new MockReceiver(settings, serviceProvider, logger);
             receiver.Setup(new Dictionary<string, Type> {
                 { typeof(TestEvent).FullName, typeof(TestEvent) }

@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
+using Cortside.Common.Testing.Logging;
 using Cortside.DomainEvent.Tests;
-using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
+using TransactionScope = System.Transactions.TransactionScope;
 
 namespace Cortside.DomainEvent.IntegrationTests {
     public class E2ETransactionTest : E2EBase {
@@ -22,7 +23,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 EventMessage message;
-                var logger = new MockLogger<DomainEventReceiver>();
+                var logger = new LogEventLogger<DomainEventReceiver>();
                 using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
                     message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);

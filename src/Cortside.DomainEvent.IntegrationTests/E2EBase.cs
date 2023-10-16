@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Cortside.Common.Testing.Logging;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
-using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -16,7 +16,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         protected readonly Dictionary<string, Type> eventTypes;
         protected readonly Random r;
         protected DomainEventPublisher publisher;
-        protected readonly MockLogger<DomainEventPublisher> mockLogger;
+        protected readonly LogEventLogger<DomainEventPublisher> mockLogger;
         protected readonly DomainEventReceiverSettings receiverSettings;
         protected readonly DomainEventPublisherSettings publisherSettings;
         protected readonly bool enabled;
@@ -40,7 +40,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 { typeof(TestEvent).FullName, typeof(TestEvent) }
             };
 
-            mockLogger = new MockLogger<DomainEventPublisher>();
+            mockLogger = new LogEventLogger<DomainEventPublisher>();
 
             receiverSettings = configRoot.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
             publisherSettings = configRoot.GetSection("ServiceBus").Get<DomainEventPublisherSettings>();
