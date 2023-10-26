@@ -17,7 +17,7 @@ namespace Cortside.DomainEvent.EntityFramework {
             services.AddDomainEventPublisher(configuration);
 
             // Register publisher
-            services.AddTransient<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<T>>();
+            services.AddScoped<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<T>>();
 
             // outbox hosted service
             var outboxConfiguration = configuration.GetSection("OutboxHostedService").Get<OutboxHostedServiceConfiguration>();
