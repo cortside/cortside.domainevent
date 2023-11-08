@@ -35,9 +35,9 @@ namespace Cortside.DomainEvent.Stub.Tests {
 
         [Fact]
         public async Task ShouldPublishAndHandleMessageAsync() {
-            await publisher.PublishAsync(new TestEvent() { IntValue = 1 }).ConfigureAwait(false);
+            await publisher.PublishAsync(new TestEvent() { IntValue = 1 });
 
-            await Task.Delay(2000).ConfigureAwait(false);
+            await Task.Delay(2000);
             Assert.False(broker.HasItems);
             Assert.False(broker.HasDeadLetterItems);
             var messages = broker.GetAcceptedMessagesByType<TestEvent>();
@@ -56,9 +56,9 @@ namespace Cortside.DomainEvent.Stub.Tests {
             CorrelationContext.SetCorrelationId(Guid.NewGuid().ToString());
 
             const int intValue = int.MaxValue;
-            await publisher.PublishAsync(new TestEvent() { IntValue = intValue }, correlationId).ConfigureAwait(false);
+            await publisher.PublishAsync(new TestEvent() { IntValue = intValue }, correlationId);
 
-            await Task.Delay(2000).ConfigureAwait(false);
+            await Task.Delay(2000);
             Assert.False(broker.HasItems);
             var messages = broker.GetAcceptedMessagesByType<TestEvent>();
             Assert.NotNull(messages);

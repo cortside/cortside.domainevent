@@ -8,14 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Cortside.DomainEvent {
     public static class ServiceCollectionExtensions {
-
         public static IServiceCollection AddDomainEventReceiver(this IServiceCollection services, Action<DomainEventReceiverOptions> options) {
             var o = new DomainEventReceiverOptions();
             options?.Invoke(o);
 
             return services.AddDomainEventReceiver(o);
         }
-
 
         public static IServiceCollection AddDomainEventReceiver(this IServiceCollection services, DomainEventReceiverOptions options) {
             Guard.From.Null(options, nameof(options));

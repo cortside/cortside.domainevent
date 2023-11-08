@@ -14,8 +14,8 @@ namespace Cortside.DomainEvent.Stub {
         private readonly ConcurrentQueue<Message> unmapped = new ConcurrentQueue<Message>();
         private int published = 0;
 
-        public bool HasItems { get => queue.Count > 0; }
-        public bool HasDeadLetterItems { get => dlq.Count > 0; }
+        public bool HasItems { get => !queue.IsEmpty; }
+        public bool HasDeadLetterItems { get => !dlq.IsEmpty; }
 
         public ReadOnlyCollection<Message> AcceptedItems { get => accepted.ToArray().ToList().AsReadOnly(); }
         public ReadOnlyCollection<Message> ActiveItems { get => queue.ToArray().ToList().AsReadOnly(); }
@@ -55,7 +55,7 @@ namespace Cortside.DomainEvent.Stub {
         }
 
         public void Shovel() {
-            while (dlq.Count > 0) {
+            while (!dlq.IsEmpty) {
                 Message message;
                 dlq.TryDequeue(out message);
                 queue.Enqueue(message);

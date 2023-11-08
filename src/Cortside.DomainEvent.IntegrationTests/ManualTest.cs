@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cortside.Common.Testing.Logging.LogEvent;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
-using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,7 +15,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         protected readonly Dictionary<string, Type> eventTypes;
         protected readonly Random r;
         protected DomainEventPublisher publisher;
-        protected readonly MockLogger<DomainEventPublisher> mockLogger;
+        protected readonly LogEventLogger<DomainEventPublisher> mockLogger;
         protected readonly DomainEventReceiverSettings receiverSettings;
         protected readonly DomainEventPublisherSettings publisherSettings;
         protected readonly bool enabled;
@@ -39,7 +39,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 { typeof(TestEvent).FullName, typeof(TestEvent) }
             };
 
-            mockLogger = new MockLogger<DomainEventPublisher>();
+            mockLogger = new LogEventLogger<DomainEventPublisher>();
 
             receiverSettings = configRoot.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
             publisherSettings = configRoot.GetSection("ServiceBus").Get<DomainEventPublisherSettings>();
@@ -51,12 +51,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
         [Fact(Skip = "for manual testing")]
         public async Task ReceiveOne() {
             EventMessage message;
-            var logger = new MockLogger<DomainEventReceiver>();
+            var logger = new LogEventLogger<DomainEventReceiver>();
 
             do {
                 using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
-                    message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                    message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5));
                     message?.Accept();
                 }
                 Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);

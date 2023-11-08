@@ -51,7 +51,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var context = provider.GetService<EntityContext>();
 
             // act
-            var widgets = await context.Widgets.ToListAsync().ConfigureAwait(false);
+            var widgets = await context.Widgets.ToListAsync();
 
             // assert
             Assert.Equal(2, widgets.Count);
@@ -67,11 +67,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.PublishAsync(@event).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.PublishAsync(@event);
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
         }
 
@@ -84,11 +84,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.PublishAsync(@event, correlationId).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.PublishAsync(@event, correlationId);
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
         }
@@ -103,11 +103,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.PublishAsync(@event, new EventProperties() { CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.PublishAsync(@event, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal(messageId, messages[0].MessageId);
@@ -122,11 +122,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.PublishAsync(@event, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.PublishAsync(@event, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal("foo", messages[0].EventType);
@@ -144,11 +144,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.PublishAsync(JsonConvert.SerializeObject(@event), new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.PublishAsync(JsonConvert.SerializeObject(@event), new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal(messageId, messages[0].MessageId);
@@ -166,11 +166,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleAsync(@event, scheduleDate).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.ScheduleAsync(@event, scheduleDate);
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate, 5.Seconds());
         }
@@ -185,11 +185,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate, 5.Seconds());
@@ -206,11 +206,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal(messageId, messages[0].MessageId);
@@ -227,11 +227,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", CorrelationId = correlationId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.ScheduleAsync(@event, scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", CorrelationId = correlationId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal("foo", messages[0].EventType);
@@ -251,11 +251,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow };
-            await publisher.ScheduleAsync(JsonConvert.SerializeObject(@event), scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.ScheduleAsync(JsonConvert.SerializeObject(@event), scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal(messageId, messages[0].MessageId);
@@ -283,11 +283,11 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             // act
             var @event = new WidgetStateChangedEvent() { WidgetId = 1, Timestamp = DateTime.UtcNow, Status = WidgetStatus.CreatedWidget };
-            await publisher.PublishAsync(@event, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
-            await db.SaveChangesAsync().ConfigureAwait(false);
+            await publisher.PublishAsync(@event, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
+            await db.SaveChangesAsync();
 
             // assert
-            var messages = await db.Set<Outbox>().ToListAsync().ConfigureAwait(false);
+            var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
             Assert.Equal(messageId, messages[0].MessageId);

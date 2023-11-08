@@ -65,7 +65,7 @@ if (@rows > 0)
                         message.LastModifiedDate = DateTime.UtcNow;
                     }
                     await db.SaveChangesAsync().ConfigureAwait(false);
-                    messageCount = messages.Count();
+                    messageCount = await messages.CountAsync();
                 }
                 logger.LogInformation($"messages to publish: {messageCount}");
 
