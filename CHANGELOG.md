@@ -1,16 +1,9 @@
 # Release 6.1
 
-|Commit|Date|Author|Message|
-|---|---|---|---|
-| 3c0462e | <span style="white-space:nowrap;">2023-08-29</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
-| 5bb035e | <span style="white-space:nowrap;">2023-09-04</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
-| c0ece4e | <span style="white-space:nowrap;">2023-09-22</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
-| 39092da | <span style="white-space:nowrap;">2023-10-16</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Move MockLogger to Command and use LogEventLogger
-| 6eb75c1 | <span style="white-space:nowrap;">2023-10-25</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  change outbox publisher with dbcontext to be scoped instead of transient to match how db context should be used
-| fd9f42b | <span style="white-space:nowrap;">2023-11-08</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/6.1, origin/develop, origin/HEAD, develop) update to latest nuget packages
-****
+* Update nuget dependencies to latest stable versions
+* Test cleanup, use Cortside.Common.Testing LogEventLogger for tests and remove older MockLogger classes
+* Update AddDomainEventOutboxPublisher to register as scoped lifetime given it has an instance of DbContext
 
-# Release 6.1
 |Commit|Date|Author|Message|
 |---|---|---|---|
 | 3c0462e | <span style="white-space:nowrap;">2023-08-29</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
@@ -20,6 +13,7 @@
 | 6eb75c1 | <span style="white-space:nowrap;">2023-10-25</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  change outbox publisher with dbcontext to be scoped instead of transient to match how db context should be used
 | fd9f42b | <span style="white-space:nowrap;">2023-11-08</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> develop, origin/develop, origin/HEAD) update to latest nuget packages
 ****
+
 # Release 6.0
 
 * Update version number to match framework version (6.x)
