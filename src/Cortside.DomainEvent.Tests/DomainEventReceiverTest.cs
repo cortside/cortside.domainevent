@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Amqp;
 using Amqp.Framing;
-using Cortside.Common.Testing.Logging;
+using Cortside.Common.Testing.Logging.LogEvent;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
@@ -95,7 +95,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -114,7 +114,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -132,7 +132,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -150,7 +150,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
@@ -168,7 +168,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
@@ -187,7 +187,7 @@ namespace Cortside.DomainEvent.Tests {
             receiver.Setup(new Dictionary<string, Type>());
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -207,7 +207,7 @@ namespace Cortside.DomainEvent.Tests {
             receiver.SetProvider(provider);
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -225,7 +225,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -243,7 +243,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -261,7 +261,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Accept(message));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();
@@ -279,7 +279,7 @@ namespace Cortside.DomainEvent.Tests {
             receiverLink.Setup(x => x.Reject(message, null));
 
             // act
-            await receiver.MessageCallbackAsync(receiverLink.Object, message).ConfigureAwait(false);
+            await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
             receiverLink.VerifyAll();

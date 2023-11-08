@@ -22,7 +22,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-                await publisher.PublishAsync(@event).ConfigureAwait(false);
+                await publisher.PublishAsync(@event);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
@@ -30,7 +30,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
-                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1));
                     Assert.NotNull(message.GetData<TestEvent>());
                     message.Accept();
                 }
@@ -55,7 +55,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-                await publisher.PublishAsync(@event).ConfigureAwait(false);
+                await publisher.PublishAsync(@event);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
@@ -64,7 +64,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 receiver.Start(eventTypes);
                 int waits = 0;
                 do {
-                    await Task.Delay(1000).ConfigureAwait(false);
+                    await Task.Delay(1000);
                     if (receiver.Link.LinkState == LinkState.Attached) {
                         break;
                     }
@@ -73,9 +73,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 while (waits < 20);
 
                 for (int i = 0; i < count; i++) {
-                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(10));
                     message.Reject();
-                    await Task.Delay(1000).ConfigureAwait(false);
+                    await Task.Delay(1000);
                 }
             }
 
@@ -98,7 +98,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             for (int i = 0; i < count; i++) {
                 var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-                await publisher.PublishAsync(@event).ConfigureAwait(false);
+                await publisher.PublishAsync(@event);
             }
 
             var source = new TestMessageSource(new Queue<Message>(messages));
@@ -106,7 +106,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             using (var receiver = new DomainEventReceiver(receiverSettings, provider, new NullLogger<DomainEventReceiver>())) {
                 receiver.Start(eventTypes);
                 for (int i = 0; i < count; i++) {
-                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                    var message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(1));
                     message.Release();
                 }
             }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Cortside.Common.Testing.Logging;
+using Cortside.Common.Testing.Logging.LogEvent;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Configuration;
@@ -56,7 +56,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
             do {
                 using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
-                    message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                    message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5));
                     message?.Accept();
                 }
                 Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);

@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <NoWarn>1701;1702;VSTHRD200;</NoWarn>
+    <NoWarn>1701;1702;VSTHRD200;_MissingConfigureAwait;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="config*.json">
@@ -10,13 +10,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.4.6" />
-    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.6" />
+    <PackageReference Include="AMQPNetLite.Core" Version="2.4.7" />
+    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.7" />
     <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Cortside.Common.Testing" Version="6.1.380-develop" />
+    <PackageReference Include="Cortside.Common.Testing" Version="6.1.390" />
     <PackageReference Include="coverlet.collector" Version="6.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -24,14 +24,14 @@
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.20.69" />
-    <PackageReference Include="xunit" Version="2.5.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+    <PackageReference Include="xunit" Version="2.6.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

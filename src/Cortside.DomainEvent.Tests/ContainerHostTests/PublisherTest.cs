@@ -27,7 +27,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = Status.PendingWork };
-            await publisher.PublishAsync(@event).ConfigureAwait(false);
+            await publisher.PublishAsync(@event);
 
             // assert
             Assert.Single(processor.Messages);
@@ -58,7 +58,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString(), Status = Status.PendingWork };
-            await publisher.PublishAsync(@event).ConfigureAwait(false);
+            await publisher.PublishAsync(@event);
 
             // assert
             Assert.Single(processor.Messages);
@@ -85,7 +85,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.PublishAsync(@event, correlationId).ConfigureAwait(false);
+            await publisher.PublishAsync(@event, correlationId);
 
             // assert
             Assert.Single(processor.Messages);
@@ -111,7 +111,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.PublishAsync(@event, new EventProperties() { CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
+            await publisher.PublishAsync(@event, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -137,7 +137,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.PublishAsync<TestEvent>(@event, new EventProperties() { EventType = "foo", Topic = "bar", CorrelationId = correlationId }).ConfigureAwait(false);
+            await publisher.PublishAsync<TestEvent>(@event, new EventProperties() { EventType = "foo", Topic = "bar", CorrelationId = correlationId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -163,7 +163,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.PublishAsync(JsonConvert.SerializeObject(@event), new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
+            await publisher.PublishAsync(JsonConvert.SerializeObject(@event), new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -189,7 +189,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate).ConfigureAwait(false);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate);
 
             // assert
             Assert.Single(processor.Messages);
@@ -215,7 +215,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, correlationId).ConfigureAwait(false);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, correlationId);
 
             // assert
             Assert.Single(processor.Messages);
@@ -243,7 +243,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, new EventProperties() { CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -271,7 +271,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId }).ConfigureAwait(false);
+            await publisher.ScheduleAsync<TestEvent>(@event, scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -299,7 +299,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             // act
             var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-            await publisher.ScheduleAsync(JsonConvert.SerializeObject(@event), scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId }).ConfigureAwait(false);
+            await publisher.ScheduleAsync(JsonConvert.SerializeObject(@event), scheduleDate, new EventProperties() { EventType = "foo", Topic = "bar", RoutingKey = "baz", CorrelationId = correlationId, MessageId = messageId });
 
             // assert
             Assert.Single(processor.Messages);
@@ -329,7 +329,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
                 publisher.Connect();
                 for (int i = 0; i < count; i++) {
                     var @event = new TestEvent() { IntValue = random.Next(), StringValue = Guid.NewGuid().ToString() };
-                    await publisher.PublishAsync(@event).ConfigureAwait(false);
+                    await publisher.PublishAsync(@event);
                 }
             }
 

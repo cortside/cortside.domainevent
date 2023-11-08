@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Cortside.Common.Testing.Logging;
+using Cortside.Common.Testing.Logging.LogEvent;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Configuration;

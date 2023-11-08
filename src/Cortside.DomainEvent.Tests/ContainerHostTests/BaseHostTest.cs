@@ -11,7 +11,6 @@ using Xunit;
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly, DisableTestParallelization = true)]
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
-    //[CollectionDefinition("dbcontexttests", DisableParallelization = true)]
     public class BaseHostTest : IDisposable {
         protected TimeSpan Timeout = TimeSpan.FromMilliseconds(5000);
         protected ContainerHost host;
