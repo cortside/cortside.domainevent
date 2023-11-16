@@ -1,8 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net8.0;</TargetFrameworks>
   </PropertyGroup>
+
   <PropertyGroup>
     <PackageId>Cortside.DomainEvent.EntityFramework</PackageId>
     <Company>Cortside Consulting</Company>
@@ -14,6 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,15 +23,25 @@
     </PackageReference>
     <PackageReference Include="Cortside.Common.Correlation" Version="6.1.390" />
     <PackageReference Include="Cortside.Common.Hosting" Version="6.1.390" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.24" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.24" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.24" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.25" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.25" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.25" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Cortside.DomainEvent\Cortside.DomainEvent.csproj" />
   </ItemGroup>
