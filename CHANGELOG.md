@@ -1,3 +1,18 @@
+# Release 6.2
+
+|Commit|Date|Author|Message|
+|---|---|---|---|
+| 3802d85 | <span style="white-space:nowrap;">2023-11-08</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
+| 1fac4d2 | <span style="white-space:nowrap;">2023-11-08</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'release/6.1' into develop
+| fcd6965 | <span style="white-space:nowrap;">2023-11-08</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| b6c5393 | <span style="white-space:nowrap;">2023-11-15</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| d31d2a3 | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update to latest nuget packages
+| 981c7eb | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update nuget api key
+| 7e82c1a | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update to latest nuget packages
+| ed3dce4 | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update latest powershell scripts
+| 2e8aaee | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/6.2, origin/develop, origin/HEAD, develop) update to latest nuget packages
+****
+
 # Release 6.1
 
 * Update nuget dependencies to latest stable versions
