@@ -15,19 +15,19 @@
     <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.4.7" />
-    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.7" />
+    <PackageReference Include="AMQPNetLite.Core" Version="2.4.8" />
+    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.8" />
     <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Cortside.Common.Correlation" Version="6.1.390" />
-    <PackageReference Include="Cortside.Common.Validation" Version="6.1.390" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="6.2.406" />
+    <PackageReference Include="Cortside.Common.Validation" Version="6.2.406" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.8.14">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
