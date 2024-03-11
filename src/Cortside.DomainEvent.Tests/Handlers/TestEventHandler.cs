@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Handlers;
+using Cortside.DomainEvent.Tests.Events;
 using Microsoft.Extensions.Logging;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.Tests.Handlers {
     public class TestEventHandler : IDomainEventHandler<TestEvent> {
         private readonly ILogger<TestEventHandler> logger;
 

@@ -8,7 +8,8 @@ using System.Xml;
 using Amqp;
 using Amqp.Framing;
 using Cortside.Common.Testing.Logging.LogEvent;
-using Cortside.DomainEvent.Handlers;
+using Cortside.DomainEvent.Tests.Events;
+using Cortside.DomainEvent.Tests.Handlers;
 using Cortside.DomainEvent.Tests.Utilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,15 +29,15 @@ namespace Cortside.DomainEvent.Tests {
         public DomainEventReceiverTest() {
             var services = new ServiceCollection();
             services.AddLogging();
-            services.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
+            services.AddSingleton<TestEventHandler, TestEventHandler>();
             serviceProvider = services.BuildServiceProvider();
 
             settings = new DomainEventReceiverSettings();
 
             logger = new LogEventLogger<DomainEventReceiver>();
             receiver = new MockReceiver(settings, serviceProvider, logger);
-            receiver.Setup(new Dictionary<string, Type> {
-                { typeof(TestEvent).FullName, typeof(TestEvent) }
+            receiver.Setup(new Dictionary<string, EventMapping> {
+                { typeof(TestEvent).FullName, new EventMapping(typeof(TestEvent), typeof(TestEvent), typeof(TestEventHandler)) }
             });
 
             receiverLink = new Mock<IReceiverLink>();
@@ -184,7 +185,7 @@ namespace Cortside.DomainEvent.Tests {
             Message message = CreateMessage(eventType, body);
 
             receiverLink.Setup(x => x.Reject(message, null));
-            receiver.Setup(new Dictionary<string, Type>());
+            receiver.Setup(new Dictionary<string, EventMapping>());
 
             // act
             await receiver.MessageCallbackAsync(receiverLink.Object, message);
