@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Cortside.Common.Validation;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Hosting;
@@ -23,11 +22,11 @@ namespace Cortside.DomainEvent {
             services.AddSingleton(options.ReceiverSettings);
 
             // register and setup settings for handlers
-            options.HostedServiceSettings.MessageTypes = new Dictionary<string, Type>();
+            options.HostedServiceSettings.MessageTypes = options.Handlers;
             foreach (var handler in options.Handlers) {
                 var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(handler.Value.Event);
                 services.AddTransient(handlerType, handler.Value.Handler);
-                options.HostedServiceSettings.MessageTypes.Add(handler.Key, handler.Value.Event);
+                services.AddTransient(handler.Value.Handler, handler.Value.Handler);
             }
 
             // Register Hosted Services

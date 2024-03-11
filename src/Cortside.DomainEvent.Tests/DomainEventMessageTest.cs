@@ -1,3 +1,4 @@
+using Cortside.DomainEvent.Tests.Events;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests {

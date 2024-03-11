@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amqp;
 using Amqp.Types;
+using Cortside.DomainEvent.Tests.Events;
 using Cortside.DomainEvent.Tests.Utilities;
 using FluentAssertions;
 using FluentAssertions.Extensions;

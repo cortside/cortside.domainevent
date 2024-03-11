@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
     public class DomainEventMessage {
-        public static DomainEventMessage CreateGenericInstance(Type dataType, Message message) {
+        public static DomainEventMessage CreateGenericInstance(Type dataType, Type asType, Message message) {
             string body = GetBody(message);
 
             List<string> errors = new List<string>();
@@ -23,7 +23,7 @@ namespace Cortside.DomainEvent {
                 throw new JsonSerializationException($"Message {message.Properties.MessageId} rejected because of errors deserializing messsage body: {string.Join(", ", errors)}");
             }
 
-            var eventType = typeof(DomainEventMessage<>).MakeGenericType(dataType);
+            var eventType = typeof(DomainEventMessage<>).MakeGenericType(asType);
             dynamic domainEvent = Activator.CreateInstance(eventType);
             ((DomainEventMessage)domainEvent).Data = (dynamic)data;
             domainEvent.Message = message;

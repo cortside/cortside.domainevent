@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cortside.Common.Testing.Logging.LogEvent;
 using Cortside.DomainEvent.Handlers;
-using Cortside.DomainEvent.Tests;
+using Cortside.DomainEvent.Tests.Events;
+using Cortside.DomainEvent.Tests.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,7 @@ using Xunit;
 namespace Cortside.DomainEvent.IntegrationTests {
     public class ManualTest {
         protected readonly IServiceProvider serviceProvider;
-        protected readonly Dictionary<string, Type> eventTypes;
+        protected readonly Dictionary<string, EventMapping> eventTypes;
         protected readonly Random r;
         protected DomainEventPublisher publisher;
         protected readonly LogEventLogger<DomainEventPublisher> mockLogger;
@@ -35,8 +36,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
             collection.AddLogging();
             serviceProvider = collection.BuildServiceProvider();
 
-            eventTypes = new Dictionary<string, Type> {
-                { typeof(TestEvent).FullName, typeof(TestEvent) }
+            eventTypes = new Dictionary<string, EventMapping> {
+                { typeof(TestEvent).FullName, new EventMapping(typeof(TestEvent), typeof(TestEvent), typeof(TestEventHandler)) }
             };
 
             mockLogger = new LogEventLogger<DomainEventPublisher>();

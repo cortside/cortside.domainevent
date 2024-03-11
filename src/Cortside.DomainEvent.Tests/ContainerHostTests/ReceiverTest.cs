@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amqp;
+using Cortside.DomainEvent.Tests.Events;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 

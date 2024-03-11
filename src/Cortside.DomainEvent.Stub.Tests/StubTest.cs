@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cortside.Common.Correlation;
 using Cortside.DomainEvent.Handlers;
-using Cortside.DomainEvent.Tests;
+using Cortside.DomainEvent.Tests.Events;
+using Cortside.DomainEvent.Tests.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
@@ -18,10 +19,11 @@ namespace Cortside.DomainEvent.Stub.Tests {
             var services = new ServiceCollection();
             services.AddLogging();
             services.AddSingleton<IDomainEventHandler<TestEvent>, TestEventHandler>();
+            services.AddSingleton<TestEventHandler, TestEventHandler>();
             var provider = services.BuildServiceProvider();
 
-            var eventTypeLookup = new Dictionary<string, Type> {
-                {typeof(TestEvent).FullName, typeof(TestEvent)},
+            var eventTypeLookup = new Dictionary<string, EventMapping> {
+                {typeof(TestEvent).FullName, new EventMapping(typeof(TestEvent), typeof(TestEvent), typeof(TestEventHandler))},
             };
 
             broker = new ConcurrentQueueBroker();

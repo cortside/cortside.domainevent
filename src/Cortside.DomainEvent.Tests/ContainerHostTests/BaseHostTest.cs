@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.NetworkInformation;
 using Amqp;
 using Amqp.Listener;
+using Cortside.DomainEvent.Tests.Events;
+using Cortside.DomainEvent.Tests.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -19,7 +21,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
         protected readonly DomainEventPublisherSettings publisterSettings;
         protected readonly Random random;
         protected readonly ServiceProvider provider;
-        protected readonly Dictionary<string, Type> eventTypes;
+        protected readonly Dictionary<string, EventMapping> eventTypes;
 
         protected Address Address { get; set; }
 
@@ -52,8 +54,8 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             host.Listeners[0].SASL.EnableAnonymousMechanism = true;
             host.Open();
 
-            eventTypes = new Dictionary<string, Type> {
-                { typeof(TestEvent).FullName, typeof(TestEvent) }
+            eventTypes = new Dictionary<string, EventMapping> {
+                { typeof(TestEvent).FullName, new EventMapping(typeof(TestEvent), typeof(TestEvent), typeof(TestEventHandler)) }
             };
 
             var services = new ServiceCollection();
