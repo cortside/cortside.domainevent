@@ -29,7 +29,7 @@ namespace Cortside.DomainEvent.Tests {
         public DomainEventReceiverTest() {
             var services = new ServiceCollection();
             services.AddLogging();
-            services.AddSingleton<TestEventHandler, TestEventHandler>();
+            services.AddSingleton<TestEventHandler>();
             serviceProvider = services.BuildServiceProvider();
 
             settings = new DomainEventReceiverSettings();
