@@ -4,11 +4,11 @@ image: Previous Visual Studio 2022
 version: 6.3.{build}
 
 configuration:
-- Debug
+  - Debug
 
 platform: Any CPU
 
-pull_requests:  
+pull_requests:
   do_not_increment_build_number: true
 
 skip_commits:
@@ -29,88 +29,88 @@ environment:
     secure: y2oCk9wYmgBAzk4m1tsSFUOlcEePEjozzMCfC0p6NQI=
 
 init:
-- ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
-- ps: Get-ChildItem "Env:"
+  - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+  - ps: Get-ChildItem "Env:"
 
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
+  assembly_version: "{version}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
 
 before_build:
-- set DNX_BUILD_VERSION=%APPVEYOR_BUILD_NUMBER%
-- ps: Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1'
-- ps: ./dotnet-install.ps1 -Channel 8.0 -Runtime aspnetcore -InstallDir 'C:\Program Files\dotnet\'
-- ps: ./dotnet-install.ps1 -Channel 8.0 -InstallDir 'C:\Program Files\dotnet\'
-- dotnet --info
-- ps: ./prebuild.ps1
+  - set DNX_BUILD_VERSION=%APPVEYOR_BUILD_NUMBER%
+  - ps: Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1'
+  - ps: ./dotnet-install.ps1 -Channel 8.0 -Runtime aspnetcore -InstallDir 'C:\Program Files\dotnet\'
+  - ps: ./dotnet-install.ps1 -Channel 8.0 -InstallDir 'C:\Program Files\dotnet\'
+  - dotnet --info
+  - ps: ./prebuild.ps1
 #- appveyor-retry dotnet restore src -v Minimal
 
 build:
   publish_nuget: true
   publish_nuget_symbols: true
-  use_snupkg_format: true 
+  use_snupkg_format: true
   include_nuget_references: true
   verbosity: minimal
 
 build_script:
-- ps: >-
-    $version = $env:APPVEYOR_BUILD_VERSION;
-    $analysisArgs = "";
-    if (-not (Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER)) {
-        $branch = $Env:APPVEYOR_REPO_BRANCH;
-        $analysisArgs = "/d:sonar.branch.name=""$branch""";
-        if ($branch -ne "master") {
-            $target = "develop";
-            if ($branch -eq "develop" -or $branch -like "release/*" -or $branch -like "hotfix/*") {
-                $target = "master";
-            }
-            $analysisArgs += " /d:sonar.newCode.referenceBranch=""$target""";
-        }
-    } else {
-        $branch = $Env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH;
-        $target = $Env:APPVEYOR_REPO_BRANCH;
-        $commit = $Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT;
-        $pullRequestId = $Env:APPVEYOR_PULL_REQUEST_NUMBER;
-        $analysisArgs = "/d:sonar.scm.revision=""$commit"" /d:sonar.pullrequest.key=""$pullRequestId"" /d:sonar.pullrequest.base=""$target"" /d:sonar.pullrequest.branch=""$branch""";
-    }   
-    $env:SOURCE_BRANCH="$branch";
-    $env:TARGET_BRANCH="$target";
-    $env:SONAR_ARGUMENTS="$analysisArgs";
-    echo "building version $version from branch $branch targeting $target with analysis arguments of $analysisArgs";
-- dotnet tool install --global dotnet-sonarscanner
-- dotnet sonarscanner begin /n:"%SONAR_NAME%" /o:"cortside" /k:"%SONAR_PROJECT%" /v:"%APPVEYOR_BUILD_VERSION%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" %SONAR_ARGUMENTS%
-- dotnet build src --configuration %Configuration% /property:"Version=%APPVEYOR_BUILD_VERSION%"
-- dotnet test src --collect:"XPlat Code Coverage" --settings ./src/coverlet.runsettings.xml /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-- dotnet sonarscanner end /d:sonar.login="%SONAR_TOKEN%"
+  - ps: >-
+      $version = $env:APPVEYOR_BUILD_VERSION;
+      $analysisArgs = "";
+      if (-not (Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER)) {
+          $branch = $Env:APPVEYOR_REPO_BRANCH;
+          $analysisArgs = "/d:sonar.branch.name=""$branch""";
+          if ($branch -ne "master") {
+              $target = "develop";
+              if ($branch -eq "develop" -or $branch -like "release/*" -or $branch -like "hotfix/*") {
+                  $target = "master";
+              }
+              $analysisArgs += " /d:sonar.newCode.referenceBranch=""$target""";
+          }
+      } else {
+          $branch = $Env:APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH;
+          $target = $Env:APPVEYOR_REPO_BRANCH;
+          $commit = $Env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT;
+          $pullRequestId = $Env:APPVEYOR_PULL_REQUEST_NUMBER;
+          $analysisArgs = "/d:sonar.scm.revision=""$commit"" /d:sonar.pullrequest.key=""$pullRequestId"" /d:sonar.pullrequest.base=""$target"" /d:sonar.pullrequest.branch=""$branch""";
+      }   
+      $env:SOURCE_BRANCH="$branch";
+      $env:TARGET_BRANCH="$target";
+      $env:SONAR_ARGUMENTS="$analysisArgs";
+      echo "building version $version from branch $branch targeting $target with analysis arguments of $analysisArgs";
+  - dotnet tool install --global dotnet-sonarscanner
+  # - dotnet sonarscanner begin /n:"%SONAR_NAME%" /o:"cortside" /k:"%SONAR_PROJECT%" /v:"%APPVEYOR_BUILD_VERSION%" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="%SONAR_TOKEN%" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" %SONAR_ARGUMENTS%
+  - dotnet build src --configuration %Configuration% /property:"Version=%APPVEYOR_BUILD_VERSION%"
+  - dotnet test src --collect:"XPlat Code Coverage" --settings ./src/coverlet.runsettings.xml /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+  # - dotnet sonarscanner end /d:sonar.login="%SONAR_TOKEN%"
 
 after_build:
-- ps: >-
-    $branch = $ENV:APPVEYOR_REPO_BRANCH;
-    $fileVersion = $env:APPVEYOR_BUILD_VERSION;
-    if($branch -ne 'master') {
-        $fileVersion = "${fileVersion}-${branch}"; 
-    }
-    
-    $fileVersion = $fileVersion.replace("release/", "");
-    $fileVersion = $fileVersion.replace("feature/", "");
-    $fileVersion = $fileVersion.replace("bugfix/", "");
-    dotnet pack src --include-symbols -p:SymbolPackageFormat=snupkg --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
-    
+  - ps: >-
+      $branch = $ENV:APPVEYOR_REPO_BRANCH;
+      $fileVersion = $env:APPVEYOR_BUILD_VERSION;
+      if($branch -ne 'master') {
+          $fileVersion = "${fileVersion}-${branch}"; 
+      }
+
+      $fileVersion = $fileVersion.replace("release/", "");
+      $fileVersion = $fileVersion.replace("feature/", "");
+      $fileVersion = $fileVersion.replace("bugfix/", "");
+      dotnet pack src --include-symbols -p:SymbolPackageFormat=snupkg --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion
+
 artifacts:
-- path: artifacts\**\*.*
+  - path: artifacts\**\*.*
 
 cache:
-- '%USERPROFILE%\.nuget\packages'
-  
+  - '%USERPROFILE%\.nuget\packages'
+
 nuget:
   disable_publish_on_pr: true
 #  account_feed: true
 #  project_feed: true
-  
+
 deploy:
-- provider: NuGet
-  api_key:
-    secure: wrXAwgDagNpfLJIY+q0SDdkvCm5gOrnVfzKhL1OS1VVGyO7+gh7GuisLSzFF5v5z
+  - provider: NuGet
+    api_key:
+      secure: wrXAwgDagNpfLJIY+q0SDdkvCm5gOrnVfzKhL1OS1VVGyO7+gh7GuisLSzFF5v5z
