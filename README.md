@@ -324,7 +324,6 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
 ## examples
 
 - https://github.com/cortside/coeus/tree/develop/shoppingcart-api
-- https://github.com/cortside/cortside.webapistarter
 
 ## todo:
 

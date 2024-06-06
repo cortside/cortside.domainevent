@@ -26,6 +26,6 @@ namespace Cortside.DomainEvent {
         /// amqp instance where the message publisher is not using this library
         /// and is not adding an ApplicationProperty to the message with the type name.
         /// </remarks>
-        public string SingleTypeName { get; set; }
+        public string UndefinedTypeName { get; set; }
     }
 }

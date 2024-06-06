@@ -227,7 +227,7 @@ namespace Cortside.DomainEvent {
         }
 
         private string GetMessageTypeName(Message message) {
-            return string.IsNullOrEmpty(Settings.SingleTypeName) ? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string : Settings.SingleTypeName;
+            return string.IsNullOrEmpty(Settings.UndefinedTypeName) ? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string : Settings.UndefinedTypeName;
         }
 
         public void Close(TimeSpan? timeout = null) {
