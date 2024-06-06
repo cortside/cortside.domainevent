@@ -117,7 +117,7 @@ namespace Cortside.DomainEvent {
         }
 
         protected async Task OnMessageCallbackAsync(IReceiverLink receiver, Message message) {
-            var messageTypeName = GetMessageTypeName(message);// message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = GetMessageTypeName(message);
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,
