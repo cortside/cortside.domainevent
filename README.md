@@ -96,7 +96,8 @@ OutboxHostedService": {
 ```
 
 ### sql to create table if not using migrations
-```` sql
+
+```sql
     CREATE TABLE [dbo].[Outbox] (
         [MessageId] nvarchar(36) NOT NULL,
         [CorrelationId] nvarchar(36) NULL,
@@ -113,7 +114,7 @@ OutboxHostedService": {
     );
 
    CREATE INDEX [IX_ScheduleDate_Status] ON [dbo].[Outbox] ([ScheduledDate], [Status]) INCLUDE ([EventType]);
-````
+```
 
 ## migration from cortside.common.domainevent to cortside.domainevent
 
@@ -137,14 +138,16 @@ OutboxHostedService": {
 - ServiceBusReceiverSettings renamed to DomainEventReceiverSettings
   - changed Address to Queue
 - receiverHostedServiceSettings now has property for message type lookup dictionary named MessageTypes
- 
 
 ## Transactions
+
 - See E2ETransactionTest for use of transactions for accept/reject/release and publish operations
 
 ## Cortside.DomainEvent.Stubs
+
 - Stubs allow integration tests code to publish/subscribe to events without using a real message broker
 - To setup stubs in the integration tests setup do the following:
+
 ```
         private void RegisterDomainEventPublisher(IServiceCollection services)
         {
@@ -169,6 +172,7 @@ OutboxHostedService": {
 ```
 
 And then register it during the WebHostBuilder step:
+
 ```
         protected override IHostBuilder CreateHostBuilder()
         {
@@ -195,6 +199,7 @@ And then register it during the WebHostBuilder step:
 ```
 
 Once it's been registered, you can inject the IStubBroker into any test where you want to verify messages have been published or consumed:
+
 ```
     public class TestClass : IClassFixture<IntegrationTestFactory<Startup>>
     {
@@ -208,7 +213,7 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
             testServerClient = fixture.CreateClient();
             broker = fixture.Services.GetService<IStubBroker>();
         }
-        
+
         [Fact]
         public void SomeTest()
         {
@@ -219,7 +224,7 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
             // or
             await Task.Delay(10000);
             Assert.False(broker.HasItems);
-            
+
             // grab the messages by type
             var myMessages = broker.GetAcceptedMessagesByType<MyDomainEventType>(x => x.Id == 1); // grab our specific message from the completed list
             Assert.NotNull(myMessages);
@@ -228,8 +233,10 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
 ```
 
 ## Cortside.DomainEvent.Stubs
+
 - Stubs allow integration tests code to publish/subscribe to events without using a real message broker
 - To setup stubs in the integration tests setup do the following:
+
 ```
         private void RegisterDomainEventPublisher(IServiceCollection services)
         {
@@ -254,6 +261,7 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
 ```
 
 And then register it during the WebHostBuilder step:
+
 ```
         protected override IHostBuilder CreateHostBuilder()
         {
@@ -280,6 +288,7 @@ And then register it during the WebHostBuilder step:
 ```
 
 Once it's been registered, you can inject the IStubBroker into any test where you want to verify messages have been published or consumed:
+
 ```
     public class TestClass : IClassFixture<IntegrationTestFactory<Startup>>
     {
@@ -293,7 +302,7 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
             testServerClient = fixture.CreateClient();
             broker = fixture.Services.GetService<IStubBroker>();
         }
-        
+
         [Fact]
         public void SomeTest()
         {
@@ -304,7 +313,7 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
             // or
             await Task.Delay(10000);
             Assert.False(broker.HasItems);
-            
+
             // grab the messages by type
             var myMessages = broker.GetAcceptedMessagesByType<MyDomainEventType>(x => x.Id == 1); // grab our specific message from the completed list
             Assert.NotNull(myMessages);
@@ -314,6 +323,7 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
 
 ## examples
 
+- https://github.com/cortside/coeus/tree/develop/shoppingcart-api
 - https://github.com/cortside/cortside.webapistarter
 
 ## todo:
