@@ -15,5 +15,17 @@ namespace Cortside.DomainEvent {
         /// RabbitMQ {queue}
         /// </remarks>
         public string Queue { set; get; }
+        /// <summary>
+        /// Gets or sets a type name for all events expected to be received.
+        /// </summary>
+        /// <value>
+        /// The name of the type registered when adding a handler.
+        /// </value>
+        /// <remarks>
+        /// This is only useful and necessary when receiving messages from an
+        /// amqp instance where the message publisher is not using this library
+        /// and is not adding an ApplicationProperty to the message with the type name.
+        /// </remarks>
+        public string SingleTypeName { get; set; }
     }
 }

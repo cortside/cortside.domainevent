@@ -93,7 +93,7 @@ namespace Cortside.DomainEvent {
                 return null;
             }
 
-            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = string.IsNullOrEmpty(Settings.SingleTypeName) ? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string : Settings.SingleTypeName;
             if (!EventTypeLookup.ContainsKey(messageTypeName)) {
                 Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
                 Link.Reject(message);
