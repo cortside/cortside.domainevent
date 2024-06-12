@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,9 +16,9 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             services.AddHostedService<ReceiverHostedService>();
 
             var receiver = new Mock<IDomainEventReceiver>();
-            receiver.Setup(x => x.StartAndListen(It.IsAny<IDictionary<string, Type>>()));
+            receiver.Setup(x => x.StartAndListen(It.IsAny<IDictionary<string, EventMapping>>()));
             services.AddSingleton<IDomainEventReceiver>(receiver.Object);
-            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
+            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, EventMapping>() });
 
             var serviceProvider = services.BuildServiceProvider();
 

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Cortside.DomainEvent.Hosting {
@@ -9,7 +8,7 @@ namespace Cortside.DomainEvent.Hosting {
         /// <summary>
         /// Message types for the Domain Event Receiver to handle
         /// </summary>
-        public Dictionary<string, Type> MessageTypes { get; set; }
+        public Dictionary<string, EventMapping> MessageTypes { get; set; }
 
         /// <summary>
         /// Controls whether receiver hosted service is enabled

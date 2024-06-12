@@ -31,7 +31,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
             services.AddSingleton<IDomainEventPublisher>(publisher.Object);
-            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
+            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, EventMapping>() });
             services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5, BatchSize = 1000, PurgePublished = false });
 
             var serviceProvider = services.BuildServiceProvider();
@@ -72,7 +72,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
             services.AddSingleton<IDomainEventPublisher>(publisher.Object);
-            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
+            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, EventMapping>() });
             services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 5, BatchSize = 1000, PurgePublished = true });
 
             var serviceProvider = services.BuildServiceProvider();

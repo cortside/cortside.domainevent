@@ -13,7 +13,7 @@ namespace Cortside.DomainEvent {
         public event ReceiverClosedCallback Closed;
 
         public IServiceProvider Provider { get; protected set; }
-        public IDictionary<string, Type> EventTypeLookup { get; protected set; }
+        public IDictionary<string, EventMapping> EventTypeLookup { get; protected set; }
         public ReceiverLink Link { get; protected set; }
         public DomainEventError Error { get; set; }
 
@@ -32,11 +32,11 @@ namespace Cortside.DomainEvent {
             Logger = logger;
         }
 
-        public void Start(IDictionary<string, Type> eventTypeLookup) {
+        public void Start(IDictionary<string, EventMapping> eventTypeLookup) {
             InternalStart(eventTypeLookup);
         }
 
-        public void StartAndListen(IDictionary<string, Type> eventTypeLookup) {
+        public void StartAndListen(IDictionary<string, EventMapping> eventTypeLookup) {
             InternalStart(eventTypeLookup);
 
             Link.Start(Settings.Credits, (link, msg) => {
@@ -45,7 +45,7 @@ namespace Cortside.DomainEvent {
             });
         }
 
-        private void InternalStart(IDictionary<string, Type> eventTypeLookup) {
+        private void InternalStart(IDictionary<string, EventMapping> eventTypeLookup) {
             if (Link != null) {
                 throw new InvalidOperationException("Already receiving.");
             }
@@ -101,12 +101,12 @@ namespace Cortside.DomainEvent {
             }
 
             var dataType = EventTypeLookup[messageTypeName];
-            Logger.LogDebug($"Event type: {dataType}");
+            Logger.LogDebug($"Event type: {dataType.Event}");
 
             dynamic domainEvent;
             try {
-                domainEvent = DomainEventMessage.CreateGenericInstance(dataType, message);
-                Logger.LogDebug($"Successfully deserialized body to {dataType}");
+                domainEvent = DomainEventMessage.CreateGenericInstance(dataType.Event, dataType.Event, message);
+                Logger.LogDebug($"Successfully deserialized body to {dataType.Event}");
             } catch (Exception ex) {
                 Logger.LogError(ex, ex.Message);
                 Link.Reject(message);
@@ -147,10 +147,11 @@ namespace Cortside.DomainEvent {
                     }
 
                     var dataType = EventTypeLookup[messageTypeName];
-                    Logger.LogDebug($"Event type: {dataType}");
-                    var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(dataType);
+                    Logger.LogDebug($"Event type: {dataType.Event}");
+                    var handlerType = dataType.Handler; //typeof(IDomainEventHandler<>).MakeGenericType(dataType);
                     Logger.LogDebug($"Event type handler interface: {handlerType}");
                     var handler = Provider.GetService(handlerType);
+
                     if (handler == null) {
                         Logger.LogError($"Message {message.Properties.MessageId} rejected because handler was not found for type {messageTypeName}");
                         receiver.Reject(message);
@@ -160,8 +161,8 @@ namespace Cortside.DomainEvent {
 
                     dynamic domainEvent;
                     try {
-                        domainEvent = DomainEventMessage.CreateGenericInstance(dataType, message);
-                        Logger.LogDebug($"Successfully deserialized body to {dataType}");
+                        domainEvent = DomainEventMessage.CreateGenericInstance(dataType.Event, dataType.AsType, message);
+                        Logger.LogDebug($"Successfully deserialized body to {dataType.Event}");
                     } catch (Exception ex) {
                         Logger.LogError(ex, ex.Message);
                         receiver.Reject(message);

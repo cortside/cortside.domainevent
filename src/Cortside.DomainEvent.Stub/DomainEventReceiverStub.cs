@@ -16,7 +16,7 @@ namespace Cortside.DomainEvent.Stub {
         private readonly DomainEventReceiverSettings settings;
         private readonly ILogger<DomainEventReceiverStub> logger;
         private readonly IStubBroker receiver;
-        private IDictionary<string, Type> eventTypeLookup;
+        private IDictionary<string, EventMapping> eventTypeLookup;
 
         public DomainEventReceiverStub(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiverStub> logger, IStubBroker queue) {
             this.provider = provider;
@@ -31,7 +31,7 @@ namespace Cortside.DomainEvent.Stub {
             // do nothing
         }
 
-        public void StartAndListen(IDictionary<string, Type> eventTypeLookup) {
+        public void StartAndListen(IDictionary<string, EventMapping> eventTypeLookup) {
             InternalStart(eventTypeLookup);
 
             var thread = new Thread(Listen);
@@ -60,7 +60,7 @@ namespace Cortside.DomainEvent.Stub {
             }
         }
 
-        private void InternalStart(IDictionary<string, Type> eventTypeLookup) {
+        private void InternalStart(IDictionary<string, EventMapping> eventTypeLookup) {
             logger.LogInformation($"Starting {GetType().Name} for {settings.Service}");
 
             this.eventTypeLookup = eventTypeLookup;
@@ -98,8 +98,8 @@ namespace Cortside.DomainEvent.Stub {
                     }
 
                     var dataType = eventTypeLookup[messageTypeName];
-                    logger.LogDebug($"Event type: {dataType}");
-                    var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(dataType);
+                    logger.LogDebug($"Event type: {dataType.Event}");
+                    var handlerType = dataType.Handler; //typeof(IDomainEventHandler<>).MakeGenericType(dataType);
                     logger.LogDebug($"Event type handler interface: {handlerType}");
                     var handler = provider.GetService(handlerType);
                     if (handler == null) {
@@ -111,8 +111,8 @@ namespace Cortside.DomainEvent.Stub {
 
                     dynamic domainEvent;
                     try {
-                        domainEvent = DomainEventMessage.CreateGenericInstance(dataType, message);
-                        logger.LogDebug($"Successfully deserialized body to {dataType}");
+                        domainEvent = DomainEventMessage.CreateGenericInstance(dataType.Event, dataType.AsType, message);
+                        logger.LogDebug($"Successfully deserialized body to {dataType.Event}");
                     } catch (Exception ex) {
                         logger.LogError(ex, ex.Message);
                         receiver.Reject(message);

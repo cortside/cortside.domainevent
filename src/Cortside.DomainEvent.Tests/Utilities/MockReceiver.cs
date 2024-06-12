@@ -10,7 +10,7 @@ namespace Cortside.DomainEvent.Tests.Utilities {
         public MockReceiver(DomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) : base(settings, provider, logger) {
         }
 
-        public void Setup(IDictionary<string, Type> eventTypeLookup) {
+        public void Setup(IDictionary<string, EventMapping> eventTypeLookup) {
             EventTypeLookup = eventTypeLookup;
         }
 
