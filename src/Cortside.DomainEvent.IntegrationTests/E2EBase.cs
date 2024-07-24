@@ -16,7 +16,8 @@ namespace Cortside.DomainEvent.IntegrationTests {
         protected readonly Dictionary<string, Type> eventTypes;
         protected readonly Random r;
         protected DomainEventPublisher publisher;
-        protected readonly LogEventLogger<DomainEventPublisher> mockLogger;
+        protected readonly LogEventLogger<DomainEventPublisher> publisherLogger;
+        protected readonly LogEventLogger<DomainEventReceiver> receiverLogger;
         protected readonly DomainEventReceiverSettings receiverSettings;
         protected readonly DomainEventPublisherSettings publisherSettings;
         protected readonly bool enabled;
@@ -40,11 +41,12 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 { typeof(TestEvent).FullName, typeof(TestEvent) }
             };
 
-            mockLogger = new LogEventLogger<DomainEventPublisher>();
+            publisherLogger = new LogEventLogger<DomainEventPublisher>();
+            receiverLogger = new LogEventLogger<DomainEventReceiver>();
 
             receiverSettings = configRoot.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
             publisherSettings = configRoot.GetSection("ServiceBus").Get<DomainEventPublisherSettings>();
-            publisher = new DomainEventPublisher(publisherSettings, mockLogger);
+            publisher = new DomainEventPublisher(publisherSettings, publisherLogger);
 
             enabled = configRoot.GetValue<bool>("EnableE2ETests");
         }

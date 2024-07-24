@@ -48,19 +48,22 @@ namespace Cortside.DomainEvent.IntegrationTests {
             enabled = configRoot.GetValue<bool>("EnableE2ETests");
         }
 
-        [Fact(Skip = "for manual testing")]
+        [Fact]
         public async Task ReceiveOne() {
-            EventMessage message;
-            var logger = new LogEventLogger<DomainEventReceiver>();
+            if (enabled) {
+                EventMessage message;
+                var logger = new LogEventLogger<DomainEventReceiver>();
 
-            do {
-                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
-                    receiver.Start(eventTypes);
-                    message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5));
-                    message?.Accept();
-                }
-                Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
-            } while (message != null);
+                do {
+                    using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
+                        receiver.Start(eventTypes);
+                        message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5));
+                        message?.Accept();
+                    }
+
+                    Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                } while (message != null);
+            }
         }
     }
 }
