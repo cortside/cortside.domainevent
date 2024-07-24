@@ -25,7 +25,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             var service = serviceProvider.GetService<IHostedService>() as ReceiverHostedService;
 
-            CancellationTokenSource source = new CancellationTokenSource();
+            using var source = new CancellationTokenSource();
             await service.StartAsync(source.Token);
 
             await Task.Delay(1000);

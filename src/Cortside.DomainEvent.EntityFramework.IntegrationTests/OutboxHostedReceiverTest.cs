@@ -45,7 +45,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             var service = serviceProvider.GetService<IHostedService>() as OutboxHostedService<EntityContext>;
 
-            var source = new CancellationTokenSource();
+            using var source = new CancellationTokenSource();
             await service.StartAsync(source.Token);
 
             await Task.Delay(1000);
@@ -71,7 +71,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             var service = serviceProvider.GetRequiredService<IHostedService>() as OutboxHostedService<EntityContext>;
 
-            CancellationTokenSource source = new CancellationTokenSource();
+            using var source = new CancellationTokenSource();
             await service.StartAsync(source.Token);
 
             await Task.Delay(1000);
@@ -94,9 +94,9 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             var serviceProvider = services.BuildServiceProvider();
 
-            var service = serviceProvider.GetService<IHostedService>() as OutboxHostedService<EntityContext>;
+            var service = serviceProvider.GetRequiredService<IHostedService>() as OutboxHostedService<EntityContext>;
 
-            var source = new CancellationTokenSource();
+            using var source = new CancellationTokenSource();
             await service.StartAsync(source.Token);
 
             await Task.Delay(3000);
@@ -124,7 +124,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             var service = serviceProvider.GetService<IHostedService>() as OutboxHostedService<EntityContext>;
 
-            var source = new CancellationTokenSource();
+            using var source = new CancellationTokenSource();
             await service.StartAsync(source.Token);
 
             await Task.Delay(6000);
