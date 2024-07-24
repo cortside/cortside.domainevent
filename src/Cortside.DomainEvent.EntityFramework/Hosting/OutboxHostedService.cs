@@ -89,15 +89,23 @@ if (@rows > 0)
                         };
 
                         var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
-                        await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
-                        message.Status = OutboxStatus.Published;
-                        message.PublishedDate = DateTime.UtcNow;
-                        message.LockId = null;
 
-                        await db.SaveChangesAsync().ConfigureAwait(false);
+                        try {
+                            await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
+                            message.Status = OutboxStatus.Published;
+                            message.PublishedDate = DateTime.UtcNow;
+                            message.LockId = null;
+
+                            await db.SaveChangesAsync().ConfigureAwait(false);
+                        } catch (Exception ex) {
+                            // set message back to original locked state -- just in case the exception is from ef
+                            db.Entry(message).State = EntityState.Unchanged;
+
+                            logger.LogError(ex, "Exception attempting to publish message {MessageId} from outbox: {Reason}", message.MessageId, ex.Message);
+                        }
                     }
                 } catch (Exception ex) {
-                    logger.LogError(ex, "Exception attempting to publish from outbox");
+                    logger.LogError(ex, "Exception attempting to publish from outbox: {Reason}", ex.Message);
                 }
 
                 if (config.PurgePublished) {
