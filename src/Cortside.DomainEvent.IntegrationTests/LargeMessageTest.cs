@@ -16,7 +16,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         ]
         public async Task LargeMessage(int size, bool pass) {
             //The received message(delivery - id:0, size: 1113762 bytes) exceeds the limit(1048576 bytes) currently allowed on the link.TrackingId:bf3067d1 - d4e2 - 447a - b0cd - fe8a04b4c94b_B2, SystemTracker: NoSystemTracker, Timestamp: 2024 - 07 - 23T20: 37:56
-            if (enabled || true) {
+            if (enabled) {
                 var @event = new TestEvent {
                     IntValue = r.Next() + 1,
                     StringValue = string.Concat(Enumerable.Repeat("x", size))
