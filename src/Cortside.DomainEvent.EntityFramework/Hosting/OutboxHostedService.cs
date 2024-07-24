@@ -39,7 +39,7 @@ if (@rows > 0)
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 
     UPDATE Q
-    SET LockId = '{lockId}', Status='Publishing', LastModifiedDate=GETUTCDATE()
+    SET LockId = case when PublishCount>={config.MaximumPublishCount} then null else '{lockId}' end, Status=case when PublishCount>={config.MaximumPublishCount} then 'Failed' else 'Publishing' end, LastModifiedDate=GETUTCDATE(), PublishCount=PublishCount+1
     FROM (
             select top ({config.BatchSize}) * from Outbox
             WITH (ROWLOCK, READPAST)
@@ -54,7 +54,7 @@ if (@rows > 0)
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
 
-                var messageCount = 0;
+                int messageCount;
                 if (isRelational) {
                     messageCount = await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
                 } else {
@@ -67,17 +67,17 @@ if (@rows > 0)
                         } else {
                             message.Status = OutboxStatus.Publishing;
                             message.LockId = lockId;
-                            message.PublishCount += 1;
+                            message.PublishCount++;
                         }
                     }
                     await db.SaveChangesAsync().ConfigureAwait(false);
                     messageCount = await messages.CountAsync();
                 }
-                logger.LogInformation($"messages to publish: {messageCount}");
+                logger.LogInformation("Messages to publish: {Count}", messageCount);
 
                 try {
                     List<Outbox> messages = await db.Set<Outbox>().Where(x => x.LockId == lockId).ToListAsync().ConfigureAwait(false);
-                    logger.LogInformation($"messages claimed: {messages.Count}");
+                    logger.LogInformation("Messages claimed: {Count}", messages.Count);
 
                     foreach (var message in messages) {
                         var properties = new EventProperties() {
