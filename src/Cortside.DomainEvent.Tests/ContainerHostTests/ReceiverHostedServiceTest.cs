@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
     public partial class ContainerHostTest : BaseHostTest {
-        [Fact(Skip = "hangs build")]
+        [Fact]
         public async Task ReceiverHostedServiceAsync() {
             IServiceCollection services = new ServiceCollection();
             services.AddLogging();
@@ -31,7 +31,6 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             await Task.Delay(1000);
             receiver.VerifyAll();
 
-            source.Cancel();
             await service.StopAsync(source.Token);
         }
     }

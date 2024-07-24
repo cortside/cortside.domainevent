@@ -57,7 +57,6 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.NotNull(messages[0].PublishedDate);
             publisher.VerifyAll();
 
-            source.Cancel();
             await service.StopAsync(source.Token);
         }
 
@@ -81,7 +80,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Empty(messages);
             publisher.VerifyAll();
 
-            source.Cancel();
+            await service.StopAsync(source.Token);
         }
 
         [Fact]
@@ -110,7 +109,6 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal(2, messages[0].PublishCount);
             publisher.VerifyAll();
 
-            source.Cancel();
             await service.StopAsync(source.Token);
         }
 
@@ -139,7 +137,6 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             Assert.Equal(3, messages[0].PublishCount);
             publisher.VerifyAll();
 
-            source.Cancel();
             await service.StopAsync(source.Token);
         }
     }
