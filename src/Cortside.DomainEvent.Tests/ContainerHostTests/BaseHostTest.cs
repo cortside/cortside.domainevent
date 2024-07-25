@@ -97,9 +97,11 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
 
             portArray.Sort();
 
-            for (int i = startingPort; i < UInt16.MaxValue; i++)
-                if (!portArray.Contains(i))
+            for (int i = startingPort; i < UInt16.MaxValue; i++) {
+                if (!portArray.Contains(i)) {
                     return i;
+                }
+            }
 
             return 0;
         }

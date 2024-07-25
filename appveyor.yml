@@ -46,12 +46,10 @@ before_build:
   - ps: ./dotnet-install.ps1 -Channel 8.0 -InstallDir 'C:\Program Files\dotnet\'
   - dotnet --info
   - ps: ./prebuild.ps1
-#- appveyor-retry dotnet restore src -v Minimal
 
 build:
   publish_nuget: true
   publish_nuget_symbols: true
-  use_snupkg_format: true
   include_nuget_references: true
   verbosity: minimal
 
@@ -107,8 +105,6 @@ cache:
 
 nuget:
   disable_publish_on_pr: true
-#  account_feed: true
-#  project_feed: true
 
 deploy:
   - provider: NuGet

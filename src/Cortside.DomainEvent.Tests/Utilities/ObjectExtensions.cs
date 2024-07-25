@@ -7,8 +7,10 @@ namespace Cortside.DomainEvent.Tests.Utilities {
         private static readonly MethodInfo CloneMethod = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static bool IsPrimitive(this Type type) {
-            if (type == typeof(String))
+            if (type == typeof(String)) {
                 return true;
+            }
+
             return (type.IsValueType & type.IsPrimitive);
         }
 
@@ -20,15 +22,23 @@ namespace Cortside.DomainEvent.Tests.Utilities {
             return InternalCopy(originalObject, new Dictionary<Object, Object>(new ReferenceEqualityComparer()));
         }
         private static Object InternalCopy(Object originalObject, IDictionary<Object, Object> visited) {
-            if (originalObject == null)
+            if (originalObject == null) {
                 return null;
+            }
+
             var typeToReflect = originalObject.GetType();
-            if (IsPrimitive(typeToReflect))
+            if (IsPrimitive(typeToReflect)) {
                 return originalObject;
-            if (visited.ContainsKey(originalObject))
+            }
+
+            if (visited.ContainsKey(originalObject)) {
                 return visited[originalObject];
-            if (typeof(Delegate).IsAssignableFrom(typeToReflect))
+            }
+
+            if (typeof(Delegate).IsAssignableFrom(typeToReflect)) {
                 return null;
+            }
+
             var cloneObject = CloneMethod.Invoke(originalObject, null);
             if (typeToReflect.IsArray) {
                 var arrayType = typeToReflect.GetElementType();
@@ -52,10 +62,14 @@ namespace Cortside.DomainEvent.Tests.Utilities {
 
         private static void CopyFields(object originalObject, IDictionary<object, object> visited, object cloneObject, Type typeToReflect, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy, Func<FieldInfo, bool> filter = null) {
             foreach (FieldInfo fieldInfo in typeToReflect.GetFields(bindingFlags)) {
-                if (filter != null && !filter(fieldInfo))
+                if (filter != null && !filter(fieldInfo)) {
                     continue;
-                if (IsPrimitive(fieldInfo.FieldType))
+                }
+
+                if (IsPrimitive(fieldInfo.FieldType)) {
                     continue;
+                }
+
                 var originalFieldValue = fieldInfo.GetValue(originalObject);
                 var clonedFieldValue = InternalCopy(originalFieldValue, visited);
                 fieldInfo.SetValue(cloneObject, clonedFieldValue);
@@ -68,19 +82,24 @@ namespace Cortside.DomainEvent.Tests.Utilities {
             return ReferenceEquals(x, y);
         }
         public override int GetHashCode(object obj) {
-            if (obj == null)
+            if (obj == null) {
                 return 0;
+            }
+
             return obj.GetHashCode();
         }
     }
 
     public static class ArrayExtensions {
         public static void ForEach(this Array array, Action<Array, int[]> action) {
-            if (array.LongLength == 0)
+            if (array.LongLength == 0) {
                 return;
+            }
+
             ArrayTraverse walker = new ArrayTraverse(array);
-            do
+            do {
                 action(array, walker.Position);
+            }
             while (walker.Step());
         }
     }

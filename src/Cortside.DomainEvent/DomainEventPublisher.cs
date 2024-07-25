@@ -61,8 +61,17 @@ namespace Cortside.DomainEvent {
                 try {
                     await sender.SendAsync(message).ConfigureAwait(false);
                     Logger.LogInformation($"Published message {message.Properties.MessageId}");
+                } catch (Exception ex) {
+                    Logger.LogError(ex, $"Error publishing message {message.Properties.MessageId}");
+                    Error = new DomainEventError {
+                        Condition = "Publish",
+                        Description = ex.Message,
+                        Exception = ex
+                    };
+                    Closed?.Invoke(this, Error);
+                    throw new DomainEventPublisherException($"Error publishing message {message.Properties.MessageId}", ex);
                 } finally {
-                    if (sender.Error != null) {
+                    if (Error == null && sender.Error != null) {
                         Error = new DomainEventError {
                             Condition = sender.Error.Condition.ToString(),
                             Description = sender.Error.Description
@@ -83,7 +92,7 @@ namespace Cortside.DomainEvent {
         }
 
         private void OnClosed(IAmqpObject sender, Error error) {
-            if (sender.Error != null) {
+            if (Error == null && sender.Error != null) {
                 Error = new DomainEventError {
                     Condition = sender.Error.Condition.ToString(),
                     Description = sender.Error.Description
