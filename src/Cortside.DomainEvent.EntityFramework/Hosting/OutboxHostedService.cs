@@ -39,7 +39,10 @@ if (@rows > 0)
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 
     UPDATE Q
-    SET LockId = case when PublishCount>={config.MaximumPublishCount} then null else '{lockId}' end, Status=case when PublishCount>={config.MaximumPublishCount} then 'Failed' else 'Publishing' end, LastModifiedDate=GETUTCDATE(), PublishCount=PublishCount+1
+    SET LockId = case when PublishCount>={config.MaximumPublishCount} then null else '{lockId}' end,
+        Status=case when PublishCount>={config.MaximumPublishCount} then 'Failed' else 'Publishing' end,
+        LastModifiedDate=GETUTCDATE(),
+        PublishCount=PublishCount+case when PublishCount>={config.MaximumPublishCount} then 0 else 1 end
     FROM (
             select top ({config.BatchSize}) * from Outbox
             WITH (ROWLOCK, READPAST)
