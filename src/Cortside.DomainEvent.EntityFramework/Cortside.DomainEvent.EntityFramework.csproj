@@ -17,8 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cortside.Common.Correlation" Version="6.2.408" />
-    <PackageReference Include="Cortside.Common.Hosting" Version="6.2.408" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="6.3.444-release-6.3" />
+    <PackageReference Include="Cortside.Common.Hosting" Version="6.3.444-release-6.3" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.10.48">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
