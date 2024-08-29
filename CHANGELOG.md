@@ -1,3 +1,31 @@
+# Release 6.3
+
+|Commit|Date|Author|Message|
+|---|---|---|---|
+| 8f12b92 | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
+| 34c984d | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 0bbbaa8 | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Erik Baty</span> |  (origin/feature/360-anontypeoption) add optional receiver setting
+| 1b69bcb | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Erik Baty</span> |  apply in another spot
+| cf2f15f | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Erik Baty</span> |  add to trigger another build
+| bec2802 | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Erik Baty</span> |  test
+| b5f4a48 | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Erik Baty</span> |  undo
+| f6ec413 | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Erik Baty</span> |  clean up
+| 9dec760 | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Erik Baty</span> |  rename setting
+| 6ce344c | <span style="white-space:nowrap;">2024-06-06</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #43 from cortside/feature/singletype
+| 711a077 | <span style="white-space:nowrap;">2024-07-23</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add better handling to publisher on failure; add publish count to outbox with threshold to set to failed
+| fba1c29 | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add better handling to publisher on failure; add publish count to outbox with threshold to set to failed
+| 88d0b2e | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  cleanup appveyor.yml
+| 55cee97 | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  remove trailing ; in tfms that causes dotnet-format issues
+| fad03ed | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  format source
+| 35cb491 | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  address some lint warnings
+| bfc48aa | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add better handling of individual message publish/save failure
+| 4d80a61 | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  increment publishcount in lock sql
+| 6a9f2dd | <span style="white-space:nowrap;">2024-07-24</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (origin/publishcount, publishcount) increment publishcount in lock sql only if not failed
+| 337dc3e | <span style="white-space:nowrap;">2024-07-25</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #44 from cortside/publishcount
+| f5f49d1 | <span style="white-space:nowrap;">2024-08-05</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update to latest cortside.common
+| e725837 | <span style="white-space:nowrap;">2024-08-29</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/6.3, origin/develop, origin/HEAD, develop) update nuget packages
+****
+
 # Release 6.2
 
 |Commit|Date|Author|Message|
