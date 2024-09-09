@@ -1,5 +1,28 @@
 # Release 6.3
 
+## Breaking changes
+
+* Requires adding a migration for new Outbox column PublishCount
+
+## Changes
+
+* Update nuget dependencies to latest stable versions
+* Add PublishCount to Outbox
+* Add MaximumPublishCount configuration to configuration, outbox attempts to publish exceeding this will be marked as Failed
+* Change OutboxHostedService to save changes to outbox messages on handling of each message instead of at end of batch of messages
+	* helps with failures like timeouts related to large messages
+	```json
+		"OutboxHostedService": {
+			"BatchSize": 5,
+			"Enabled": true,
+			"Interval": 5,
+			"PurgePublished": false,
+			"MaximumPublishCount": 10
+		}	
+	```
+* Better handling of failure to publish amqp message with DomainEventPublisherException
+
+
 |Commit|Date|Author|Message|
 |---|---|---|---|
 | 8f12b92 | <span style="white-space:nowrap;">2024-01-10</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
