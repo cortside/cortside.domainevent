@@ -1,5 +1,4 @@
 using Amqp;
-using Amqp.Types;
 
 namespace Cortside.DomainEvent {
     public class EventMessage {
@@ -26,9 +25,9 @@ namespace Cortside.DomainEvent {
             link.Accept(message);
         }
 
-        public void Modify(bool deliveryFailed, bool undeliverableHere = false, Fields messageAnnotations = null) {
-            link.Modify(message, deliveryFailed, undeliverableHere, messageAnnotations);
-        }
+        //public void Modify(bool deliveryFailed, bool undeliverableHere = false, Fields messageAnnotations = null) {
+        //    link.Modify(message, deliveryFailed, undeliverableHere, messageAnnotations);
+        //}
 
         public T GetData<T>() {
             return (T)Message.Data;

@@ -93,7 +93,7 @@ namespace Cortside.DomainEvent {
                 return null;
             }
 
-            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = GetMessageTypeName(message);
             if (!EventTypeLookup.ContainsKey(messageTypeName)) {
                 Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
                 Link.Reject(message);
@@ -117,7 +117,7 @@ namespace Cortside.DomainEvent {
         }
 
         protected async Task OnMessageCallbackAsync(IReceiverLink receiver, Message message) {
-            var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
+            var messageTypeName = GetMessageTypeName(message);
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
                 ["MessageId"] = message.Properties.MessageId,
@@ -224,6 +224,10 @@ namespace Cortside.DomainEvent {
                     }
                 }
             }
+        }
+
+        private string GetMessageTypeName(Message message) {
+            return string.IsNullOrEmpty(Settings.UndefinedTypeName) ? message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string : Settings.UndefinedTypeName;
         }
 
         public void Close(TimeSpan? timeout = null) {

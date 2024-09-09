@@ -4,5 +4,6 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         public bool Enabled { get; set; }
         public int Interval { get; set; }
         public bool PurgePublished { get; set; }
+        public int MaximumPublishCount { get; set; } = 10;
     }
 }

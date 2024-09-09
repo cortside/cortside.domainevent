@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cortside.DomainEvent.Tests {
     public enum Status {
@@ -13,5 +14,9 @@ namespace Cortside.DomainEvent.Tests {
         public int IntValue { set; get; }
         public string StringValue { set; get; }
         public Status Status { set; get; }
+
+        public static DomainEventMessage<TestEvent> GetByCorrelationId(string correlationId) {
+            return Instances.SingleOrDefault(x => x.Value.CorrelationId == correlationId).Value;
+        }
     }
 }
