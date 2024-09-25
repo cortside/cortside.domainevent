@@ -19,7 +19,6 @@
     <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.11" />
     <PackageReference Include="Cortside.Common.Correlation" Version="6.3.452" />
     <PackageReference Include="Cortside.Common.Validation" Version="6.3.452" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
