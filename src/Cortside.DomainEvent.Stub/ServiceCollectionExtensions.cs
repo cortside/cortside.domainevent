@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Cortside.DomainEvent.EntityFramework;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cortside.DomainEvent.Stub {
     public static class ServiceCollectionExtensions {
@@ -11,6 +12,8 @@ namespace Cortside.DomainEvent.Stub {
             services.AddSingleton<IStubBroker, ConcurrentQueueBroker>();
             services.AddTransient<IDomainEventPublisher, DomainEventPublisherStub>();
             services.AddTransient<IDomainEventReceiver, DomainEventReceiverStub>();
+            services.AddTransient<IDomainEventOutboxPublisher, DomainEventOutboxPublisherStub>();
+
 
             return services;
         }
