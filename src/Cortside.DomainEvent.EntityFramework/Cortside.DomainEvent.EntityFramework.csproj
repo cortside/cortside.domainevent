@@ -17,8 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cortside.Common.Correlation" Version="6.3.452" />
-    <PackageReference Include="Cortside.Common.Hosting" Version="6.3.452" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="6.3.458" />
+    <PackageReference Include="Cortside.Common.Hosting" Version="6.3.458" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -27,13 +27,9 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.33" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.33" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.33" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
   </ItemGroup>
 
