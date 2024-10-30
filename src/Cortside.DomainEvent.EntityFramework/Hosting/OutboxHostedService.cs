@@ -54,8 +54,10 @@ if (@rows > 0)
 ";
 
             using (var scope = serviceProvider.CreateScope()) {
+                logger.LogTrace("Getting DbContext instance");
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
+                logger.LogTrace($"Obtained DbContext with provider {db.Database.ProviderName} with isRational = {isRelational}");
 
                 int messageCount;
                 if (isRelational) {
@@ -91,7 +93,9 @@ if (@rows > 0)
                             MessageId = message.MessageId
                         };
 
+                        logger.LogTrace("Getting IDomainEventPublisher instance");
                         var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
+                        logger.LogTrace($"Obtained IDomainEventPublisher instance with type of {publisher.GetType().Name}");
 
                         try {
                             await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
@@ -99,7 +103,9 @@ if (@rows > 0)
                             message.PublishedDate = DateTime.UtcNow;
                             message.LockId = null;
 
+                            logger.LogTrace("Saving changes for message {message.MessageId}");
                             await db.SaveChangesAsync().ConfigureAwait(false);
+                            logger.LogTrace("Saved changes for message {message.MessageId}");
                         } catch (Exception ex) {
                             // set message back to original locked state -- just in case the exception is from ef
                             db.Entry(message).State = EntityState.Unchanged;
@@ -113,6 +119,7 @@ if (@rows > 0)
 
                 if (config.PurgePublished) {
                     try {
+                        logger.LogTrace($"Purging published messages with batch size of {config.BatchSize}");
                         if (isRelational) {
                             var query = $"DELETE TOP ({config.BatchSize}) FROM Outbox Where Status = '{OutboxStatus.Published}'";
                             await db.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
@@ -120,6 +127,7 @@ if (@rows > 0)
                             db.RemoveRange(db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Published).Take(config.BatchSize));
                             await db.SaveChangesAsync().ConfigureAwait(false);
                         }
+                        logger.LogTrace($"Purged published messages with batch size of {config.BatchSize}");
                     } catch (Exception ex) {
                         logger.LogError(ex, "Exception attempting to purge published from outbox");
                     }
