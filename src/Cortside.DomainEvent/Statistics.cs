@@ -14,18 +14,21 @@ namespace Cortside.DomainEvent {
         public int Accepted { get; private set; }
         public int Rejected { get; private set; }
         public int Released { get; private set; }
-        public int Retried { get; private set; }
+        public int Retries { get; private set; }
 
 
-        public DateTime LastReceived { get; private set; }
-        public DateTime LastAccepted { get; private set; }
-        public DateTime LastRejected { get; private set; }
-        public DateTime LastReleased { get; private set; }
-        public DateTime LastRetried { get; private set; }
+        public DateTime? LastReceived { get; private set; }
+        public DateTime? LastAccepted { get; private set; }
+        public DateTime? LastRejected { get; private set; }
+        public DateTime? LastReleased { get; private set; }
+        public DateTime? LastRetried { get; private set; }
+
+        public int Queued { get; private set; }
+        public DateTime? LastQueued { get; private set; }
 
         public int Published { get; private set; }
         public int PublishFailed { get; private set; }
-        public DateTime LastPublished { get; private set; }
+        public DateTime? LastPublished { get; private set; }
 
         public void Receive() {
             Received++;
@@ -46,8 +49,13 @@ namespace Cortside.DomainEvent {
         }
 
         public void Retry() {
-            Released++;
-            LastReleased = DateTime.UtcNow;
+            Retries++;
+            LastRetried = DateTime.UtcNow;
+        }
+
+        public void Queue() {
+            Queued++;
+            LastQueued = DateTime.UtcNow;
         }
 
         public void Publish(bool success = true) {

@@ -94,6 +94,9 @@ namespace Cortside.DomainEvent.EntityFramework {
                 ScheduledDate = scheduledEnqueueTimeUtc ?? date,
                 Status = OutboxStatus.Queued
             }).ConfigureAwait(false);
+
+            // this statistic is not aware of transactions and will be off if the transaction is rolled back
+            Statistics.Instance.Queue();
         }
     }
 }
