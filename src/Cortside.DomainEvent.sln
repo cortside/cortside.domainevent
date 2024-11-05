@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.Stub",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cortside.DomainEvent.Stub.Tests", "Cortside.DomainEvent.Stub.Tests\Cortside.DomainEvent.Stub.Tests.csproj", "{FF026CE3-3D6A-4F19-BA29-FDBD777ADF65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cortside.DomainEvent.Health", "Cortside.DomainEvent.Health\Cortside.DomainEvent.Health.csproj", "{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{FF026CE3-3D6A-4F19-BA29-FDBD777ADF65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF026CE3-3D6A-4F19-BA29-FDBD777ADF65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF026CE3-3D6A-4F19-BA29-FDBD777ADF65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{6D6CD084-0E0E-48C5-A848-5DF2506DE6A1} = {4BE176EB-A10A-415E-97EB-BE7D1862DA56}
 		{91328F03-1FAB-4B24-A64D-F9D5249264E2} = {2A7993DF-77BD-4FC1-9A13-28BAACCB30A4}
 		{FF026CE3-3D6A-4F19-BA29-FDBD777ADF65} = {2A7993DF-77BD-4FC1-9A13-28BAACCB30A4}
+		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0} = {BD4EE72E-6A6C-4F4D-8A60-95820744CE45}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DD00D9E8-8D42-40AE-9315-0D447B0C5275}

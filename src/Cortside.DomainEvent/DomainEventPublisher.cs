@@ -60,8 +60,10 @@ namespace Cortside.DomainEvent {
 
                 try {
                     await sender.SendAsync(message).ConfigureAwait(false);
+                    Statistics.Instance.Publish();
                     Logger.LogInformation($"Published message {message.Properties.MessageId}");
                 } catch (Exception ex) {
+                    Statistics.Instance.Publish(false);
                     Logger.LogError(ex, $"Error publishing message {message.Properties.MessageId}");
                     Error = new DomainEventError {
                         Condition = "Publish",

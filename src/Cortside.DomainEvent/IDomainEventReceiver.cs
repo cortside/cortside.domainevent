@@ -9,5 +9,6 @@ namespace Cortside.DomainEvent {
         void StartAndListen(IDictionary<string, Type> eventTypeLookup);
         void Close(TimeSpan? timeout = null);
         ReceiverLink Link { get; }
+        DomainEventError Error { get; }
     }
 }
