@@ -9,6 +9,7 @@
     <PackageReference Include="AMQPNetLite.Core" Version="2.4.11" />
     <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.11" />
     <PackageReference Include="Cortside.Common.Testing" Version="6.3.458" />
+    <PackageReference Include="Cortside.Health" Version="6.2.96-develop" />
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -30,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Cortside.DomainEvent.Health\Cortside.DomainEvent.Health.csproj" />
     <ProjectReference Include="..\Cortside.DomainEvent\Cortside.DomainEvent.csproj" />
   </ItemGroup>
 

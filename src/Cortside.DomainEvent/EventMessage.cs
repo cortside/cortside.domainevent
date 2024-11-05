@@ -15,14 +15,17 @@ namespace Cortside.DomainEvent {
 
         public void Reject() {
             link.Reject(message);
+            Statistics.Instance.Reject();
         }
 
         public void Release() {
             link.Release(message);
+            Statistics.Instance.Release();
         }
 
         public void Accept() {
             link.Accept(message);
+            Statistics.Instance.Accept();
         }
 
         //public void Modify(bool deliveryFailed, bool undeliverableHere = false, Fields messageAnnotations = null) {

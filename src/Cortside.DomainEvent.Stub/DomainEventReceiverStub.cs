@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace Cortside.DomainEvent.Stub {
     public class DomainEventReceiverStub : IDomainEventReceiver {
         public ReceiverLink Link { get; protected set; }
+        public DomainEventError Error => null;
 
         private readonly IServiceProvider provider;
         private readonly DomainEventReceiverSettings settings;
@@ -71,6 +72,8 @@ namespace Cortside.DomainEvent.Stub {
         }
 
         private async Task OnMessageCallbackAsync(Message message) {
+            Statistics.Instance.Receive();
+
             var messageTypeName = message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY] as string;
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
@@ -94,6 +97,7 @@ namespace Cortside.DomainEvent.Stub {
                     if (!eventTypeLookup.ContainsKey(messageTypeName)) {
                         logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
                         receiver.Reject(message);
+                        Statistics.Instance.Reject();
                         return;
                     }
 
@@ -105,6 +109,7 @@ namespace Cortside.DomainEvent.Stub {
                     if (handler == null) {
                         logger.LogError($"Message {message.Properties.MessageId} rejected because handler was not found for type {messageTypeName}");
                         receiver.Reject(message);
+                        Statistics.Instance.Reject();
                         return;
                     }
                     logger.LogDebug($"Event type handler: {handler.GetType()}");
@@ -116,6 +121,7 @@ namespace Cortside.DomainEvent.Stub {
                     } catch (Exception ex) {
                         logger.LogError(ex, ex.Message);
                         receiver.Reject(message);
+                        Statistics.Instance.Reject();
                         return;
                     }
 
@@ -132,6 +138,7 @@ namespace Cortside.DomainEvent.Stub {
                     switch (result) {
                         case HandlerResult.Success:
                             receiver.Accept(message);
+                            Statistics.Instance.Accept();
                             logger.LogInformation($"Message {message.Properties.MessageId} accepted");
                             break;
                         case HandlerResult.Retry:
@@ -149,13 +156,16 @@ namespace Cortside.DomainEvent.Stub {
                             retry.ApplicationProperties[Constants.SCHEDULED_ENQUEUE_TIME_UTC] = scheduleTime;
                             receiver.Enqueue(retry);
                             receiver.Accept(message);
+                            Statistics.Instance.Retry();
                             logger.LogInformation($"Message {message.Properties.MessageId} requeued with delay of {delay} seconds for {scheduleTime}");
                             break;
                         case HandlerResult.Failed:
                             receiver.Reject(message);
+                            Statistics.Instance.Reject();
                             break;
                         case HandlerResult.Release:
                             receiver.Release(message);
+                            Statistics.Instance.Release();
                             break;
                         default:
                             throw new NotImplementedException($"Unknown HandlerResult value of {result}");
@@ -163,6 +173,7 @@ namespace Cortside.DomainEvent.Stub {
                 } catch (Exception ex) {
                     logger.LogError(ex, $"Message {message.Properties.MessageId} rejected because of unhandled exception {ex.Message}");
                     receiver.Reject(message);
+                    Statistics.Instance.Reject();
                 }
             }
         }
