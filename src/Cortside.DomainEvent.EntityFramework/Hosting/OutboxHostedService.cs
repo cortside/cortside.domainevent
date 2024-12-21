@@ -31,7 +31,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
             var sql = $@"
 declare @rows int
 select @rows = count(*) from Outbox with (nolock) where (LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
-            or (status='Publishing' and LastModifiedDate<(dateadd(second, -60, GETUTCDATE())))
+            or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
 
 if (@rows > 0)
   BEGIN
@@ -47,7 +47,7 @@ if (@rows > 0)
             select top ({config.BatchSize}) * from Outbox
             WITH (ROWLOCK, READPAST)
             where (LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
-                or (status='Publishing' and LastModifiedDate<(dateadd(second, -60, GETUTCDATE())))
+                or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
             order by ScheduledDate
     ) Q
   END
