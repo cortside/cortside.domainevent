@@ -63,6 +63,9 @@ namespace Cortside.DomainEvent.EntityFramework {
 
             builder.HasIndex(p => new { p.Status, p.LockId, p.ScheduledDate })
                 .HasDatabaseName("IX_Status_LockId_ScheduleDate");
+
+            builder.HasIndex(p => new { p.Status, p.LastModifiedDate })
+                .HasDatabaseName("IX_Status_LastModifiedDate");
         }
     }
 }

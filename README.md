@@ -91,7 +91,9 @@ OutboxHostedService": {
         "BatchSize":  10,
         "Enabled": true,
         "Interval": 5,
-        "PurgePublished": true
+        "PurgePublished": true,
+        "MaximumPublishCount": 10,
+        "PublishRetryInterval": 60
       }
 ```
 
