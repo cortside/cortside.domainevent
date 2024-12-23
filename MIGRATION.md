@@ -1,0 +1,22 @@
+## Migration from cortside.common.domainevent to cortside.domainevent
+
+- DomainEventPublisher change in publish method
+  - SendAsync to PublishAsync
+    - overloads that took messageId should now use the overload with EventProperties
+  - ScheduleMessageAsync to ScheduleAsync
+  - overrides for both PublishAsync and ScheduleAsync use EventProperties for overrides that allowed for EventType or Topic
+- namespaces all dropped common
+  - make sure to check logging overrides for namespaces that might have changed
+- namespace for handler interface changed to be in Handlers
+- namespace for ReceiverHostedService changed to be in Hosting
+- ReceiverHostedServiceSettings.Disabled changed to Enabled
+- ReceiverHostedServiceSettings.TimedInterval should be specified in seconds, not milliseconds
+- IDomainEventHandler HandleAsync now has return value of HandlerResultEnum
+  - To keep current functionality, return HandlerResultEnum.Success and let uncaught exceptions trigger HandlerResultEnum.Failure result
+- Publisher uses `Logger<DomainEventPublisher>` instead of `Logger<DomainEventComms>`
+- Receiver uses `Logger<DomainEventReceiver>` instead of `Logger<DomainEventComms>`
+- ServiceBusPublisherSettings renamed to DomainEventPublisherSettings
+  - changed Address to Topic
+- ServiceBusReceiverSettings renamed to DomainEventReceiverSettings
+  - changed Address to Queue
+- receiverHostedServiceSettings now has property for message type lookup dictionary named MessageTypes

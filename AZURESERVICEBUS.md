@@ -27,24 +27,117 @@ The DomainEvent library relies on some conventions to make a bus work without co
 | Subscription | Bindings | Subscription | {forwardservice}.subscription | communication.subscription |
 
 
-See the following pages for documentations and example configuration:
+- rabbit mq example
+    - 3.x and 4.x
 
-* [RabbitMQ](RABBITMQ.md)
-* [Azure Service Bus](AZURESERVICEBUS.md)
+### Azure ServiceBus
 
+#### General
+
+- Authorization keys cannot contain '/'. They must be regenerated if they do. AMQPNETLITE does not like that value.
+- I found inconsistent behavior if the topic and queue were created using the AzureSB UI. I had success creating the topics, subscriptions, queues using ServiceBusExplorer (https://github.com/paolosalvatori/ServiceBusExplorer/releases)
+
+#### Queues
+
+- Names of queues cannot be single worded. Should be multipart (eg. auth.queue).
+
+#### Topic
+
+- The forward to setting for the topic subscription is not visible in the azure UI. You can use ServiceBusExplorer to set that field.
+
+#### Example
+
+- for the following configuration settings for the test project with a TestEvent object
+
+RabbitMQ
+
+```json
+  "ServiceBus": {
+    "Service": "shoppingcart",
+    "Protocol": "amqp",
+    "Namespace": "localhost",
+    "Policy": "admin",
+    "Key": "password",
+    "Queue": "shoppingcart.queue",
+    "Topic": "/exchange/shoppingcart/",
+    "Durable": "1",
+    "Credits": 5
+  },
+```
+
+Azure Service Bus
+
+```json
+"ServiceBus": {
+    "Service": "shoppingcart",
+    "Protocol": "amqps",
+    "Namespace": "acme.servicebus.windows.net",
+    "Policy": "SendListen",
+    "Key": "secret",
+    "Queue": "shoppingcart.queue",
+    "Topic": "shoppingcart.",
+    "Durable": "1",
+    "Credits": 5
+}
+```
+
+```json
+  "OutboxHostedService": {
+    "BatchSize": 5,
+    "Enabled": true,
+    "Interval": 5,
+    "PurgePublished": true,
+    "MaximumPublishCount": 10,
+    "PublishRetryInterval": 60
+  }
+```
+
+```json
+  "ReceiverHostedService": {
+    "Enabled": true,
+    "TimedInterval": 60
+  },
+```
+
+**(for test default settings from Service Bus Explorer are fine unless specified below)**
+
+- Azure Service Bus Components:
+  - a queue named queue.TestReceive
+    - new authorization rule for queue
+      - claimType = SharedAccessKey
+      - claimValue = none
+      - KeyName = "Listen"
+      - Primary/Secondary Key = 44 Char BASE64 encoded string (33 char unencoded and remember no '/')
+      - Manage - off
+      - Send - off
+      - Listen - on
+  - a topic named topic.TestEvent
+    - new authorization rule for topic
+      - claimType = SharedAccessKey
+      - claimValue = none
+      - KeyName = "Send"
+      - Primary/Secondary Key = 44 Char BASE64 encoded string (33 char unencoded and remember no '/')
+      - Manage - off
+      - Send - on
+      - Listen - off
+  - a subscription to topic.TestEvent named subscription.TestEvent
+    - The "Forward To" setting for this subscription needs to be set to queue.TestReceive
 
 ## Outbox Pattern using Cortside.DomainEvent.EntityFramework
 
-Cortside.DomainEvent.EntityFramework is an implementation of a transactional outbox pattern using EntityFramework.  See description of  [Transactional Outbox Pattern](https://github.com/cortside/guidelines/blob/master/docs/architecture/Messaging.md#transactional-outbox-pattern) from the Cortside Guidelines repository.
+What To Do:
 
-The outbox can be easily added in Startup.cs:
-
-```csharp
-// add domain event publish with outbox
-services.AddDomainEventOutboxPublisher<DatabaseContext>(Configuration);
-```
-
-In classes that need to be able to publish an outbox message inject `IDomainEventOutboxPublisher` instead of `IDomainEventPublisher`.  Use Publish methods as you would for direct publishing.  Make sure to call SaveChanges on your db context so that the message ends up in the outbox table.  If you have your entity changes that relate to the event in the change tracker, SaveChanges will save them together, getting atomic transactions with event publication.
+- will probably want to set deduplication at the message broker since same messageId will be used
+- will need to generate ef migration after adding following to OnModelCreating method in dbcontext class:
+  - modelBuilder.AddDomainEventOutbox();
+  - https://github.com/cortside/cortside.webapistarter/blob/outbox/src/Cortside.WebApiStarter.Data/Migrations/20210228035338_DomainEventOutbox.cs
+- register IDomainEventOutboxPublisher AND IDomainEventPublisher
+  - use IDomainEventOutboxPublisher in classes that will publish to the outbox
+  - SaveChanges after calling PublishAsync or ScheduleAsync -- and make part of transaction or workset in db so that publish becomes atomic with db changes
+  - OutboxHostedService needs IDomainEventPublisher to actually publish to message broker
+- register OutboxHostedService to publish messages from db to broker
+- if publishing an entity id in message, might need to add a using around the work with a transaction and call savechanges twice if the entity id is assigned by the db
+- add section for configuration:
 
 ```
 OutboxHostedService": {
@@ -78,6 +171,10 @@ OutboxHostedService": {
 
    CREATE INDEX [IX_ScheduleDate_Status] ON [dbo].[Outbox] ([ScheduledDate], [Status]) INCLUDE ([EventType]);
 ```
+
+## Transactions
+
+- See E2ETransactionTest for use of transactions for accept/reject/release and publish operations
 
 ## Cortside.DomainEvent.Stubs
 
@@ -260,26 +357,6 @@ Once it's been registered, you can inject the IStubBroker into any test where yo
 ## examples
 
 - https://github.com/cortside/coeus/tree/develop/shoppingcart-api
-
-What To Do (from outbox):
-
-- will probably want to set deduplication at the message broker since same messageId will be used
-- will need to generate ef migration after adding following to OnModelCreating method in dbcontext class:
-  - modelBuilder.AddDomainEventOutbox();
-  - https://github.com/cortside/cortside.webapistarter/blob/outbox/src/Cortside.WebApiStarter.Data/Migrations/20210228035338_DomainEventOutbox.cs
-- register IDomainEventOutboxPublisher AND IDomainEventPublisher
-  - use IDomainEventOutboxPublisher in classes that will publish to the outbox
-  - SaveChanges after calling PublishAsync or ScheduleAsync -- and make part of transaction or workset in db so that publish becomes atomic with db changes
-  - OutboxHostedService needs IDomainEventPublisher to actually publish to message broker
-- register OutboxHostedService to publish messages from db to broker
-- if publishing an entity id in message, might need to add a using around the work with a transaction and call savechanges twice if the entity id is assigned by the db
-- add section for configuration:
-
-
-## Transactions
-
-- See E2ETransactionTest for use of transactions for accept/reject/release and publish operations
-
 
 ## todo:
 
