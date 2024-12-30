@@ -77,3 +77,7 @@ Stubs allow integration tests code to publish/subscribe to events without using 
 Example implementation of publisher, handlers, outbox and testing with stubs can be found here:
 
 * [Coeus shoppingcart-api](https://github.com/cortside/coeus/tree/develop/shoppingcart-api)
+
+## Cortside.DomainEvent.Health
+
+* [Health](src/Cortside.DomainEvent.Stub/README.md)
