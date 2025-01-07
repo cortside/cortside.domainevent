@@ -55,7 +55,7 @@ namespace Cortside.DomainEvent {
         public string Namespace { set; get; }
 
         /// <summary>
-        /// Gets or sets the credits. 
+        /// Gets or sets the credits 
         /// </summary>
         /// <value>
         /// The credits.

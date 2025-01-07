@@ -9,7 +9,7 @@ namespace Cortside.DomainEvent.Health {
     public class DomainEventCheck : Check {
         private readonly IDomainEventReceiver receiver;
 
-        public DomainEventCheck(IMemoryCache cache, ILogger<Check> logger, IAvailabilityRecorder recorder, IDomainEventReceiver receiver) : base(cache, logger, recorder) {
+        public DomainEventCheck(IMemoryCache cache, ILogger<DomainEventCheck> logger, IAvailabilityRecorder recorder, IDomainEventReceiver receiver) : base(cache, logger, recorder) {
             this.receiver = receiver;
         }
 

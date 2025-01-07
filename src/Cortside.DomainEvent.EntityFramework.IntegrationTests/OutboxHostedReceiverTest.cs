@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.EntityFramework.Hosting;
@@ -64,7 +63,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         public async Task ShouldPurgePublishedMessagesAsync() {
             publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
             services.AddSingleton<IDomainEventPublisher>(publisher.Object);
-            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = new Dictionary<string, Type>() });
+            services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = [] });
             services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 1, BatchSize = 1000, PurgePublished = true });
 
             var serviceProvider = services.BuildServiceProvider();
@@ -101,13 +100,16 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             await Task.Delay(3000);
 
-            var messages = await context.Set<Outbox>().ToListAsync();
-            Assert.Single(messages);
-            Assert.Null(messages[0].LockId);
-            Assert.Equal(OutboxStatus.Published, messages[0].Status);
-            Assert.NotNull(messages[0].PublishedDate);
-            Assert.Equal(2, messages[0].PublishCount);
-            publisher.VerifyAll();
+            using (var scope = serviceProvider.CreateScope()) {
+                var db = scope.ServiceProvider.GetService<EntityContext>();
+                var messages = await db.Set<Outbox>().ToListAsync();
+                Assert.Single(messages);
+                Assert.Null(messages[0].LockId);
+                Assert.Equal(OutboxStatus.Published, messages[0].Status);
+                Assert.NotNull(messages[0].PublishedDate);
+                Assert.Equal(2, messages[0].PublishCount);
+                publisher.VerifyAll();
+            }
 
             await service.StopAsync(source.Token);
         }
@@ -129,13 +131,16 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
 
             await Task.Delay(6000);
 
-            var messages = await context.Set<Outbox>().ToListAsync();
-            Assert.Single(messages);
-            Assert.Null(messages[0].LockId);
-            Assert.Equal(OutboxStatus.Failed, messages[0].Status);
-            Assert.Null(messages[0].PublishedDate);
-            Assert.Equal(3, messages[0].PublishCount);
-            publisher.VerifyAll();
+            using (var scope = serviceProvider.CreateScope()) {
+                var db = scope.ServiceProvider.GetService<EntityContext>();
+                var messages = await db.Set<Outbox>().ToListAsync();
+                Assert.Single(messages);
+                Assert.Null(messages[0].LockId);
+                Assert.Equal(OutboxStatus.Failed, messages[0].Status);
+                Assert.Null(messages[0].PublishedDate);
+                Assert.Equal(3, messages[0].PublishCount);
+                publisher.VerifyAll();
+            }
 
             await service.StopAsync(source.Token);
         }

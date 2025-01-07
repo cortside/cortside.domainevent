@@ -82,7 +82,9 @@ if (@rows > 0)
                     List<Outbox> messages = await db.Set<Outbox>().Where(x => x.LockId == lockId).ToListAsync().ConfigureAwait(false);
                     logger.LogInformation("Messages claimed: {Count}", messages.Count);
 
+                    var i = 1;
                     foreach (var message in messages) {
+                        logger.LogDebug("Publishing message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", message.MessageId, message.OutboxId, i, messages.Count);
                         var properties = new EventProperties() {
                             EventType = message.EventType,
                             Topic = message.Topic,
@@ -106,6 +108,9 @@ if (@rows > 0)
 
                             logger.LogError(ex, "Exception attempting to publish message {MessageId} from outbox: {Reason}", message.MessageId, ex.Message);
                         }
+
+                        logger.LogDebug("Published message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", message.MessageId, message.OutboxId, i, messages.Count);
+                        i++;
                     }
                 } catch (Exception ex) {
                     logger.LogError(ex, "Exception attempting to publish from outbox: {Reason}", ex.Message);
