@@ -25,6 +25,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         }
 
         protected override async Task ExecuteIntervalAsync() {
+            logger.LogDebug("OutboxHostedService ExecuteIntervalAsync() entered.");
             await Task.Yield();
 
             var lockId = CorrelationContext.GetCorrelationId();
@@ -56,6 +57,8 @@ if (@rows > 0)
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
+
+                logger.LogDebug("Obtained DbContext with provider {ProviderName}, IsRational = {IsRational}", db.Database.ProviderName, isRelational);
 
                 int messageCount;
                 if (isRelational) {
@@ -129,6 +132,8 @@ if (@rows > 0)
                         logger.LogError(ex, "Exception attempting to purge published from outbox");
                     }
                 }
+
+                logger.LogDebug("OutboxHostedService ExecuteIntervalAsync() completed.");
             }
         }
     }
