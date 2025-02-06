@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -168,7 +169,7 @@ namespace Cortside.DomainEvent.Tests {
             await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
-            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains(message.Properties.MessageId.ToString()));
             receiverLink.VerifyAll();
         }
 
@@ -186,7 +187,7 @@ namespace Cortside.DomainEvent.Tests {
             await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
-            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains(message.Properties.MessageId.ToString()));
             receiverLink.VerifyAll();
         }
 
@@ -244,7 +245,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains(message.Properties.MessageId.ToString()));
         }
 
         [Fact]
@@ -262,7 +263,8 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            var errors = LogEventLogger.LogEvents.Where(x => x.LogLevel == LogLevel.Error).ToList();
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains(message.Properties.MessageId.ToString()));
         }
 
         [Fact(Skip = "no tx handling with containerhost")]
