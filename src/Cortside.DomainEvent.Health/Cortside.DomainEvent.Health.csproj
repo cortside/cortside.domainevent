@@ -1,21 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Cortside.Health" Version="6.2.96-develop" />
+    <PackageReference Include="Cortside.Health" Version="6.2.101-develop" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Cortside.DomainEvent\Cortside.DomainEvent.csproj" />
   </ItemGroup>
-
 </Project>

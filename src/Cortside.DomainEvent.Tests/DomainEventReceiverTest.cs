@@ -16,12 +16,14 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using Xunit;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace Cortside.DomainEvent.Tests {
     public class DomainEventReceiverTest {
         private readonly IServiceProvider serviceProvider;
         private readonly DomainEventReceiverSettings settings;
-        private readonly LogEventLogger<DomainEventReceiver> logger;
+        private readonly ILoggerFactory loggerFactory;
+        private readonly ILogger<DomainEventReceiver> logger;
         private readonly MockReceiver receiver;
         private readonly Mock<IReceiverLink> receiverLink;
 
@@ -33,7 +35,20 @@ namespace Cortside.DomainEvent.Tests {
 
             settings = new DomainEventReceiverSettings();
 
-            logger = new LogEventLogger<DomainEventReceiver>();
+            // Create a logger factory with a debug provider
+            loggerFactory = LoggerFactory.Create(builder => {
+                builder
+                    .SetMinimumLevel(LogLevel.Trace)
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter("Cortside.Common", LogLevel.Trace)
+                    .AddLogEvent();
+            });
+
+            // Create a logger with the category name of the current class
+            logger = loggerFactory.CreateLogger<DomainEventReceiver>();
+
+            //logger = new LogEventLogger("DomainEventReceiver");
             receiver = new MockReceiver(settings, serviceProvider, logger);
             receiver.Setup(new Dictionary<string, Type> {
                 { typeof(TestEvent).FullName, typeof(TestEvent) }
@@ -99,7 +114,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
         }
 
         [Theory]
@@ -118,7 +133,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.Contains(logger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("errors deserializing messsage body"));
+            Assert.Contains(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("errors deserializing messsage body"));
         }
 
         [Fact]
@@ -136,7 +151,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.Contains(logger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("invalid type"));
+            Assert.Contains(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("invalid type"));
         }
 
         [Fact]
@@ -153,7 +168,7 @@ namespace Cortside.DomainEvent.Tests {
             await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
-            Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
             receiverLink.VerifyAll();
         }
 
@@ -171,7 +186,7 @@ namespace Cortside.DomainEvent.Tests {
             await receiver.MessageCallbackAsync(receiverLink.Object, message);
 
             // assert
-            Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
             receiverLink.VerifyAll();
         }
 
@@ -191,7 +206,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.Contains(logger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("message type was not registered for type"));
+            Assert.Contains(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("message type was not registered for type"));
         }
 
         [Fact]
@@ -211,7 +226,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.Contains(logger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("handler was not found for type"));
+            Assert.Contains(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("handler was not found for type"));
         }
 
         [Fact]
@@ -229,7 +244,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
         }
 
         [Fact]
@@ -247,7 +262,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
         }
 
         [Fact(Skip = "no tx handling with containerhost")]
@@ -265,7 +280,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
         }
 
         [Fact]
@@ -283,7 +298,7 @@ namespace Cortside.DomainEvent.Tests {
 
             // assert
             receiverLink.VerifyAll();
-            Assert.Contains(logger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("caught unhandled exception"));
+            Assert.Contains(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error && x.Message.Contains("caught unhandled exception"));
         }
 
         private Message CreateMessage(string eventType, object body) {

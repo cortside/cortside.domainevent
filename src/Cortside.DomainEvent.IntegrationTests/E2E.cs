@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cortside.Common.Testing.Logging.LogEvent;
 using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -27,7 +28,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 ReceiveAndWait(correlationId);
 
-                Assert.DoesNotContain(publisherLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
                 Assert.True(TestEvent.Instances.Count > 0);
                 Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
@@ -54,7 +55,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
 
                 var elapsed = ReceiveAndWait(correlationId);
 
-                Assert.DoesNotContain(publisherLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
                 Assert.True(elapsed.TotalSeconds >= 17, $"{elapsed.TotalSeconds} >= 17");
 
@@ -90,7 +91,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 Assert.True(TestEvent.Instances.Count > 0);
                 Assert.Contains(TestEvent.Instances, x => x.Value.CorrelationId == correlationId);
 
-                Assert.DoesNotContain(publisherLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
                 Assert.True(elapsed.TotalSeconds >= 17, $"{elapsed.TotalSeconds} >= 17");
 
