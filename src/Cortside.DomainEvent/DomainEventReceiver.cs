@@ -21,8 +21,10 @@ namespace Cortside.DomainEvent {
 
         protected ILogger<DomainEventReceiver> Logger { get; }
 
+        private readonly string connectionString;
+
         protected virtual Session CreateSession() {
-            var conn = new Connection(new Address(Settings.ConnectionString));
+            var conn = new Connection(new Address(connectionString));
             return new Session(conn);
         }
 
@@ -30,6 +32,14 @@ namespace Cortside.DomainEvent {
             Provider = provider;
             Settings = settings;
             Logger = logger;
+            connectionString = settings.ConnectionString;
+        }
+
+        public DomainEventReceiver(KeyedDomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) {
+            Provider = provider;
+            Settings = settings;
+            Logger = logger;
+            connectionString = settings.ConnectionString;
         }
 
         public void Start(IDictionary<string, Type> eventTypeLookup) {
