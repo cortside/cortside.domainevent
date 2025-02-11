@@ -65,14 +65,14 @@ namespace Cortside.DomainEvent {
             }
 
             // Register Hosted Services
-            //services.AddKeyedSingleton(options.ReceiverSettings.Key, options.ReceiverSettings); // do we actually need to do this if we use ctor with specific settings??
-            //services.AddKeyedSingleton(options.ReceiverSettings.Key, options.HostedServiceSettings); // needed??
+            //services.AddKeyedSingleton(settings.ReceiverSettings.Key, settings.ReceiverSettings); // do we actually need to do this if we use ctor with specific settings??
+            //services.AddKeyedSingleton(settings.ReceiverSettings.Key, settings.HostedServiceSettings); // needed??
             services.AddKeyedSingleton(options.ReceiverSettings.Key, (sp, IDomainEventReceiver) => {
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 return new DomainEventReceiver(options.ReceiverSettings, sp, loggerFactory.CreateLogger<DomainEventReceiver>());
             });
 
-            // workaround to AddHostedService extension: https://github.com/dotnet/runtime/issues/38751#issuecomment-1967830195
+            // do not use AddHostedService extension: https://github.com/dotnet/runtime/issues/38751#issuecomment-1967830195
             services.AddSingleton<IHostedService, ReceiverHostedService>(sp => {
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 return new ReceiverHostedService(loggerFactory.CreateLogger<ReceiverHostedService>(), sp, options.HostedServiceSettings, options.ReceiverSettings);
@@ -101,7 +101,7 @@ namespace Cortside.DomainEvent {
         }
 
         /// <summary>
-        /// Registers an outbox publisher with T DbContext class.  Relies on the following options settings:
+        /// Registers an outbox publisher with T DbContext class.  Relies on the following settings settings:
         ///     ServiceBus
         ///     Service
         /// </summary>
@@ -118,6 +118,41 @@ namespace Cortside.DomainEvent {
 
             // Register publisher
             services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddDomainEventPublishers(this IServiceCollection services, IConfiguration configuration) {
+            var settingsList = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventPublisherSettings>>();
+            Guard.From.Null(settingsList, nameof(settingsList));
+
+            foreach (var settings in settingsList) {
+                var index = settingsList.IndexOf(settings);
+                Guard.From.NullOrWhitespace(settings.Key, nameof(settings.Key));
+                // tech debt
+                settings.Service = configuration[$"DomainEvent:Connections:{index}:Key"]; // needed for SenderLink
+                settings.AppName = configuration[$"DomainEvent:Connections:{index}:Key"];
+
+                services = services.AddKeyedDomainEventPublisher(settings);
+            }
+
+            return services;
+        }
+
+        public static IServiceCollection AddKeyedDomainEventPublisher(this IServiceCollection services, KeyedDomainEventPublisherSettings settings) {
+            Guard.From.Null(settings, nameof(settings));
+            Guard.From.NullOrWhitespace(settings.Key, nameof(settings.Key));
+            Guard.From.NullOrWhitespace(settings.Server, nameof(settings.Server));
+            Guard.From.NullOrWhitespace(settings.Username, nameof(settings.Username));
+            Guard.From.NullOrWhitespace(settings.Password, nameof(settings.Password));
+
+            // Register publisher
+            services.AddKeyedTransient<IDomainEventPublisher, DomainEventPublisher>(settings.Key, (sp, IDomainEventPublisher) => {
+                var loggerFactory = sp.GetService<ILoggerFactory>();
+                return new DomainEventPublisher(settings, loggerFactory.CreateLogger<DomainEventPublisher>());
+            });
+
+
 
             return services;
         }

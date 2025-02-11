@@ -8,31 +8,42 @@ using Cortside.Common.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
         private readonly IServiceProvider serviceProvider;
         private readonly OutboxHostedServiceConfiguration config;
+        private readonly string Key;
 
         public OutboxHostedService(ILogger<OutboxHostedService<T>> logger, OutboxHostedServiceConfiguration config, IServiceProvider serviceProvider) : base(logger, config.Enabled, config.Interval, true) {
             this.serviceProvider = serviceProvider;
             this.config = config;
         }
 
+        public OutboxHostedService(ILogger<OutboxHostedService<T>> logger, OutboxHostedServiceConfiguration config, IServiceProvider serviceProvider, KeyedDomainEventPublisherSettings keyedSettings) : base(logger, config.Enabled, config.Interval, true) {
+            this.serviceProvider = serviceProvider;
+            this.config = config;
+            this.Key = keyedSettings.Key;
+        }
+
         public override Task StartAsync(CancellationToken cancellationToken) {
-            logger.LogInformation("OutboxHostedService StartAsync() entered.");
+            logger.LogInformation("{Key} OutboxHostedService StartAsync() entered.", Key);
             return base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteIntervalAsync() {
-            logger.LogDebug("OutboxHostedService ExecuteIntervalAsync() entered.");
+            logger.LogDebug("{Key} OutboxHostedService ExecuteIntervalAsync() entered.", Key);
             await Task.Yield();
+            var keySql = (!Key.IsNullOrEmpty()) ? $"and Key={Key}" : "";
 
             var lockId = CorrelationContext.GetCorrelationId();
             var sql = $@"
 declare @rows int
-select @rows = count(*) from Outbox with (nolock) where (LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
+select @rows = count(*) from Outbox with (nolock) where ((LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
             or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
+            {keySql}
+            )
 
 if (@rows > 0)
   BEGIN
@@ -47,13 +58,16 @@ if (@rows > 0)
     FROM (
             select top ({config.BatchSize}) * from Outbox
             WITH (ROWLOCK, READPAST)
-            where (LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
+            where ((LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
                 or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
+                {keySql}
+                )
             order by ScheduledDate
     ) Q
   END
 ";
 
+            //TODO: using(logger.push())
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
@@ -96,7 +110,7 @@ if (@rows > 0)
                             MessageId = message.MessageId
                         };
 
-                        var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
+                        var publisher = (!Key.IsNullOrEmpty()) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
 
                         try {
                             await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
@@ -122,6 +136,7 @@ if (@rows > 0)
                 if (config.PurgePublished) {
                     try {
                         if (isRelational) {
+                            // TODO: keyed? probably
                             var query = $"DELETE TOP ({config.BatchSize}) FROM Outbox Where Status = '{OutboxStatus.Published}'";
                             await db.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
                         } else {
