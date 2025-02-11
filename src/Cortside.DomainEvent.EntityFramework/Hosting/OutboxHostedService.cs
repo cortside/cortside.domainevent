@@ -8,7 +8,6 @@ using Cortside.Common.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
@@ -35,7 +34,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         protected override async Task ExecuteIntervalAsync() {
             logger.LogDebug("{Key} OutboxHostedService ExecuteIntervalAsync() entered.", Key);
             await Task.Yield();
-            var keySql = (!Key.IsNullOrEmpty()) ? $"and Key={Key}" : "";
+            var keySql = (!string.IsNullOrWhiteSpace(Key)) ? $"and [Key]='{Key}'" : "";
 
             var lockId = CorrelationContext.GetCorrelationId();
             var sql = $@"
@@ -110,7 +109,7 @@ if (@rows > 0)
                             MessageId = message.MessageId
                         };
 
-                        var publisher = (!Key.IsNullOrEmpty()) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
+                        var publisher = (!string.IsNullOrWhiteSpace(Key)) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
 
                         try {
                             await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
