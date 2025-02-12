@@ -36,6 +36,8 @@ namespace Cortside.DomainEvent.EntityFramework {
             var settingsList = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventPublisherSettings>>();
             Guard.From.Null(settingsList, nameof(settingsList));
 
+            // TODO: if only one, only register one (non-keyed) so consumers don't have to use FromKeyedServicesAttribute everywhere IDomainEventOutboxPublisher is injected??
+
             foreach (var settings in settingsList) {
                 var index = settingsList.IndexOf(settings);
                 Guard.From.NullOrWhitespace(settings.Key, nameof(settings.Key));
@@ -54,7 +56,7 @@ namespace Cortside.DomainEvent.EntityFramework {
 
                 // outbox hosted service
                 var outboxConfiguration = configuration.GetSection($"DomainEvent:Connections:{index}:OutboxHostedService").Get<OutboxHostedServiceConfiguration>();
-                //services.AddSingleton(outboxConfiguration); // needed?
+                //services.AddKeyedSingleton(settings.Key, outboxConfiguration); // needed?
                 // do not use AddHostedService extension: https://github.com/dotnet/runtime/issues/38751#issuecomment-1967830195
                 services.AddSingleton<IHostedService, OutboxHostedService<T>>(sp => {
                     var loggerFactory = sp.GetService<ILoggerFactory>();

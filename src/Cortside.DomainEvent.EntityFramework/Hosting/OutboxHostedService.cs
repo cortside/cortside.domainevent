@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cortside.Common.Correlation;
 using Cortside.Common.Hosting;
+using Cortside.Common.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -66,19 +67,20 @@ if (@rows > 0)
   END
 ";
 
-            //TODO: using(logger.push())
+            using (logger.PushProperty("Key", Key))
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
 
-                logger.LogDebug("Obtained DbContext with provider {ProviderName}, IsRational = {IsRational}", db.Database.ProviderName, isRelational);
+                logger.LogDebug("Obtained DbContext with provider {ProviderName}, IsRelational = {IsRelational}", db.Database.ProviderName, isRelational);
 
                 int messageCount;
                 if (isRelational) {
                     messageCount = await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
                 } else {
                     // intentionally does not use LastModifiedDate in getting messages with Publishing status so that tests don't have to wait for that
-                    var messages = db.Set<Outbox>().Where(o => (o.LockId == null && o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow) || (o.Status == OutboxStatus.Publishing)).Take(config.BatchSize);
+                    var messages = db.Set<Outbox>().Where(o => (string.IsNullOrWhiteSpace(Key) || o.Key == Key)
+                        && ((o.LockId == null && o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow) || (o.Status == OutboxStatus.Publishing))).Take(config.BatchSize);
                     foreach (var message in messages) {
                         if (message.PublishCount >= config.MaximumPublishCount) {
                             message.Status = OutboxStatus.Failed;
@@ -92,15 +94,15 @@ if (@rows > 0)
                     await db.SaveChangesAsync().ConfigureAwait(false);
                     messageCount = await messages.CountAsync();
                 }
-                logger.LogInformation("Messages to publish: {Count}", messageCount);
+                logger.LogInformation("{Key} Messages to publish: {Count}", Key, messageCount);
 
                 try {
                     List<Outbox> messages = await db.Set<Outbox>().Where(x => x.LockId == lockId).ToListAsync().ConfigureAwait(false);
-                    logger.LogInformation("Messages claimed: {Count}", messages.Count);
+                    logger.LogInformation("{Key} Messages claimed: {Count}", Key, messages.Count);
 
                     var i = 1;
                     foreach (var message in messages) {
-                        logger.LogDebug("Publishing message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", message.MessageId, message.OutboxId, i, messages.Count);
+                        logger.LogDebug("{Key} Publishing message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key, message.MessageId, message.OutboxId, i, messages.Count);
                         var properties = new EventProperties() {
                             EventType = message.EventType,
                             Topic = message.Topic,
@@ -125,7 +127,7 @@ if (@rows > 0)
                             logger.LogError(ex, "Exception attempting to publish message {MessageId} from outbox: {Reason}", message.MessageId, ex.Message);
                         }
 
-                        logger.LogDebug("Published message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", message.MessageId, message.OutboxId, i, messages.Count);
+                        logger.LogDebug("{Key} Published message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key, message.MessageId, message.OutboxId, i, messages.Count);
                         i++;
                     }
                 } catch (Exception ex) {

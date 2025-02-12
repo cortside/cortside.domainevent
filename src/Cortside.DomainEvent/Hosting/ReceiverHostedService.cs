@@ -30,7 +30,7 @@ namespace Cortside.DomainEvent.Hosting {
             this.services = services;
             this.settings = settings;
             this.serviceKey = receiverSettings.Key;
-            this.receiver = services.GetKeyedService<DomainEventReceiver>(receiverSettings.Key);
+            this.receiver = services.GetKeyedService<IDomainEventReceiver>(receiverSettings.Key);
         }
 
         public override Task StartAsync(CancellationToken cancellationToken) {

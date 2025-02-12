@@ -67,7 +67,7 @@ namespace Cortside.DomainEvent {
             // Register Hosted Services
             //services.AddKeyedSingleton(settings.ReceiverSettings.Key, settings.ReceiverSettings); // do we actually need to do this if we use ctor with specific settings??
             //services.AddKeyedSingleton(settings.ReceiverSettings.Key, settings.HostedServiceSettings); // needed??
-            services.AddKeyedSingleton(options.ReceiverSettings.Key, (sp, IDomainEventReceiver) => {
+            services.AddKeyedSingleton<IDomainEventReceiver, DomainEventReceiver>(options.ReceiverSettings.Key, (sp, obj) => {
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 return new DomainEventReceiver(options.ReceiverSettings, sp, loggerFactory.CreateLogger<DomainEventReceiver>());
             });
@@ -81,9 +81,11 @@ namespace Cortside.DomainEvent {
             return services;
         }
 
-        public static IServiceCollection AddKeyedDomainEventReceivers(this IServiceCollection services, IConfiguration configuration) {
+        public static IServiceCollection AddDomainEventReceivers(this IServiceCollection services, IConfiguration configuration) {
             var optionsList = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventReceiverOptions>>();
             Guard.From.Null(optionsList, nameof(optionsList));
+
+            // TODO: if only one, register as non-keyed for easier injection
 
             foreach (var options in optionsList) {
                 var index = optionsList.IndexOf(options);
@@ -126,6 +128,8 @@ namespace Cortside.DomainEvent {
             var settingsList = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventPublisherSettings>>();
             Guard.From.Null(settingsList, nameof(settingsList));
 
+            // TODO: if only one, register as non-keyed
+
             foreach (var settings in settingsList) {
                 var index = settingsList.IndexOf(settings);
                 Guard.From.NullOrWhitespace(settings.Key, nameof(settings.Key));
@@ -151,8 +155,6 @@ namespace Cortside.DomainEvent {
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 return new DomainEventPublisher(settings, loggerFactory.CreateLogger<DomainEventPublisher>());
             });
-
-
 
             return services;
         }
