@@ -83,5 +83,96 @@ namespace Cortside.DomainEvent.Tests {
             // Assert
             Assert.NotNull(check);
         }
+
+        [Fact]
+        public void ShouldAddKeyedDomainEventReceiver() {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string> {
+                        ["DomainEvent:Connections:0:Key"] = "test-api",
+                        ["DomainEvent:Connections:0:Protocol"] = "amqp",
+                        ["DomainEvent:Connections:0:Server"] = "localhost",
+                        ["DomainEvent:Connections:0:Username"] = "localhost",
+                        ["DomainEvent:Connections:0:Password"] = "localhost",
+                        ["DomainEvent:Connections:0:Queue"] = "localhost",
+                        ["DomainEvent:Connections:0:Topic"] = "localhost",
+                        ["DomainEvent:Connections:0:ReceiverHostedService:Enabled"] = "true",
+                        ["DomainEvent:Connections:0:ReceiverHostedService:TimedInterval"] = "60",
+                    })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+
+            // Act
+            services.AddKeyedDomainEventReceiver(o => {
+                o.UseConfiguration(configuration, 0);
+                o.AddHandler<TestEvent, TestEventHandler>();
+            });
+            var serviceProvider = services.BuildServiceProvider();
+            var receiver = serviceProvider.GetKeyedService<IDomainEventReceiver>("test-api");
+
+            // Assert
+            Assert.NotNull(receiver);
+        }
+
+        [Fact]
+        public void ShouldAddDomainEventReceivers() {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string> {
+                        ["DomainEvent:Connections:0:Key"] = "test-api",
+                        ["DomainEvent:Connections:0:Protocol"] = "amqp",
+                        ["DomainEvent:Connections:0:Server"] = "localhost",
+                        ["DomainEvent:Connections:0:Username"] = "localhost",
+                        ["DomainEvent:Connections:0:Password"] = "localhost",
+                        ["DomainEvent:Connections:0:Queue"] = "localhost",
+                        ["DomainEvent:Connections:0:Topic"] = "localhost",
+                        ["DomainEvent:Connections:0:ReceiverHostedService:Enabled"] = "true",
+                        ["DomainEvent:Connections:0:ReceiverHostedService:TimedInterval"] = "60",
+                    })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+
+            // Act
+            services.AddDomainEventReceivers(configuration);
+            var serviceProvider = services.BuildServiceProvider();
+            var receiver = serviceProvider.GetKeyedService<IDomainEventReceiver>("test-api");
+
+            // Assert
+            Assert.NotNull(receiver);
+        }
+
+        [Fact]
+        public void ShouldAddDomainEventPublishers() {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string> {
+                        ["DomainEvent:Connections:0:Key"] = "test-api",
+                        ["DomainEvent:Connections:0:Protocol"] = "amqp",
+                        ["DomainEvent:Connections:0:Server"] = "localhost",
+                        ["DomainEvent:Connections:0:Username"] = "localhost",
+                        ["DomainEvent:Connections:0:Password"] = "localhost",
+                        ["DomainEvent:Connections:0:Queue"] = "localhost",
+                        ["DomainEvent:Connections:0:Topic"] = "localhost",
+                    })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+
+            // Act
+            services.AddDomainEventPublishers(configuration);
+            var serviceProvider = services.BuildServiceProvider();
+            var publisher = serviceProvider.GetKeyedService<IDomainEventPublisher>("test-api");
+
+            // Assert
+            Assert.NotNull(publisher);
+        }
     }
 }

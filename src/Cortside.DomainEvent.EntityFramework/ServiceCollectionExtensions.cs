@@ -31,6 +31,17 @@ namespace Cortside.DomainEvent.EntityFramework {
             return services;
         }
 
+        /// <summary>
+        /// Registers multiple outbox publishers and hosted services.  Relies on settings sections:
+        ///     DomainEvent:Connections[]
+        ///     DomainEvent:Connections:0:OutboxHostedService
+        ///
+        ///     ServiceBus and root level OutboxHostedService are not used and are obsolete
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
         public static IServiceCollection AddDomainEventOutboxPublishers<T>(this IServiceCollection services, IConfiguration configuration) where T : DbContext {
 
             var settingsList = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventPublisherSettings>>();

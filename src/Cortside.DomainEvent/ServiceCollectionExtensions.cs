@@ -40,6 +40,12 @@ namespace Cortside.DomainEvent {
             return services;
         }
 
+        /// <summary>
+        /// Registers keyed DomainEventReceiver and ReceiverHostedService
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
         public static IServiceCollection AddKeyedDomainEventReceiver(this IServiceCollection services, Action<KeyedDomainEventReceiverOptions> options) {
             var o = new KeyedDomainEventReceiverOptions();
             options?.Invoke(o);
@@ -47,6 +53,12 @@ namespace Cortside.DomainEvent {
             return services.AddKeyedDomainEventReceiver(o);
         }
 
+        /// <summary>
+        /// Registers keyed DomainEventReceiver and ReceiverHostedService
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
         public static IServiceCollection AddKeyedDomainEventReceiver(this IServiceCollection services, KeyedDomainEventReceiverOptions options) {
             Guard.From.Null(options, nameof(options));
             Guard.From.Null(options.ReceiverSettings, nameof(options.ReceiverSettings));
@@ -65,8 +77,6 @@ namespace Cortside.DomainEvent {
             }
 
             // Register Hosted Services
-            //services.AddKeyedSingleton(settings.ReceiverSettings.Key, settings.ReceiverSettings); // do we actually need to do this if we use ctor with specific settings??
-            //services.AddKeyedSingleton(settings.ReceiverSettings.Key, settings.HostedServiceSettings); // needed??
             services.AddKeyedSingleton<IDomainEventReceiver, DomainEventReceiver>(options.ReceiverSettings.Key, (sp, obj) => {
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 return new DomainEventReceiver(options.ReceiverSettings, sp, loggerFactory.CreateLogger<DomainEventReceiver>());
@@ -81,6 +91,16 @@ namespace Cortside.DomainEvent {
             return services;
         }
 
+        /// <summary>
+        /// Registers multiple IDomainEventReceivers. Handlers must be specified in settings.  Relies on settings sections:
+        ///     DomainEvent:Connections[]
+        ///     DomainEvent:Connections:0:ReceiverHostedService
+        ///
+        ///     ServiceBus and root level settings ReceiverHostedService are not used and are obsolete
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
         public static IServiceCollection AddDomainEventReceivers(this IServiceCollection services, IConfiguration configuration) {
             var optionsList = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventReceiverOptions>>();
             Guard.From.Null(optionsList, nameof(optionsList));
@@ -124,6 +144,15 @@ namespace Cortside.DomainEvent {
             return services;
         }
 
+        /// <summary>
+        /// Registers multiple IDomainEventPublishers. Relies on settings sections:
+        ///     DomainEvent:Connections[]
+        ///
+        ///     ServiceBus settings section is not used and is obsolete
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
         public static IServiceCollection AddDomainEventPublishers(this IServiceCollection services, IConfiguration configuration) {
             var settingsList = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventPublisherSettings>>();
             Guard.From.Null(settingsList, nameof(settingsList));
@@ -143,6 +172,15 @@ namespace Cortside.DomainEvent {
             return services;
         }
 
+        /// <summary>
+        /// Registers keyed IDomainEventPublisher. Relies on settings sections:
+        ///     DomainEvent:Connections[]
+        ///
+        ///     ServiceBus settings section is not used and is obsolete
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
         public static IServiceCollection AddKeyedDomainEventPublisher(this IServiceCollection services, KeyedDomainEventPublisherSettings settings) {
             Guard.From.Null(settings, nameof(settings));
             Guard.From.NullOrWhitespace(settings.Key, nameof(settings.Key));

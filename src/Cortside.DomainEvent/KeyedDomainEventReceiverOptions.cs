@@ -29,7 +29,7 @@ namespace Cortside.DomainEvent {
                 ReceiverSettings.AppName = configuration[$"DomainEvent:Connections:{arrayIndex}:Key"];
                 ReceiverSettings.Service = configuration[$"DomainEvent:Connections:{arrayIndex}:Key"];
             }
-            HostedServiceSettings = configuration.GetSection("ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
+            HostedServiceSettings = configuration.GetSection($"DomainEvent:Connections:{arrayIndex}:ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
             Guard.From.Null(HostedServiceSettings, nameof(HostedServiceSettings));
         }
 
