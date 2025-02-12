@@ -13,10 +13,9 @@ namespace Cortside.DomainEvent.IntegrationTests {
     public class ManualTest {
         protected readonly IServiceProvider serviceProvider;
         protected readonly Dictionary<string, Type> eventTypes;
-        private readonly Microsoft.Extensions.Logging.ILoggerFactory loggerFactory;
         protected readonly Random r;
         protected DomainEventPublisher publisher;
-        protected readonly ILogger<DomainEventPublisher> mockLogger;
+        protected readonly LogEventLogger<DomainEventPublisher> mockLogger;
         protected readonly DomainEventReceiverSettings receiverSettings;
         protected readonly DomainEventPublisherSettings publisherSettings;
         protected readonly bool enabled;
@@ -40,16 +39,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 { typeof(TestEvent).FullName, typeof(TestEvent) }
             };
 
-            loggerFactory = LoggerFactory.Create(builder => {
-                builder
-                    .SetMinimumLevel(LogLevel.Trace)
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("Cortside.Common", LogLevel.Trace)
-                    .AddLogEvent();
-            });
-
-            mockLogger = loggerFactory.CreateLogger<DomainEventPublisher>();
+            mockLogger = new LogEventLogger<DomainEventPublisher>();
 
             receiverSettings = configRoot.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
             publisherSettings = configRoot.GetSection("ServiceBus").Get<DomainEventPublisherSettings>();
@@ -62,7 +52,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
         public async Task ReceiveOne() {
             if (enabled) {
                 EventMessage message;
-                var logger = loggerFactory.CreateLogger<DomainEventReceiver>();
+                var logger = new LogEventLogger<DomainEventReceiver>();
 
                 do {
                     using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
@@ -71,7 +61,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                         message?.Accept();
                     }
 
-                    Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                    Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
                 } while (message != null);
             }
         }

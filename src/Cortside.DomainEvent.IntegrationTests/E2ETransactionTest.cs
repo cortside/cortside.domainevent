@@ -23,12 +23,13 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 }
 
                 EventMessage message;
-                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, receiverLogger)) {
+                var logger = new LogEventLogger<DomainEventReceiver>();
+                using (var receiver = new DomainEventReceiver(receiverSettings, serviceProvider, logger)) {
                     receiver.Start(eventTypes);
                     message = await receiver.ReceiveAsync(TimeSpan.FromSeconds(5));
                     message?.Accept();
                 }
-                Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                Assert.DoesNotContain(logger.LogEvents, x => x.LogLevel == LogLevel.Error);
 
                 Assert.NotNull(message);
                 Assert.Equal(correlationId, message.Message.CorrelationId);

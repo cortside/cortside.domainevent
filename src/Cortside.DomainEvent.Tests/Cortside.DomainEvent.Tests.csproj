@@ -8,7 +8,7 @@
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.4.11" />
     <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.11" />
-    <PackageReference Include="Cortside.Common.Testing" Version="6.4.468-develop" />
+    <PackageReference Include="Cortside.Common.Testing" Version="6.4.470-develop" />
     <PackageReference Include="Cortside.Health" Version="6.2.101-develop" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

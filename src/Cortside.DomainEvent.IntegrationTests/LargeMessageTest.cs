@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Cortside.Common.Testing.Logging.LogEvent;
 using Cortside.DomainEvent.Tests;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -31,7 +30,7 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 } finally {
                     if (pass) {
                         Assert.Null(publisher.Error);
-                        Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                        Assert.DoesNotContain(publisherLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
                     } else {
                         Assert.NotNull(publisher.Error);
                         Assert.Contains("exceeds the limit", publisher.Error.Description);
@@ -56,14 +55,14 @@ namespace Cortside.DomainEvent.IntegrationTests {
                 receiver.StartAndListen(eventTypes);
 
                 while (TestEvent.GetByCorrelationId(correlationId) == null && stopWatch.Elapsed.TotalSeconds < timeout) {
-                    Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+                    Assert.DoesNotContain(receiverLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
                     Assert.True(receiver.Error == null);
                     await Task.Delay(1000);
                 }
             }
 
             stopWatch.Stop();
-            Assert.DoesNotContain(LogEventLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
+            Assert.DoesNotContain(receiverLogger.LogEvents, x => x.LogLevel == LogLevel.Error);
             return TestEvent.GetByCorrelationId(correlationId);
         }
     }
