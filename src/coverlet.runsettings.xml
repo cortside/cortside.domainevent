@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <RunSettings>
+  <TreatNoTestsAsError>true</TreatNoTestsAsError>
   <DataCollectionRunSettings>
     <DataCollectors>
-      <DataCollector friendlyName="XPlat code coverage">
+      <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
-          <Format>opencover,cobertura</Format>
+          <Format>cobertura,opencover</Format>
           <!-- <Exclude>[coverlet.*.tests?]*,[*]Coverlet.Core*</Exclude> [Assembly-Filter]Type-Filter -->
           <!-- <Include>[coverlet.*]*,[*]Coverlet.Core*</Include> [Assembly-Filter]Type-Filter -->
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute</ExcludeByAttribute>
