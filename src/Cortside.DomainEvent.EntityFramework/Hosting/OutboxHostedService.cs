@@ -35,15 +35,15 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         protected override async Task ExecuteIntervalAsync() {
             logger.LogDebug("{Key} OutboxHostedService ExecuteIntervalAsync() entered.", Key);
             await Task.Yield();
-            var keySql = (!string.IsNullOrWhiteSpace(Key)) ? $"and [Key]='{Key}'" : "";
+            var keySql = (!string.IsNullOrWhiteSpace(Key)) ? $" and [Key]='{Key}' " : "";
 
             var lockId = CorrelationContext.GetCorrelationId();
             var sql = $@"
 declare @rows int
 select @rows = count(*) from Outbox with (nolock) where ((LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
             or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
-            {keySql}
             )
+            {keySql}
 
 if (@rows > 0)
   BEGIN
@@ -60,8 +60,8 @@ if (@rows > 0)
             WITH (ROWLOCK, READPAST)
             where ((LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
                 or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
-                {keySql}
                 )
+                {keySql}
             order by ScheduledDate
     ) Q
   END

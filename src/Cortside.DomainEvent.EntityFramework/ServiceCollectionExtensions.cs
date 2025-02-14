@@ -56,9 +56,9 @@ namespace Cortside.DomainEvent.EntityFramework {
                 settings.Service = configuration[$"DomainEvent:Connections:{index}:Key"]; // needed for SenderLink
                 settings.AppName = configuration[$"DomainEvent:Connections:{index}:Key"];
 
-                services = services.AddKeyedDomainEventPublisher(settings);
+                services.AddKeyedDomainEventPublisher(settings);
                 // register publisher
-                services.AddKeyedScoped<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<T>>(settings.Key, (sp, IDomainEventOutboxPublisher) => {
+                services.AddKeyedScoped<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<T>>(settings.Key, (sp, obj) => {
                     var loggerFactory = sp.GetService<ILoggerFactory>();
                     var context = sp.GetService<T>();
                     Guard.From.Null(context, nameof(context));

@@ -179,7 +179,7 @@ namespace Cortside.DomainEvent {
         ///     ServiceBus settings section is not used and is obsolete
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="configuration"></param>
+        /// <param name="settings"></param>
         /// <returns></returns>
         public static IServiceCollection AddKeyedDomainEventPublisher(this IServiceCollection services, KeyedDomainEventPublisherSettings settings) {
             Guard.From.Null(settings, nameof(settings));
@@ -189,7 +189,7 @@ namespace Cortside.DomainEvent {
             Guard.From.NullOrWhitespace(settings.Password, nameof(settings.Password));
 
             // Register publisher
-            services.AddKeyedTransient<IDomainEventPublisher, DomainEventPublisher>(settings.Key, (sp, IDomainEventPublisher) => {
+            services.AddKeyedTransient<IDomainEventPublisher, DomainEventPublisher>(settings.Key, (sp, obj) => {
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 return new DomainEventPublisher(settings, loggerFactory.CreateLogger<DomainEventPublisher>());
             });
