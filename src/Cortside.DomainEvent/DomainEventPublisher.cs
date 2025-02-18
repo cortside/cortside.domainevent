@@ -19,9 +19,12 @@ namespace Cortside.DomainEvent {
             sharedSession = session;
         }
 
+        public DomainEventPublisher(KeyedDomainEventPublisherSettings settings, ILogger<DomainEventPublisher> logger) : base(settings, logger) {
+        }
+
         public void Connect() {
             if (conn == null) {
-                conn = new Connection(new Address(Settings.ConnectionString));
+                conn = new Connection(new Address(ConnectionString));
             }
         }
 

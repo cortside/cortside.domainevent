@@ -2,6 +2,8 @@
 
 Health check that will expose publish and consumption statistics about a running instance.
 
+NOTE: this does not supported keyed configuration of multiple broker connections.
+
 Configuration
 
 ```json
@@ -33,38 +35,38 @@ services.AddHealth(o => {
 Example check in healh response:
 
 ```json
-"domainevent":{
-   "healthy":true,
-   "status":"ok",
-   "statusDetail":"Successful",
-   "timestamp":"2025-01-09T19:29:44.9457334Z",
-   "required":false,
-   "availability":{
-      "count":1,
-      "success":1,
-      "failure":0,
-      "uptime":100,
-      "totalDuration":1,
-      "averageDuration":1,
-      "lastSuccess":"2025-01-09T19:29:44.9461913Z",
-      "lastFailure":"0001-01-01T00:00:00Z"
-   },
-   "statistics":{
-      "received":0,
-      "accepted":0,
-      "rejected":0,
-      "released":0,
-      "retries":0,
-      "lastReceived":null,
-      "lastAccepted":null,
-      "lastRejected":null,
-      "lastReleased":null,
-      "lastRetried":null,
-      "queued":0,
-      "lastQueued":null,
-      "published":0,
-      "publishFailed":0,
-      "lastPublished":null
+   "domainevent": {
+      "availability": {
+         "averageDuration": 0,
+         "count": 5,
+         "failure": 0,
+         "lastFailure": "0001-01-01T00:00:00Z",
+         "lastSuccess": "2025-02-14T23:15:45.4391754Z",
+         "success": 5,
+         "totalDuration": 0,
+         "uptime": 100
+      },
+      "healthy": true,
+      "required": false,
+      "statistics": {
+         "accepted": 1,
+         "lastAccepted": "2025-02-14T23:15:55.0500122Z",
+         "lastPublished": "2025-02-14T23:15:53.2803267Z",
+         "lastQueued": "2025-02-14T23:15:47.7147326Z",
+         "lastReceived": "2025-02-14T23:15:53.411306Z",
+         "lastRejected": "2025-02-14T23:15:52.9582428Z",
+         "lastReleased": null,
+         "lastRetried": null,
+         "published": 2,
+         "publishFailed": 0,
+         "queued": 2,
+         "received": 2,
+         "rejected": 1,
+         "released": 0,
+         "retries": 0
+      },
+      "status": "ok",
+      "statusDetail": "Successful",
+      "timestamp": "2025-02-14T23:15:45.4391713Z"
    }
-}
 ```

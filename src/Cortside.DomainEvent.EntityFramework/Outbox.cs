@@ -50,5 +50,8 @@ namespace Cortside.DomainEvent.EntityFramework {
         public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
 
         public int PublishCount { get; set; }
+
+        [StringLength(50)]
+        public string Key { get; set; }
     }
 }

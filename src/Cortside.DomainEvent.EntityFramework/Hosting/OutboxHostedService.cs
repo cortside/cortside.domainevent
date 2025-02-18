@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cortside.Common.Correlation;
 using Cortside.Common.Hosting;
+using Cortside.Common.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,26 +14,36 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
         private readonly IServiceProvider serviceProvider;
         private readonly OutboxHostedServiceConfiguration config;
+        private readonly string Key;
 
         public OutboxHostedService(ILogger<OutboxHostedService<T>> logger, OutboxHostedServiceConfiguration config, IServiceProvider serviceProvider) : base(logger, config.Enabled, config.Interval, true) {
             this.serviceProvider = serviceProvider;
             this.config = config;
         }
 
+        public OutboxHostedService(ILogger<OutboxHostedService<T>> logger, OutboxHostedServiceConfiguration config, IServiceProvider serviceProvider, KeyedDomainEventPublisherSettings keyedSettings) : base(logger, config.Enabled, config.Interval, true) {
+            this.serviceProvider = serviceProvider;
+            this.config = config;
+            this.Key = keyedSettings.Key;
+        }
+
         public override Task StartAsync(CancellationToken cancellationToken) {
-            logger.LogInformation("OutboxHostedService StartAsync() entered.");
+            logger.LogInformation("{Key} OutboxHostedService StartAsync() entered.", Key);
             return base.StartAsync(cancellationToken);
         }
 
         protected override async Task ExecuteIntervalAsync() {
-            logger.LogDebug("OutboxHostedService ExecuteIntervalAsync() entered.");
+            logger.LogDebug("{Key} OutboxHostedService ExecuteIntervalAsync() entered.", Key);
             await Task.Yield();
+            var keySql = (!string.IsNullOrWhiteSpace(Key)) ? $" and [Key]='{Key}' " : "";
 
             var lockId = CorrelationContext.GetCorrelationId();
             var sql = $@"
 declare @rows int
-select @rows = count(*) from Outbox with (nolock) where (LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
+select @rows = count(*) from Outbox with (nolock) where ((LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
             or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
+            )
+            {keySql}
 
 if (@rows > 0)
   BEGIN
@@ -47,25 +58,30 @@ if (@rows > 0)
     FROM (
             select top ({config.BatchSize}) * from Outbox
             WITH (ROWLOCK, READPAST)
-            where (LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
+            where ((LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
                 or (status='Publishing' and LastModifiedDate<(dateadd(second, -{config.PublishRetryInterval}, GETUTCDATE())))
+                )
+                {keySql}
             order by ScheduledDate
     ) Q
   END
 ";
 
+            // TODO: this seems like it should be logged higher up and probably by the publisher itself, or at least in addition to here
+            using (logger.PushProperty("Key", Key))
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
 
-                logger.LogDebug("Obtained DbContext with provider {ProviderName}, IsRational = {IsRational}", db.Database.ProviderName, isRelational);
+                logger.LogDebug("Obtained DbContext with provider {ProviderName}, IsRelational = {IsRelational}", db.Database.ProviderName, isRelational);
 
                 int messageCount;
                 if (isRelational) {
                     messageCount = await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
                 } else {
                     // intentionally does not use LastModifiedDate in getting messages with Publishing status so that tests don't have to wait for that
-                    var messages = db.Set<Outbox>().Where(o => (o.LockId == null && o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow) || (o.Status == OutboxStatus.Publishing)).Take(config.BatchSize);
+                    var messages = db.Set<Outbox>().Where(o => (string.IsNullOrWhiteSpace(Key) || o.Key == Key)
+                        && ((o.LockId == null && o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow) || (o.Status == OutboxStatus.Publishing))).Take(config.BatchSize);
                     foreach (var message in messages) {
                         if (message.PublishCount >= config.MaximumPublishCount) {
                             message.Status = OutboxStatus.Failed;
@@ -79,15 +95,15 @@ if (@rows > 0)
                     await db.SaveChangesAsync().ConfigureAwait(false);
                     messageCount = await messages.CountAsync();
                 }
-                logger.LogInformation("Messages to publish: {Count}", messageCount);
+                logger.LogInformation("{Key} Messages to publish: {Count}", Key, messageCount);
 
                 try {
                     List<Outbox> messages = await db.Set<Outbox>().Where(x => x.LockId == lockId).ToListAsync().ConfigureAwait(false);
-                    logger.LogInformation("Messages claimed: {Count}", messages.Count);
+                    logger.LogInformation("{Key} Messages claimed: {Count}", Key, messages.Count);
 
                     var i = 1;
                     foreach (var message in messages) {
-                        logger.LogDebug("Publishing message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", message.MessageId, message.OutboxId, i, messages.Count);
+                        logger.LogDebug("{Key} Publishing message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key, message.MessageId, message.OutboxId, i, messages.Count);
                         var properties = new EventProperties() {
                             EventType = message.EventType,
                             Topic = message.Topic,
@@ -96,7 +112,7 @@ if (@rows > 0)
                             MessageId = message.MessageId
                         };
 
-                        var publisher = scope.ServiceProvider.GetService<IDomainEventPublisher>();
+                        var publisher = (!string.IsNullOrWhiteSpace(Key)) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
 
                         try {
                             await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
@@ -112,7 +128,7 @@ if (@rows > 0)
                             logger.LogError(ex, "Exception attempting to publish message {MessageId} from outbox: {Reason}", message.MessageId, ex.Message);
                         }
 
-                        logger.LogDebug("Published message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", message.MessageId, message.OutboxId, i, messages.Count);
+                        logger.LogDebug("{Key} Published message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key, message.MessageId, message.OutboxId, i, messages.Count);
                         i++;
                     }
                 } catch (Exception ex) {
@@ -122,6 +138,7 @@ if (@rows > 0)
                 if (config.PurgePublished) {
                     try {
                         if (isRelational) {
+                            // TODO: keyed? probably
                             var query = $"DELETE TOP ({config.BatchSize}) FROM Outbox Where Status = '{OutboxStatus.Published}'";
                             await db.Database.ExecuteSqlRawAsync(query).ConfigureAwait(false);
                         } else {
