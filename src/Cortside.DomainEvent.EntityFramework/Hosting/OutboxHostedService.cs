@@ -67,6 +67,7 @@ if (@rows > 0)
   END
 ";
 
+            // TODO: this seems like it should be logged higher up and probably by the publisher itself, or at least in addition to here
             using (logger.PushProperty("Key", Key))
             using (var scope = serviceProvider.CreateScope()) {
                 var db = scope.ServiceProvider.GetService<T>();

@@ -4,7 +4,7 @@
 
 ## Cortside.DomainEvent
 
-Classes for publishing and consuming events on a message bus. Relies on the AMQP 1. 0 protocol and can communicate with any broker that supports AMQP 1.0. Has been used and tested with Azure Service Bus and RabbitMQ 3.x with the AMQP 1.0 plugin.
+Classes for publishing and consuming events on a message bus. Relies on the AMQP 1.0 protocol and can communicate with any broker that supports AMQP 1.0. Has been used and tested with Azure Service Bus and RabbitMQ 3.x with the AMQP 1.0 plugin.
 
 The DomainEvent library relies on some conventions to make a bus work without conflicts, such as:
 
