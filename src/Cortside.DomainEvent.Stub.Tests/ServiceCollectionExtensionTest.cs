@@ -1,6 +1,6 @@
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -26,13 +26,13 @@ namespace Cortside.DomainEvent.Stub.Tests {
             var provider = services.BuildServiceProvider();
 
             // assert
-            provider.GetKeyedService<IStubBroker>(coolKey).Should().NotBeNull();
-            provider.GetKeyedService<IDomainEventReceiver>(coolKey).Should().NotBeNull();
-            provider.GetKeyedService<IDomainEventPublisher>(coolKey).Should().NotBeNull();
+            provider.GetKeyedService<IStubBroker>(coolKey).ShouldNotBeNull();
+            provider.GetKeyedService<IDomainEventReceiver>(coolKey).ShouldNotBeNull();
+            provider.GetKeyedService<IDomainEventPublisher>(coolKey).ShouldNotBeNull();
 
-            provider.GetKeyedService<IStubBroker>(hotKey).Should().NotBeNull();
-            provider.GetKeyedService<IDomainEventReceiver>(hotKey).Should().NotBeNull();
-            provider.GetKeyedService<IDomainEventPublisher>(hotKey).Should().NotBeNull();
+            provider.GetKeyedService<IStubBroker>(hotKey).ShouldNotBeNull();
+            provider.GetKeyedService<IDomainEventReceiver>(hotKey).ShouldNotBeNull();
+            provider.GetKeyedService<IDomainEventPublisher>(hotKey).ShouldNotBeNull();
 
         }
 
