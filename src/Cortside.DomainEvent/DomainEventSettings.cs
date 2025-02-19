@@ -1,3 +1,5 @@
+using System;
+
 namespace Cortside.DomainEvent {
     public abstract class DomainEventSettings {
         /// <summary>
@@ -8,6 +10,7 @@ namespace Cortside.DomainEvent {
         /// </value>
         public string Service { set; get; }
 
+        [Obsolete("Use Service instead")]
         public string AppName {
             set { Service = value; }
             get { return Service; }
@@ -29,6 +32,7 @@ namespace Cortside.DomainEvent {
         /// </value>
         public string Policy { set; get; }
 
+        [Obsolete("Use Policy instead")]
         public string PolicyName {
             set { Policy = value; }
             get { return Policy; }

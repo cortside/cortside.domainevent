@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Cortside.DomainEvent.Health;
 using Cortside.Health;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +9,7 @@ using Xunit;
 namespace Cortside.DomainEvent.Tests {
     public class ServiceCollectionExtensionsTest {
         [Fact]
-        public void AddDomainEventReceiver() {
+        public void AddDomainEventReceiverLegacy() {
             // Arrange
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(
@@ -23,10 +23,39 @@ namespace Cortside.DomainEvent.Tests {
                         ["ServiceBus:Topic"] = "localhost",
                         ["ReceiverHostedService:Enabled"] = "true",
                         ["ReceiverHostedService:TimedInterval"] = "60",
-                        ["Build:Version"] = "1.0.0.0",
-                        ["Build:Timestamp"] = "2024-08-30 15:01:19Z",
-                        ["Build:Tag"] = "",
-                        ["Build:Suffix"] = "",
+                    })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+
+            // Act
+            services.AddDomainEventReceiver(o => {
+                o.UseConfiguration(configuration);
+                o.AddHandler<TestEvent, TestEventHandler>();
+            });
+            var serviceProvider = services.BuildServiceProvider();
+            var receiver = serviceProvider.GetService<IDomainEventReceiver>();
+
+            // Assert
+            Assert.NotNull(receiver);
+        }
+
+        [Fact]
+        public void AddDomainEventReceiver() {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string> {
+                        ["Service:Name"] = "test-api",
+                        ["DomainEvent:Connections:0:Protocol"] = "amqp",
+                        ["DomainEvent:Connections:0:Server"] = "localhost",
+                        ["DomainEvent:Connections:0:Username"] = "localhost",
+                        ["DomainEvent:Connections:0:Password"] = "localhost",
+                        ["DomainEvent:Connections:0:Queue"] = "localhost",
+                        ["DomainEvent:Connections:0:Topic"] = "localhost",
+                        ["DomainEvent:Connections:0:ReceiverHostedService:Enabled"] = "true",
+                        ["DomainEvent:Connections:0:ReceiverHostedService:TimedInterval"] = "60",
                     })
                 .Build();
 
@@ -145,6 +174,62 @@ namespace Cortside.DomainEvent.Tests {
 
             // Assert
             Assert.NotNull(receiver);
+        }
+
+        [Fact]
+        public void ShouldAddDomainEventPublisherLegacy() {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string> {
+                        ["Service:Name"] = "test-api",
+                        ["ServiceBus:Protocol"] = "amqp",
+                        ["ServiceBus:Namespace"] = "localhost",
+                        ["ServiceBus:Policy"] = "localhost",
+                        ["ServiceBus:Key"] = "localhost",
+                        ["ServiceBus:Queue"] = "localhost",
+                        ["ServiceBus:Topic"] = "localhost",
+                    })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+
+            // Act
+            services.AddDomainEventPublisher(configuration);
+            var serviceProvider = services.BuildServiceProvider();
+            var publisher = serviceProvider.GetService<IDomainEventPublisher>();
+
+            // Assert
+            Assert.NotNull(publisher);
+        }
+
+        [Fact]
+        public void ShouldAddDomainEventPublisher() {
+            // Arrange
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string> {
+                        ["DomainEvent:Connections:0:Key"] = "test-api",
+                        ["DomainEvent:Connections:0:Protocol"] = "amqp",
+                        ["DomainEvent:Connections:0:Server"] = "localhost",
+                        ["DomainEvent:Connections:0:Username"] = "localhost",
+                        ["DomainEvent:Connections:0:Password"] = "localhost",
+                        ["DomainEvent:Connections:0:Queue"] = "localhost",
+                        ["DomainEvent:Connections:0:Topic"] = "localhost",
+                    })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+
+            // Act
+            services.AddDomainEventPublisher(configuration);
+            var serviceProvider = services.BuildServiceProvider();
+            var publisher = serviceProvider.GetService<IDomainEventPublisher>();
+
+            // Assert
+            Assert.NotNull(publisher);
         }
 
         [Fact]

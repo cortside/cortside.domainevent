@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cortside.Common.Validation;
 using Cortside.DomainEvent.Handlers;
@@ -111,10 +111,9 @@ namespace Cortside.DomainEvent {
                 var index = optionsList.IndexOf(options);
                 options.HostedServiceSettings = configuration.GetSection($"DomainEvent:Connections:{index}:ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
                 options.ReceiverSettings = configuration.GetSection($"DomainEvent:Connections:{index}").Get<KeyedDomainEventReceiverSettings>();
+
                 Guard.From.NullOrWhitespace(options.ReceiverSettings.Key, nameof(options.ReceiverSettings.Key));
-                // tech debt
                 options.ReceiverSettings.Service = configuration[$"DomainEvent:Connections:{index}:Key"];
-                options.ReceiverSettings.AppName = configuration[$"DomainEvent:Connections:{index}:Key"];
 
                 services = services.AddKeyedDomainEventReceiver(options);
             }
@@ -124,22 +123,57 @@ namespace Cortside.DomainEvent {
 
         /// <summary>
         /// Registers an outbox publisher with T DbContext class.  Relies on the following settings settings:
-        ///     ServiceBus
+        ///     DomainEvent
         ///     Service
+        ///
+        /// to be obsoleted:
+        ///     ServiceBus
         /// </summary>
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
         public static IServiceCollection AddDomainEventPublisher(this IServiceCollection services, IConfiguration configuration) {
-            var settings = configuration.GetSection("ServiceBus").Get<DomainEventPublisherSettings>();
-            if (string.IsNullOrWhiteSpace(settings.Service)) {
-                settings.AppName = configuration["Service:Name"];
+            if (configuration.GetSection("DomainEvent:Connections").Exists()) {
+                var connections = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventPublisherSettings>>();
+
+                if (connections.Count == 0) {
+                    throw new InvalidOperationException("No connections found in configuration");
+                }
+                if (connections.Count > 1) {
+                    // TODO: better state X
+                    throw new InvalidOperationException("Multiple connections not supported for this extension method, please use X instead");
+                }
+
+                var connection = connections[0];
+                var settings = new DomainEventPublisherSettings() {
+                    Protocol = connection.Protocol,
+                    Namespace = connection.Server,
+                    Policy = connection.Username,
+                    Key = connection.Password,
+                    Topic = connection.Topic,
+                    Service = connection.Service,
+                    Credits = connection.Credits,
+                    Durable = connection.Durable
+                };
+                if (string.IsNullOrWhiteSpace(settings.Service)) {
+                    settings.Service = configuration["Service:Name"];
+                }
+
+                services.AddSingleton(settings);
+
+                // Register publisher
+                services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
+            } else {
+                var settings = configuration.GetSection("ServiceBus").Get<DomainEventPublisherSettings>();
+                if (string.IsNullOrWhiteSpace(settings.Service)) {
+                    settings.Service = configuration["Service:Name"];
+                }
+
+                services.AddSingleton(settings);
+
+                // Register publisher
+                services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
             }
-
-            services.AddSingleton(settings);
-
-            // Register publisher
-            services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
 
             return services;
         }
