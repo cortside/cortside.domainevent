@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cortside.Common.Validation;
 using Cortside.DomainEvent.Handlers;
@@ -26,7 +26,6 @@ namespace Cortside.DomainEvent {
             ReceiverSettings = configuration.GetSection($"DomainEvent:Connections:{arrayIndex}").Get<KeyedDomainEventReceiverSettings>();
             Guard.From.Null(ReceiverSettings, nameof(ReceiverSettings));
             if (string.IsNullOrWhiteSpace(ReceiverSettings.Service)) {
-                ReceiverSettings.AppName = configuration[$"DomainEvent:Connections:{arrayIndex}:Key"];
                 ReceiverSettings.Service = configuration[$"DomainEvent:Connections:{arrayIndex}:Key"];
             }
             HostedServiceSettings = configuration.GetSection($"DomainEvent:Connections:{arrayIndex}:ReceiverHostedService").Get<ReceiverHostedServiceSettings>();

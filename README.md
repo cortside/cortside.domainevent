@@ -139,3 +139,5 @@ for release notes
     ]
 },
 ```
+
+- use docs/update-legacyappsettings.ps1 to convert from lagacy to new style

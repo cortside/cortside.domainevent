@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Hosting;
@@ -18,17 +18,52 @@ namespace Cortside.DomainEvent {
 
         /// <summary>
         /// Uses configuration for initial values.  Relies on the following options settings:
+        ///     DomainEvent
+        ///     Service
+        ///
+        /// Or to be obsoleted:
         ///     ReceiverHostedService
         ///     ServiceBus
-        ///     Service
         /// </summary>
         /// <param name="configuration"></param>
         public void UseConfiguration(IConfiguration configuration) {
-            ReceiverSettings = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
-            if (string.IsNullOrWhiteSpace(ReceiverSettings.Service)) {
-                ReceiverSettings.AppName = configuration["Service:Name"];
+            if (configuration.GetSection("DomainEvent:Connections").Exists()) {
+                var connections = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventReceiverSettings>>();
+
+                if (connections.Count == 0) {
+                    throw new InvalidOperationException("No connections found in configuration");
+                }
+                if (connections.Count > 1) {
+                    // TODO: better state X
+                    throw new InvalidOperationException("Multiple connections not supported for this extension method, please use X instead");
+                }
+
+                var connection = connections[0];
+                ReceiverSettings = new DomainEventReceiverSettings() {
+                    Protocol = connection.Protocol,
+                    Namespace = connection.Server,
+                    Policy = connection.Username,
+                    Key = connection.Password,
+                    Queue = connection.Queue,
+                    Service = connection.Service,
+                    Credits = connection.Credits,
+                    Durable = connection.Durable,
+                    UndefinedTypeName = connection.UndefinedTypeName
+                };
+                if (string.IsNullOrWhiteSpace(ReceiverSettings.Service)) {
+                    ReceiverSettings.Service = configuration["Service:Name"];
+                }
+
+                HostedServiceSettings = configuration.GetSection("DomainEvent:Connections:0:ReceiverHostedService")
+                    .Get<ReceiverHostedServiceSettings>();
+            } else {
+                ReceiverSettings = configuration.GetSection("ServiceBus").Get<DomainEventReceiverSettings>();
+                if (string.IsNullOrWhiteSpace(ReceiverSettings.Service)) {
+                    ReceiverSettings.Service = configuration["Service:Name"];
+                }
+
+                HostedServiceSettings = configuration.GetSection("ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
             }
-            HostedServiceSettings = configuration.GetSection("ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace Cortside.DomainEvent {
+namespace Cortside.DomainEvent {
     public class KeyedDomainEventReceiverSettings : DomainEventReceiverSettings {
         public string Key { get; set; }
         public string Server { get; set; }

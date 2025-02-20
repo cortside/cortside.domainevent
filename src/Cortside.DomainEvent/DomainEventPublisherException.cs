@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Cortside.DomainEvent {
     public class DomainEventPublisherException : Exception {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using Cortside.Common.Validation;
 using Cortside.DomainEvent.EntityFramework.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,27 @@ namespace Cortside.DomainEvent.EntityFramework {
             services.AddScoped<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<T>>();
 
             // outbox hosted service
-            var outboxConfiguration = configuration.GetSection("OutboxHostedService").Get<OutboxHostedServiceConfiguration>();
-            services.AddSingleton(outboxConfiguration);
             services.AddHostedService<OutboxHostedService<T>>();
+
+
+            // outbox hosted service configuration
+            if (configuration.GetSection("DomainEvent:Connections").Exists()) {
+                var connections = configuration.GetSection("DomainEvent:Connections").Get<IList<KeyedDomainEventPublisherSettings>>();
+
+                if (connections.Count == 0) {
+                    throw new InvalidOperationException("No connections found in configuration");
+                }
+                if (connections.Count > 1) {
+                    // TODO: better state X
+                    throw new InvalidOperationException("Multiple connections not supported for this extension method, please use X instead");
+                }
+
+                var outboxConfiguration = configuration.GetSection("DomainEvent:Connections:0:OutboxHostedService").Get<OutboxHostedServiceConfiguration>();
+                services.AddSingleton(outboxConfiguration);
+            } else {
+                var outboxConfiguration = configuration.GetSection("OutboxHostedService").Get<OutboxHostedServiceConfiguration>();
+                services.AddSingleton(outboxConfiguration);
+            }
 
             return services;
         }

@@ -13,13 +13,13 @@ using Moq;
 using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
-    public class OutboxHostedReceiverTest {
+    public class OutboxHostedServiceTest {
         private readonly ServiceCollection services;
         private readonly Mock<IDomainEventPublisher> publisher;
         private readonly Outbox outbox;
         private readonly EntityContext context;
 
-        public OutboxHostedReceiverTest() {
+        public OutboxHostedServiceTest() {
             services = new ServiceCollection();
             services.AddLogging();
             services.AddHostedService<OutboxHostedService<EntityContext>>();

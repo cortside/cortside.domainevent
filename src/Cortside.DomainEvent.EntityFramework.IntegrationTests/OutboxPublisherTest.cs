@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Database;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Events;
-using FluentAssertions;
+using Shouldly;
 using FluentAssertions.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -172,7 +172,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             // assert
             var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
-            messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate, 5.Seconds());
+            messages[0].ScheduledDate.ShouldBe(scheduleDate, 5.Seconds());
         }
 
         [Fact]
@@ -192,7 +192,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
-            messages[0].ScheduledDate.Should().BeCloseTo(scheduleDate, 5.Seconds());
+            messages[0].ScheduledDate.ShouldBe(scheduleDate, 5.Seconds());
         }
 
         [Fact]

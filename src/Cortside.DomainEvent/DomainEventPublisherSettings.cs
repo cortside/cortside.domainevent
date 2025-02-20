@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 
 namespace Cortside.DomainEvent {
@@ -18,6 +19,7 @@ namespace Cortside.DomainEvent {
         /// </remarks>
         public string Topic { get; set; }
 
+        [Obsolete("Use Topic instead")]
         public string Exchange {
             set { Topic = value; }
             get => Topic;
