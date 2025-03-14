@@ -1,3 +1,52 @@
+# Release 8.0
+
+|Commit|Date|Author|Message|
+|---|---|---|---|
+| 207aeff | <span style="white-space:nowrap;">2024-08-29</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
+| 205b0e2 | <span style="white-space:nowrap;">2024-09-09</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 6d3186e | <span style="white-space:nowrap;">2024-10-21</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 32fd5d6 | <span style="white-space:nowrap;">2024-11-05</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add domainevent healthcheck with global statistics
+| caec68b | <span style="white-space:nowrap;">2024-11-05</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (origin/healthcheck, healthcheck) add outbox queued stats
+| 3dbea9e | <span style="white-space:nowrap;">2024-11-05</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #48 from cortside/healthcheck
+| 1c867b2 | <span style="white-space:nowrap;">2024-12-20</span> | <span style="white-space:nowrap;">Erik</span> |  add config and index
+| 5ebd5a9 | <span style="white-space:nowrap;">2024-12-23</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #49 from cortside/feature/outbox-retry-interval-config
+| c0b6a30 | <span style="white-space:nowrap;">2024-12-23</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update nuget key
+| 7091ecc | <span style="white-space:nowrap;">2024-12-23</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  [readme] updates to documentation
+| 6b37ca0 | <span style="white-space:nowrap;">2024-12-27</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  [readme] a little more refinement of documentation, including breaking things up contextually by project
+| efba137 | <span style="white-space:nowrap;">2024-12-30</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #50 from cortside/readme
+| 019a372 | <span style="white-space:nowrap;">2024-12-30</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (origin/readme, readme) add badges to README.md
+| 0cf6c2f | <span style="white-space:nowrap;">2024-12-30</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'readme' into develop
+| eaa9714 | <span style="white-space:nowrap;">2024-12-30</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add documentation for health check
+| 9c5e299 | <span style="white-space:nowrap;">2025-01-07</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update nuget packages; add additional logging in outbox host
+| d78b9a7 | <span style="white-space:nowrap;">2025-01-07</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update nuget packages; add additional logging in outbox host
+| 9f8a50b | <span style="white-space:nowrap;">2025-02-06</span> | <span style="white-space:nowrap;">=</span> |  bump to net8 only
+| 1d8e8e7 | <span style="white-space:nowrap;">2025-02-06</span> | <span style="white-space:nowrap;">=</span> |  update asserts
+| 587a88f | <span style="white-space:nowrap;">2025-02-07</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update to lastest cortside.common
+| d9888a6 | <span style="white-space:nowrap;">2025-02-07</span> | <span style="white-space:nowrap;">=</span> |  keyed receivers
+| 20ad16f | <span style="white-space:nowrap;">2025-02-07</span> | <span style="white-space:nowrap;">=</span> |  clean up
+| be4ccc7 | <span style="white-space:nowrap;">2025-02-11</span> | <span style="white-space:nowrap;">=</span> |  keyed publisher & outboxpublisher
+| 2a9ebaf | <span style="white-space:nowrap;">2025-02-11</span> | <span style="white-space:nowrap;">=</span> |  fix key syntax
+| 49249cc | <span style="white-space:nowrap;">2025-02-11</span> | <span style="white-space:nowrap;">=</span> |  update common to latest; rollback LogEventLogger changes
+| 72a3573 | <span style="white-space:nowrap;">2025-02-12</span> | <span style="white-space:nowrap;">=</span> |  logging, receiver fix, stub extension
+| 7e84fde | <span style="white-space:nowrap;">2025-02-12</span> | <span style="white-space:nowrap;">=</span> |  Merge remote-tracking branch 'remotes/origin/develop' into feature/multiple
+| 39f5718 | <span style="white-space:nowrap;">2025-02-12</span> | <span style="white-space:nowrap;">=</span> |  add tests
+| ce1d518 | <span style="white-space:nowrap;">2025-02-12</span> | <span style="white-space:nowrap;">=</span> |  coverlet tweaks
+| 57d85a5 | <span style="white-space:nowrap;">2025-02-13</span> | <span style="white-space:nowrap;">=</span> |  don't use source link
+| e6648ae | <span style="white-space:nowrap;">2025-02-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update to net8
+| 88f7860 | <span style="white-space:nowrap;">2025-02-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  merge from develop
+| fb46efa | <span style="white-space:nowrap;">2025-02-14</span> | <span style="white-space:nowrap;">=</span> |  fix keysql
+| f395293 | <span style="white-space:nowrap;">2025-02-18</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (origin/feature/multiple, feature/multiple) add addition todo comments for things noticed durring review
+| e91937e | <span style="white-space:nowrap;">2025-02-18</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #51 from cortside/feature/multiple
+| 0e18f10 | <span style="white-space:nowrap;">2025-02-18</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add release todo notes
+| 84bc8ee | <span style="white-space:nowrap;">2025-02-18</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add to existing single connection registration to look in new DomainEvent section for configuration
+| 0ec9a7e | <span style="white-space:nowrap;">2025-02-18</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  add to existing single connection registration to look in new DomainEvent section for configuration
+| 7bba28f | <span style="white-space:nowrap;">2025-02-19</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (origin/singleconnection, singleconnection) Use Shouldly instead of FluentAssertions because of new licensing
+| d5df002 | <span style="white-space:nowrap;">2025-02-20</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #52 from cortside/singleconnection
+| 54b922e | <span style="white-space:nowrap;">2025-03-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Use Shouldly instead of FluentAssertions because of new licensing; update nuget packages;
+| 7a64396 | <span style="white-space:nowrap;">2025-03-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update packages
+| 5797e3f | <span style="white-space:nowrap;">2025-03-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/8.0, origin/develop, origin/HEAD, develop) merge from master
+****
+
 # Release 6.3
 
 ## Breaking changes
