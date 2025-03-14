@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Database;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Events;
-using Shouldly;
-using FluentAssertions.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Shouldly;
 using Xunit;
 
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
@@ -172,7 +171,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             // assert
             var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
-            messages[0].ScheduledDate.ShouldBe(scheduleDate, 5.Seconds());
+            messages[0].ScheduledDate.ShouldBe(scheduleDate, TimeSpan.FromSeconds(5));
         }
 
         [Fact]
@@ -192,7 +191,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             var messages = await db.Set<Outbox>().ToListAsync();
             Assert.Single(messages);
             Assert.Equal(correlationId, messages[0].CorrelationId);
-            messages[0].ScheduledDate.ShouldBe(scheduleDate, 5.Seconds());
+            messages[0].ScheduledDate.ShouldBe(scheduleDate, TimeSpan.FromSeconds(5));
         }
 
         [Fact]
