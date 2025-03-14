@@ -70,8 +70,10 @@ if (@rows > 0)
             // TODO: this seems like it should be logged higher up and probably by the publisher itself, or at least in addition to here
             using (logger.PushProperty("Key", Key))
             using (var scope = serviceProvider.CreateScope()) {
+                logger.LogTrace("Getting DbContext instance");
                 var db = scope.ServiceProvider.GetService<T>();
                 var isRelational = !db.Database.ProviderName.Contains("InMemory");
+                logger.LogTrace($"Obtained DbContext with provider {db.Database.ProviderName} with isRational = {isRelational}");
 
                 logger.LogDebug("Obtained DbContext with provider {ProviderName}, IsRelational = {IsRelational}", db.Database.ProviderName, isRelational);
 
@@ -112,7 +114,9 @@ if (@rows > 0)
                             MessageId = message.MessageId
                         };
 
+                        logger.LogTrace("Getting IDomainEventPublisher instance");
                         var publisher = (!string.IsNullOrWhiteSpace(Key)) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
+                        logger.LogTrace($"Obtained IDomainEventPublisher instance with type of {publisher.GetType().Name}");
 
                         try {
                             await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
@@ -120,7 +124,9 @@ if (@rows > 0)
                             message.PublishedDate = DateTime.UtcNow;
                             message.LockId = null;
 
+                            logger.LogTrace("Saving changes for message {message.MessageId}");
                             await db.SaveChangesAsync().ConfigureAwait(false);
+                            logger.LogTrace("Saved changes for message {message.MessageId}");
                         } catch (Exception ex) {
                             // set message back to original locked state -- just in case the exception is from ef
                             db.Entry(message).State = EntityState.Unchanged;
@@ -137,6 +143,7 @@ if (@rows > 0)
 
                 if (config.PurgePublished) {
                     try {
+                        logger.LogTrace($"Purging published messages with batch size of {config.BatchSize}");
                         if (isRelational) {
                             // TODO: keyed? probably
                             var query = $"DELETE TOP ({config.BatchSize}) FROM Outbox Where Status = '{OutboxStatus.Published}'";
@@ -145,6 +152,7 @@ if (@rows > 0)
                             db.RemoveRange(db.Set<Outbox>().Where(o => o.Status == OutboxStatus.Published).Take(config.BatchSize));
                             await db.SaveChangesAsync().ConfigureAwait(false);
                         }
+                        logger.LogTrace($"Purged published messages with batch size of {config.BatchSize}");
                     } catch (Exception ex) {
                         logger.LogError(ex, "Exception attempting to purge published from outbox");
                     }
