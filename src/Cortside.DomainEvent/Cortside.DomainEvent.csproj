@@ -17,8 +17,8 @@
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.4.11" />
     <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.11" />
-    <PackageReference Include="Cortside.Common.Correlation" Version="8.0.473-develop" />
-    <PackageReference Include="Cortside.Common.Validation" Version="8.0.473-develop" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="8.0.476-8.0" />
+    <PackageReference Include="Cortside.Common.Validation" Version="8.0.476-8.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
