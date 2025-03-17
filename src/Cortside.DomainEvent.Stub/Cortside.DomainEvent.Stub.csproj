@@ -15,8 +15,8 @@
     <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Cortside.Common.Threading" Version="8.0.476-8.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2">
+    <PackageReference Include="Cortside.Common.Threading" Version="8.0.478" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.61">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
