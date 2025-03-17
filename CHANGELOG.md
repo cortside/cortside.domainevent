@@ -1,5 +1,18 @@
 # Release 8.0
 
+* Updated powershell scripts to latest versions from coeus/shoppingcart-api
+* Standardized library build files and resolved code coverage issues
+* Update target framework to net8.0
+* Update all dependency nuget packages
+* Add/Fix build badges
+* Transition to use Shouldly instead of FluentAssertions
+* Add DomainEventCheck as new health check that can report broker errors as well as domain event statistics, with README documentation
+* Add configuration for PublishRetryInterval instead of hard coded 60s value
+* Add new index on status and last modified to outbox (will require migration)
+* Updates to documentation to make configuration more understandable.  Separate Azure Service Bus from RabbitMQ documentation
+* Add support for keyed configuration of receivers and publishers for the benefit of being able to have multiple, i.e. being able to receive from 2 different queues with differing broker configuration
+* Add update-legacyappsettings.ps1 script (in docs folder) to migrate configuration in appsettings.json to new style, old style will be deprecated in future
+
 |Commit|Date|Author|Message|
 |---|---|---|---|
 | 207aeff | <span style="white-space:nowrap;">2024-08-29</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
