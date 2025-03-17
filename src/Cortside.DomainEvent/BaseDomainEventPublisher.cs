@@ -16,6 +16,13 @@ namespace Cortside.DomainEvent {
         protected BaseDomainEventPublisher(DomainEventPublisherSettings settings, ILogger logger) {
             Settings = settings;
             Logger = logger;
+            ConnectionString = settings.ConnectionString;
+        }
+
+        protected BaseDomainEventPublisher(KeyedDomainEventPublisherSettings settings, ILogger logger) {
+            Settings = settings;
+            Logger = logger;
+            ConnectionString = settings.ConnectionString;
         }
 
         public DomainEventError Error { get; set; }
@@ -23,6 +30,7 @@ namespace Cortside.DomainEvent {
         protected DomainEventPublisherSettings Settings { get; }
 
         protected ILogger Logger { get; }
+        protected string ConnectionString { get; }
 
         public Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();

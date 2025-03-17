@@ -13,6 +13,7 @@ namespace Cortside.DomainEvent.Hosting {
         private readonly ILogger logger;
         private readonly IServiceProvider services;
         private readonly ReceiverHostedServiceSettings settings;
+        private readonly string serviceKey = "";
         private IDomainEventReceiver receiver;
 
         /// <summary>
@@ -24,8 +25,16 @@ namespace Cortside.DomainEvent.Hosting {
             this.settings = settings;
         }
 
+        public ReceiverHostedService(ILogger<ReceiverHostedService> logger, IServiceProvider services, ReceiverHostedServiceSettings settings, KeyedDomainEventReceiverSettings receiverSettings) {
+            this.logger = logger;
+            this.services = services;
+            this.settings = settings;
+            this.serviceKey = receiverSettings.Key;
+            this.receiver = services.GetKeyedService<IDomainEventReceiver>(receiverSettings.Key);
+        }
+
         public override Task StartAsync(CancellationToken cancellationToken) {
-            logger.LogInformation("ReceiverHostedService StartAsync() entered.");
+            logger.LogInformation("{ServiceKey} ReceiverHostedService StartAsync() entered.", serviceKey);
             return base.StartAsync(cancellationToken);
         }
 
@@ -40,20 +49,20 @@ namespace Cortside.DomainEvent.Hosting {
             await Task.Yield();
 
             if (!settings.Enabled) {
-                logger.LogInformation("ReceiverHostedService is not enabled");
+                logger.LogInformation("{ServiceKey} ReceiverHostedService is not enabled", serviceKey);
             } else if (settings.MessageTypes == null) {
-                logger.LogError("Configuration error:  No event types have been configured for the receiverhostedeservice");
+                logger.LogError("Configuration error:  No event types have been configured for the {ServiceKey} receiverhostedeservice", serviceKey);
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
                     if (receiver == null || receiver.Link?.IsClosed != false) {
                         DisposeReceiver();
-                        receiver = services.GetService<IDomainEventReceiver>();
-                        logger.LogInformation("Starting receiver...");
+                        receiver ??= services.GetService<IDomainEventReceiver>();
+                        logger.LogInformation("Starting receiver... {ServiceKey}", serviceKey);
                         try {
                             receiver.StartAndListen(settings.MessageTypes);
-                            logger.LogInformation("Receiver started");
+                            logger.LogInformation("{ServiceKey} Receiver started", serviceKey);
                         } catch (Exception e) {
-                            logger.LogCritical(e, $"Unable to start receiver. \n {e}");
+                            logger.LogCritical(e, "Unable to start receiver {ServiceKey}. \n {E}", serviceKey, e);
                         }
                         receiver.Closed += OnReceiverClosed;
                     }
@@ -66,16 +75,16 @@ namespace Cortside.DomainEvent.Hosting {
         /// Interface method to stop service
         /// </summary>
         public override Task StopAsync(CancellationToken cancellationToken) {
-            logger.LogInformation("Receiver Hosted Service is stopping.");
+            logger.LogInformation("{ServiceKey} Receiver Hosted Service is stopping.", serviceKey);
             DisposeReceiver();
             return Task.CompletedTask;
         }
 
         private void OnReceiverClosed(IDomainEventReceiver receiver, DomainEventError error) {
             if (error == null) {
-                logger.LogError("Handling OnReceiverClosed event with no error information");
+                logger.LogError("{ServiceKey} Handling OnReceiverClosed event with no error information", serviceKey);
             } else {
-                logger.LogError($"Handling OnReceiverClosed event with error: {error.Condition} - {error.Description}");
+                logger.LogError("{ServiceKey} Handling OnReceiverClosed event with error: {Condition} - {Description}", serviceKey, error.Condition, error.Description);
             }
         }
 

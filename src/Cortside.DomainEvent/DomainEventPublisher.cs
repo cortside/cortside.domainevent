@@ -19,9 +19,12 @@ namespace Cortside.DomainEvent {
             sharedSession = session;
         }
 
+        public DomainEventPublisher(KeyedDomainEventPublisherSettings settings, ILogger<DomainEventPublisher> logger) : base(settings, logger) {
+        }
+
         public void Connect() {
             if (conn == null) {
-                conn = new Connection(new Address(Settings.ConnectionString));
+                conn = new Connection(new Address(ConnectionString));
             }
         }
 
@@ -60,8 +63,10 @@ namespace Cortside.DomainEvent {
 
                 try {
                     await sender.SendAsync(message).ConfigureAwait(false);
+                    Statistics.Instance.Publish();
                     Logger.LogInformation($"Published message {message.Properties.MessageId}");
                 } catch (Exception ex) {
+                    Statistics.Instance.Publish(false);
                     Logger.LogError(ex, $"Error publishing message {message.Properties.MessageId}");
                     Error = new DomainEventError {
                         Condition = "Publish",

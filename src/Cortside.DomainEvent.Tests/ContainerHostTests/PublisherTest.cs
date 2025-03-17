@@ -4,12 +4,11 @@ using System.Threading.Tasks;
 using Amqp;
 using Amqp.Types;
 using Cortside.DomainEvent.Tests.Utilities;
-using FluentAssertions;
-using FluentAssertions.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Shouldly;
 using Xunit;
 
 namespace Cortside.DomainEvent.Tests.ContainerHostTests {
@@ -197,7 +196,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(@event.IntValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).IntValue);
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
             Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
-            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).ShouldBe(scheduleDate, TimeSpan.FromSeconds(5));
         }
 
         [Fact]
@@ -224,7 +223,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
             Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
-            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).ShouldBe(scheduleDate, TimeSpan.FromSeconds(5));
         }
 
         [Fact]
@@ -253,7 +252,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(@event.GetType().FullName, message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
-            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).ShouldBe(scheduleDate, TimeSpan.FromSeconds(5));
         }
 
         [Fact]
@@ -280,7 +279,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal(@event.StringValue, JsonConvert.DeserializeObject<TestEvent>(message.GetBody<string>()).StringValue);
             Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
-            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).ShouldBe(scheduleDate, TimeSpan.FromSeconds(5));
         }
 
         [Fact]
@@ -309,7 +308,7 @@ namespace Cortside.DomainEvent.Tests.ContainerHostTests {
             Assert.Equal("foo", message.ApplicationProperties[Constants.MESSAGE_TYPE_KEY]);
             Assert.Equal(correlationId, message.Properties.CorrelationId);
             Assert.Equal(messageId, message.Properties.MessageId);
-            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).Should().BeCloseTo(scheduleDate, 5.Seconds());
+            ((DateTime)message.MessageAnnotations[new Symbol(Constants.SCHEDULED_ENQUEUE_TIME_UTC)]).ShouldBe(scheduleDate, TimeSpan.FromSeconds(5));
         }
 
         [Fact]

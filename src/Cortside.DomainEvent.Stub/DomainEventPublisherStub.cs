@@ -12,6 +12,7 @@ namespace Cortside.DomainEvent.Stub {
 
         protected override Task SendAsync(Message message, EventProperties properties) {
             queue.Enqueue(message);
+            Statistics.Instance.Publish();
             Logger.LogInformation($"Published message {message.Properties.MessageId}");
             return Task.CompletedTask;
         }

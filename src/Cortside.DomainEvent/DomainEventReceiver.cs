@@ -21,8 +21,10 @@ namespace Cortside.DomainEvent {
 
         protected ILogger<DomainEventReceiver> Logger { get; }
 
+        private readonly string connectionString;
+
         protected virtual Session CreateSession() {
-            var conn = new Connection(new Address(Settings.ConnectionString));
+            var conn = new Connection(new Address(connectionString));
             return new Session(conn);
         }
 
@@ -30,6 +32,14 @@ namespace Cortside.DomainEvent {
             Provider = provider;
             Settings = settings;
             Logger = logger;
+            connectionString = settings.ConnectionString;
+        }
+
+        public DomainEventReceiver(KeyedDomainEventReceiverSettings settings, IServiceProvider provider, ILogger<DomainEventReceiver> logger) {
+            Provider = provider;
+            Settings = settings;
+            Logger = logger;
+            connectionString = settings.ConnectionString;
         }
 
         public void Start(IDictionary<string, Type> eventTypeLookup) {
@@ -93,10 +103,13 @@ namespace Cortside.DomainEvent {
                 return null;
             }
 
+            Statistics.Instance.Receive();
+
             var messageTypeName = GetMessageTypeName(message);
             if (!EventTypeLookup.ContainsKey(messageTypeName)) {
                 Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
                 Link.Reject(message);
+                Statistics.Instance.Reject();
                 return null;
             }
 
@@ -110,6 +123,7 @@ namespace Cortside.DomainEvent {
             } catch (Exception ex) {
                 Logger.LogError(ex, ex.Message);
                 Link.Reject(message);
+                Statistics.Instance.Reject();
                 return null;
             }
 
@@ -117,6 +131,8 @@ namespace Cortside.DomainEvent {
         }
 
         protected async Task OnMessageCallbackAsync(IReceiverLink receiver, Message message) {
+            Statistics.Instance.Receive();
+
             var messageTypeName = GetMessageTypeName(message);
             var properties = new Dictionary<string, object> {
                 ["CorrelationId"] = message.Properties.CorrelationId,
@@ -143,6 +159,7 @@ namespace Cortside.DomainEvent {
                     if (!EventTypeLookup.ContainsKey(messageTypeName)) {
                         Logger.LogError($"Message {message.Properties.MessageId} rejected because message type was not registered for type {messageTypeName}");
                         receiver.Reject(message);
+                        Statistics.Instance.Reject();
                         return;
                     }
 
@@ -154,6 +171,7 @@ namespace Cortside.DomainEvent {
                     if (handler == null) {
                         Logger.LogError($"Message {message.Properties.MessageId} rejected because handler was not found for type {messageTypeName}");
                         receiver.Reject(message);
+                        Statistics.Instance.Reject();
                         return;
                     }
                     Logger.LogDebug($"Event type handler: {handler.GetType()}");
@@ -165,6 +183,7 @@ namespace Cortside.DomainEvent {
                     } catch (Exception ex) {
                         Logger.LogError(ex, ex.Message);
                         receiver.Reject(message);
+                        Statistics.Instance.Reject();
                         return;
                     }
 
@@ -190,6 +209,7 @@ namespace Cortside.DomainEvent {
                         switch (result) {
                             case HandlerResult.Success:
                                 receiver.Accept(message);
+                                Statistics.Instance.Accept();
                                 Logger.LogInformation($"Message {message.Properties.MessageId} accepted");
                                 break;
 
@@ -199,12 +219,15 @@ namespace Cortside.DomainEvent {
                                 // https://github.com/cortside/cortside.domainevent/issues/21
                                 Logger.LogInformation($"Message {message.Properties.MessageId} being failed instead of expected retry.  See issue https://github.com/cortside/cortside.domainevent/issues/21");
                                 receiver.Reject(message);
+                                Statistics.Instance.Reject();
                                 break;
                             case HandlerResult.Failed:
                                 receiver.Reject(message);
+                                Statistics.Instance.Reject();
                                 break;
                             case HandlerResult.Release:
                                 receiver.Release(message);
+                                Statistics.Instance.Release();
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException($"Unknown HandlerResult value of {result}");
@@ -221,6 +244,7 @@ namespace Cortside.DomainEvent {
                     using (Logger.BeginScope(dp)) {
                         Logger.LogError(ex, $"Message {message.Properties.MessageId} rejected because of unhandled exception {ex.Message}");
                         receiver.Reject(message);
+                        Statistics.Instance.Reject();
                     }
                 }
             }

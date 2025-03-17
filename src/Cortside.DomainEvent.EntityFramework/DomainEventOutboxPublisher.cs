@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 namespace Cortside.DomainEvent.EntityFramework {
     public class DomainEventOutboxPublisher<TDbContext> : IDomainEventOutboxPublisher where TDbContext : DbContext {
         protected DomainEventPublisherSettings Settings { get; }
+        protected string Key { get; }
 
         private readonly TDbContext context;
 
@@ -17,6 +18,13 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         public DomainEventOutboxPublisher(DomainEventPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
             Settings = settings;
+            this.context = context;
+            Logger = logger;
+        }
+
+        public DomainEventOutboxPublisher(KeyedDomainEventPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
+            Settings = settings;
+            Key = settings.Key;
             this.context = context;
             Logger = logger;
         }
@@ -92,8 +100,12 @@ namespace Cortside.DomainEvent.EntityFramework {
                 Body = body,
                 CreatedDate = date,
                 ScheduledDate = scheduledEnqueueTimeUtc ?? date,
-                Status = OutboxStatus.Queued
+                Status = OutboxStatus.Queued,
+                Key = Key
             }).ConfigureAwait(false);
+
+            // this statistic is not aware of transactions and will be off if the transaction is rolled back
+            Statistics.Instance.Queue();
         }
     }
 }
