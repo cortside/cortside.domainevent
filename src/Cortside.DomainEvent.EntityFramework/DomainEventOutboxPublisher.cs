@@ -1,8 +1,10 @@
 #pragma warning disable CS0067
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Cortside.Common.Validation;
+using Cortside.DomainEvent.EntityFramework.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -11,22 +13,24 @@ namespace Cortside.DomainEvent.EntityFramework {
     public class DomainEventOutboxPublisher<TDbContext> : IDomainEventOutboxPublisher where TDbContext : DbContext {
         protected DomainEventPublisherSettings Settings { get; }
         protected string Key { get; }
-
         private readonly TDbContext context;
+        private readonly OutboxHostedServiceConfiguration outboxHostedServiceConfiguration;
 
         protected ILogger<DomainEventOutboxPublisher<TDbContext>> Logger { get; }
 
-        public DomainEventOutboxPublisher(DomainEventPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
+        public DomainEventOutboxPublisher(DomainEventPublisherSettings settings, OutboxHostedServiceConfiguration outboxHostedServiceConfiguration, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
             Settings = settings;
             this.context = context;
             Logger = logger;
+            this.outboxHostedServiceConfiguration = outboxHostedServiceConfiguration;
         }
 
-        public DomainEventOutboxPublisher(KeyedDomainEventPublisherSettings settings, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
+        public DomainEventOutboxPublisher(KeyedDomainEventPublisherSettings settings, OutboxHostedServiceConfiguration outboxHostedServiceConfiguration, TDbContext context, ILogger<DomainEventOutboxPublisher<TDbContext>> logger) {
             Settings = settings;
             Key = settings.Key;
             this.context = context;
             Logger = logger;
+            this.outboxHostedServiceConfiguration = outboxHostedServiceConfiguration;
         }
 
         public DomainEventError Error { get; set; }
@@ -101,7 +105,8 @@ namespace Cortside.DomainEvent.EntityFramework {
                 CreatedDate = date,
                 ScheduledDate = scheduledEnqueueTimeUtc ?? date,
                 Status = OutboxStatus.Queued,
-                Key = Key
+                Key = Key,
+                RemainingAttempts = outboxHostedServiceConfiguration.Overrides?.FirstOrDefault(x => x.EventType == properties.EventType)?.MaximumPublishCount ?? outboxHostedServiceConfiguration.MaximumPublishCount
             }).ConfigureAwait(false);
 
             // this statistic is not aware of transactions and will be off if the transaction is rolled back

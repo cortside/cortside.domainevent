@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Cortside.Common.Correlation;
 using Cortside.Common.Hosting;
 using Cortside.Common.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using UUIDNext;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
     public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
@@ -37,7 +37,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
             await Task.Yield();
             var keySql = (!string.IsNullOrWhiteSpace(Key)) ? $" and [Key]='{Key}' " : "";
 
-            var lockId = CorrelationContext.GetCorrelationId();
+            var lockId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var sql = $@"
 declare @rows int
 select @rows = count(*) from Outbox with (nolock) where ((LockId is null and Status='Queued' and ScheduledDate<GETUTCDATE())
@@ -51,10 +51,11 @@ if (@rows > 0)
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 
     UPDATE Q
-    SET LockId = case when PublishCount>={config.MaximumPublishCount} then null else '{lockId}' end,
-        Status=case when PublishCount>={config.MaximumPublishCount} then 'Failed' else 'Publishing' end,
+    SET LockId = case when RemainingAttempts > 0 then null else '{lockId}' end,
+        Status=case when RemainingAttempts > 0 then 'Failed' else 'Publishing' end,
         LastModifiedDate=GETUTCDATE(),
-        PublishCount=PublishCount+case when PublishCount>={config.MaximumPublishCount} then 0 else 1 end
+        PublishCount=PublishCount+case when RemainingAttempts > 0 then 0 else 1 end,
+        RemainingAttempts=case when RemainingAttempts > 0 then RemainingAttempts-1 else 0 end
     FROM (
             select top ({config.BatchSize}) * from Outbox
             WITH (ROWLOCK, READPAST)
@@ -69,6 +70,7 @@ if (@rows > 0)
 
             // TODO: this seems like it should be logged higher up and probably by the publisher itself, or at least in addition to here
             using (logger.PushProperty("Key", Key))
+            using (logger.PushProperty("LockId", lockId))
             using (var scope = serviceProvider.CreateScope()) {
                 logger.LogTrace("Getting DbContext instance");
                 var db = scope.ServiceProvider.GetService<T>();
@@ -82,16 +84,20 @@ if (@rows > 0)
                     messageCount = await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
                 } else {
                     // intentionally does not use LastModifiedDate in getting messages with Publishing status so that tests don't have to wait for that
-                    var messages = db.Set<Outbox>().Where(o => (string.IsNullOrWhiteSpace(Key) || o.Key == Key)
-                        && ((o.LockId == null && o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow) || (o.Status == OutboxStatus.Publishing))).Take(config.BatchSize);
+                    var messages = db.Set<Outbox>()
+                        .Where(o => (string.IsNullOrWhiteSpace(Key) || o.Key == Key)
+                                    && ((o.LockId == null && o.Status == OutboxStatus.Queued && o.ScheduledDate < DateTime.UtcNow) || (o.Status == OutboxStatus.Publishing)))
+                        .Take(config.BatchSize);
+
                     foreach (var message in messages) {
-                        if (message.PublishCount >= config.MaximumPublishCount) {
+                        if (message.RemainingAttempts <= 0) {
                             message.Status = OutboxStatus.Failed;
                             message.LockId = null;
                         } else {
                             message.Status = OutboxStatus.Publishing;
                             message.LockId = lockId;
                             message.PublishCount++;
+                            message.RemainingAttempts--;
                         }
                     }
                     await db.SaveChangesAsync().ConfigureAwait(false);
