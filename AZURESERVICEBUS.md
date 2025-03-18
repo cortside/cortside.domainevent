@@ -20,35 +20,33 @@
 Azure Service Bus
 
 ```json
-"ServiceBus": {
-    "Service": "shoppingcart",
-    "Protocol": "amqps",
-    "Namespace": "acme.servicebus.windows.net",
-    "Policy": "SendListen",
-    "Key": "secret",
-    "Queue": "shoppingcart.queue",
-    "Topic": "shoppingcart.",
-    "Durable": "1",
-    "Credits": 5
-}
-```
-
-```json
-  "OutboxHostedService": {
-    "BatchSize": 5,
-    "Enabled": true,
-    "Interval": 5,
-    "PurgePublished": true,
-    "MaximumPublishCount": 10,
-    "PublishRetryInterval": 60
+  "DomainEvent": {
+    "Connections": [
+      {
+        "Key": null,
+        "Protocol": "amqps",
+        "Server": "acme.servicebus.windows.net",
+        "Username": "SendListen",
+        "Password": "secret",
+        "Queue": "shoppingcart.queue",
+        "Topic": "shoppingcart.",
+        "Credits": 5,
+        "Durable": "1",
+        "ReceiverHostedService": {
+          "Enabled": true,
+          "TimedInterval": 60
+        },
+        "OutboxHostedService": {
+          "BatchSize": 5,
+          "Enabled": true,
+          "Interval": 5,
+          "PurgePublished": true,
+          "MaximumPublishCount": 10,
+          "PublishRetryInterval": 60
+        }
+      }
+    ]
   }
-```
-
-```json
-  "ReceiverHostedService": {
-    "Enabled": true,
-    "TimedInterval": 60
-  },
 ```
 
 **(for test default settings from Service Bus Explorer are fine unless specified below)**

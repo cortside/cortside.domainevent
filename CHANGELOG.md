@@ -12,6 +12,37 @@
 * Updates to documentation to make configuration more understandable.  Separate Azure Service Bus from RabbitMQ documentation
 * Add support for keyed configuration of receivers and publishers for the benefit of being able to have multiple, i.e. being able to receive from 2 different queues with differing broker configuration
 * Add update-legacyappsettings.ps1 script (in docs folder) to migrate configuration in appsettings.json to new style, old style will be deprecated in future
+* Changes default configuration new style under DomainEvent property
+    * use docs/update-legacyappsettings.ps1 to convert from lagacy to new style
+    ```json
+    "DomainEvent": {
+        "Connections": [
+          {
+            "Key": null,
+            "Protocol": "amqp",
+            "Server": "localhost",
+            "Username": "admin",
+            "Password": "password",
+            "Queue": "shoppingcart.queue",
+            "Topic": "/exchange/shoppingcart/",
+            "Credits": 5,
+            "Durable": "1",
+            "ReceiverHostedService": {
+              "Enabled": true,
+              "TimedInterval": 60
+            },
+            "OutboxHostedService": {
+              "BatchSize": 5,
+              "Enabled": true,
+              "Interval": 5,
+              "PurgePublished": true,
+              "MaximumPublishCount": 10,
+              "PublishRetryInterval": 60
+            }
+          }
+        ]
+    }
+    ```
 
 |Commit|Date|Author|Message|
 |---|---|---|---|
