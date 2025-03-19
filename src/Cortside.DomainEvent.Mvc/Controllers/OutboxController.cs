@@ -40,7 +40,7 @@ namespace Cortside.DomainEvent.Mvc.Controllers {
         [HttpGet("")]
         [Authorize("GetOutboxMessages")]
         [ProducesResponseType(typeof(PagedList<Outbox>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetMessagesAsync([FromQuery] int pageNumber, int pageSize) {
+        public async Task<IActionResult> GetMessagesAsync([FromQuery] int pageNumber = 1, int pageSize = 30) {
             var messages = db.Set<Outbox>().Where(x => x.Status == OutboxStatus.Failed);
 
             var result = new PagedList<Outbox> {
