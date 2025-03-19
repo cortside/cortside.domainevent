@@ -20,15 +20,15 @@ namespace Cortside.DomainEvent.Mvc.Controllers {
     [Route("api/outbox/messages")]  // TODO: need to make this configurable
     [ApiController]
     [Produces("application/json")]
-    public class OutboxController<T> : ControllerBase where T : DbContext {
-        private readonly ILogger<OutboxController<T>> logger;
-        private readonly T db;
+    public class OutboxController : ControllerBase {
+        private readonly ILogger<OutboxController> logger;
+        private readonly DbContext db;
         private readonly OutboxHostedServiceConfiguration configuration;
 
         /// <summary>
         /// OutboxController
         /// </summary>
-        public OutboxController(ILogger<OutboxController<T>> logger, T databaseContext, OutboxHostedServiceConfiguration configuration) {
+        public OutboxController(ILogger<OutboxController> logger, DbContext databaseContext, OutboxHostedServiceConfiguration configuration) {
             this.logger = logger;
             db = databaseContext;
             this.configuration = configuration;
