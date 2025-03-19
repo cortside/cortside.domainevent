@@ -51,10 +51,10 @@ if (@rows > 0)
     SET TRANSACTION ISOLATION LEVEL READ COMMITTED
 
     UPDATE Q
-    SET LockId = case when RemainingAttempts > 0 then null else '{lockId}' end,
-        Status=case when RemainingAttempts > 0 then 'Failed' else 'Publishing' end,
+    SET LockId = case when RemainingAttempts > 0 then '{lockId}' else null end,
+        Status=case when RemainingAttempts > 0 then '{OutboxStatus.Publishing}' else '{OutboxStatus.Failed}' end,
         LastModifiedDate=GETUTCDATE(),
-        PublishCount=PublishCount+case when RemainingAttempts > 0 then 0 else 1 end,
+        PublishCount=PublishCount+case when RemainingAttempts > 0 then 1 else 0 end,
         RemainingAttempts=case when RemainingAttempts > 0 then RemainingAttempts-1 else 0 end
     FROM (
             select top ({config.BatchSize}) * from Outbox
