@@ -18,7 +18,17 @@ OutboxHostedService": {
     "Interval": 5,
     "PurgePublished": true,
     "MaximumPublishCount": 10,
-    "PublishRetryInterval": 60
+    "PublishRetryInterval": 60,
+    "Overrides": [
+        {
+            "EventType": "MyEvent",
+            "MaximumPublishCount": 5
+        },
+        {
+            "EventType": "OtherEvent",
+            "MaximumPublishCount": 10
+        }
+    ]
 }
 ```
 
