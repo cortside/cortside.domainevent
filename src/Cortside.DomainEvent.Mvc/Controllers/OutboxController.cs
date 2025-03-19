@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Asp.Versioning;
 using Cortside.AspNetCore.Common.Paging;
 using Cortside.Common.Logging;
+using Cortside.Common.Messages.MessageExceptions;
 using Cortside.DomainEvent.EntityFramework;
 using Cortside.DomainEvent.EntityFramework.Hosting;
 using Microsoft.AspNetCore.Authorization;
@@ -69,6 +70,10 @@ namespace Cortside.DomainEvent.Mvc.Controllers {
                     return NotFound();
                 }
 
+                if (message.Status != OutboxStatus.Failed) {
+                    throw new UnprocessableEntityResponseException("Outbox message is not in failed state");
+                }
+
                 message.Status = OutboxStatus.Queued;
                 var attempts = configuration.Overrides?.FirstOrDefault(x => x.EventType == message.EventType)?.MaximumPublishCount ?? configuration.MaximumPublishCount;
                 message.RemainingAttempts = attempts;
@@ -90,6 +95,10 @@ namespace Cortside.DomainEvent.Mvc.Controllers {
                 var message = await db.Set<Outbox>().FirstOrDefaultAsync(x => x.MessageId == id);
                 if (message == null) {
                     return NotFound();
+                }
+
+                if (message.Status != OutboxStatus.Failed) {
+                    throw new UnprocessableEntityResponseException("Outbox message is not in failed state");
                 }
 
                 db.Remove(message);
