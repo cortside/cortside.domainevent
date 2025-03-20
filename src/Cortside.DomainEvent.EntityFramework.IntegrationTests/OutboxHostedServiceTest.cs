@@ -15,7 +15,7 @@ using Xunit;
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
     public class OutboxHostedServiceTest {
         private readonly ServiceCollection services;
-        private readonly Mock<IDomainEventPublisher> publisher;
+        private readonly Mock<IDomainEventPublisherSession> publisher;
         private readonly Outbox outbox;
         private readonly EntityContext context;
 
@@ -32,7 +32,8 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             context.Set<Outbox>().Add(outbox);
             context.SaveChanges();
             services.AddSingleton(context);
-            publisher = new Mock<IDomainEventPublisher>();
+            publisher = new Mock<IDomainEventPublisherSession>();
+            publisher.Setup(x => x.BeginSession()).Returns(publisher.Object);
         }
 
         [Fact]

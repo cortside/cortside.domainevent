@@ -32,10 +32,24 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
             return base.StartAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Execute interval until there are no messages to process
+        /// </summary>
+        /// <returns></returns>
         protected override async Task ExecuteIntervalAsync() {
+            do {
+                var messageCount = await IntervalAsync();
+                if (messageCount == 0) {
+                    break;
+                }
+            } while (true);
+        }
+
+        private async Task<int> IntervalAsync() {
             logger.LogDebug("{Key} OutboxHostedService ExecuteIntervalAsync() entered.", Key);
             await Task.Yield();
             var keySql = (!string.IsNullOrWhiteSpace(Key)) ? $" and [Key]='{Key}' " : "";
+            int messageCount;
 
             var lockId = Uuid.NewDatabaseFriendly(Database.SqlServer);
             var sql = $@"
@@ -79,7 +93,6 @@ if (@rows > 0)
 
                 logger.LogDebug("Obtained DbContext with provider {ProviderName}, IsRelational = {IsRelational}", db.Database.ProviderName, isRelational);
 
-                int messageCount;
                 if (isRelational) {
                     messageCount = await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false);
                 } else {
@@ -109,39 +122,47 @@ if (@rows > 0)
                     List<Outbox> messages = await db.Set<Outbox>().Where(x => x.LockId == lockId).ToListAsync().ConfigureAwait(false);
                     logger.LogInformation("{Key} Messages claimed: {Count}", Key, messages.Count);
 
-                    var i = 1;
-                    foreach (var message in messages) {
-                        logger.LogDebug("{Key} Publishing message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key, message.MessageId, message.OutboxId, i, messages.Count);
-                        var properties = new EventProperties() {
-                            EventType = message.EventType,
-                            Topic = message.Topic,
-                            RoutingKey = message.RoutingKey,
-                            CorrelationId = message.CorrelationId,
-                            MessageId = message.MessageId
-                        };
+                    logger.LogTrace("Getting IDomainEventPublisher instance");
+                    var publisher = (!string.IsNullOrWhiteSpace(Key)) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
+                    logger.LogTrace($"Obtained IDomainEventPublisher instance with type of {publisher.GetType().Name}");
 
-                        logger.LogTrace("Getting IDomainEventPublisher instance");
-                        var publisher = (!string.IsNullOrWhiteSpace(Key)) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
-                        logger.LogTrace($"Obtained IDomainEventPublisher instance with type of {publisher.GetType().Name}");
+                    using (var session = publisher.BeginSession()) {
+                        var i = 1;
+                        foreach (var message in messages) {
+                            logger.LogDebug(
+                                "{Key} Publishing message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key,
+                                message.MessageId, message.OutboxId, i, messages.Count);
+                            var properties = new EventProperties() {
+                                EventType = message.EventType,
+                                Topic = message.Topic,
+                                RoutingKey = message.RoutingKey,
+                                CorrelationId = message.CorrelationId,
+                                MessageId = message.MessageId
+                            };
 
-                        try {
-                            await publisher.PublishAsync(message.Body, properties).ConfigureAwait(false);
-                            message.Status = OutboxStatus.Published;
-                            message.PublishedDate = DateTime.UtcNow;
-                            message.LockId = null;
+                            try {
+                                await session.PublishAsync(message.Body, properties).ConfigureAwait(false);
+                                message.Status = OutboxStatus.Published;
+                                message.PublishedDate = DateTime.UtcNow;
+                                message.LockId = null;
 
-                            logger.LogTrace("Saving changes for message {message.MessageId}");
-                            await db.SaveChangesAsync().ConfigureAwait(false);
-                            logger.LogTrace("Saved changes for message {message.MessageId}");
-                        } catch (Exception ex) {
-                            // set message back to original locked state -- just in case the exception is from ef
-                            db.Entry(message).State = EntityState.Unchanged;
+                                logger.LogTrace("Saving changes for message {message.MessageId}");
+                                await db.SaveChangesAsync().ConfigureAwait(false);
+                                logger.LogTrace("Saved changes for message {message.MessageId}");
+                            } catch (Exception ex) {
+                                // set message back to original locked state -- just in case the exception is from ef
+                                db.Entry(message).State = EntityState.Unchanged;
 
-                            logger.LogError(ex, "Exception attempting to publish message {MessageId} from outbox: {Reason}", message.MessageId, ex.Message);
+                                logger.LogError(ex,
+                                    "Exception attempting to publish message {MessageId} from outbox: {Reason}",
+                                    message.MessageId, ex.Message);
+                            }
+
+                            logger.LogDebug(
+                                "{Key} Published message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key,
+                                message.MessageId, message.OutboxId, i, messages.Count);
+                            i++;
                         }
-
-                        logger.LogDebug("{Key} Published message {MessageId} [OutboxId: {OutboxId}] ({Index} of {Count})", Key, message.MessageId, message.OutboxId, i, messages.Count);
-                        i++;
                     }
                 } catch (Exception ex) {
                     logger.LogError(ex, "Exception attempting to publish from outbox: {Reason}", ex.Message);
@@ -166,6 +187,8 @@ if (@rows > 0)
 
                 logger.LogDebug("OutboxHostedService ExecuteIntervalAsync() completed.");
             }
+
+            return messageCount;
         }
     }
 }

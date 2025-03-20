@@ -37,6 +37,10 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         public event PublisherClosedCallback Closed;
 
+        public IDomainEventPublisherSession BeginSession() {
+            throw new NotImplementedException("This publisher does not support sessions");
+        }
+
         public Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();
             return InnerSendAsync(@event, properties);

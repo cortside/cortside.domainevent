@@ -32,6 +32,8 @@ namespace Cortside.DomainEvent {
         protected ILogger Logger { get; }
         protected string ConnectionString { get; }
 
+        public abstract IDomainEventPublisherSession BeginSession();
+
         public Task PublishAsync<T>(T @event) where T : class {
             var properties = new EventProperties();
             var message = CreateMessage(@event, properties);

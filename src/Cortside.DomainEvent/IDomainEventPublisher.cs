@@ -8,6 +8,8 @@ namespace Cortside.DomainEvent {
         event PublisherClosedCallback Closed;
         DomainEventError Error { get; set; }
 
+        IDomainEventPublisherSession BeginSession();
+
         Task PublishAsync<T>(T @event) where T : class;
         Task PublishAsync<T>(T @event, string correlationId) where T : class;
         Task PublishAsync<T>(T @event, EventProperties properties) where T : class;

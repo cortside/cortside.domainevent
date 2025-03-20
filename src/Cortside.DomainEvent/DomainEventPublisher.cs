@@ -6,9 +6,9 @@ using Amqp.Framing;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
-    public class DomainEventPublisher : BaseDomainEventPublisher, IDisposable {
+    public class DomainEventPublisher : BaseDomainEventPublisher, IDomainEventPublisherSession, IDisposable {
         private Connection conn;
-        private readonly Session sharedSession;
+        private Session sharedSession;
 
         public new event PublisherClosedCallback Closed;
 
@@ -26,6 +26,13 @@ namespace Cortside.DomainEvent {
             if (conn == null) {
                 conn = new Connection(new Address(ConnectionString));
             }
+        }
+
+        public override IDomainEventPublisherSession BeginSession() {
+            Connect();
+            sharedSession = new Session(conn);
+
+            return this;
         }
 
         protected override async Task SendAsync(Message message, EventProperties properties) {
