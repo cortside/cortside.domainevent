@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cortside.DomainEvent.Health
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Health", "Health", "{B20D5398-646A-4E79-A0EE-2A3E3C0202B5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cortside.DomainEvent.Mvc", "Cortside.DomainEvent.Mvc\Cortside.DomainEvent.Mvc.csproj", "{6CF62844-B0B8-47EC-B419-740B8B12E64A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CF62844-B0B8-47EC-B419-740B8B12E64A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CF62844-B0B8-47EC-B419-740B8B12E64A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CF62844-B0B8-47EC-B419-740B8B12E64A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CF62844-B0B8-47EC-B419-740B8B12E64A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +91,7 @@ Global
 		{91328F03-1FAB-4B24-A64D-F9D5249264E2} = {2A7993DF-77BD-4FC1-9A13-28BAACCB30A4}
 		{FF026CE3-3D6A-4F19-BA29-FDBD777ADF65} = {2A7993DF-77BD-4FC1-9A13-28BAACCB30A4}
 		{3598A166-5AD1-4F36-94F0-CFB4BE2BF7A0} = {B20D5398-646A-4E79-A0EE-2A3E3C0202B5}
+		{6CF62844-B0B8-47EC-B419-740B8B12E64A} = {4BE176EB-A10A-415E-97EB-BE7D1862DA56}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DD00D9E8-8D42-40AE-9315-0D447B0C5275}

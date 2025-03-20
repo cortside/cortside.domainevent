@@ -54,8 +54,8 @@ namespace Cortside.DomainEvent.EntityFramework {
                     v => (OutboxStatus)Enum.Parse(typeof(OutboxStatus), v)
                 );
 
-            builder.Property(t => t.LockId)
-                    .HasMaxLength(36);
+            builder.Property(t => t.RemainingAttempts)
+                .HasDefaultValue(10);
 
             builder.HasIndex(p => new { p.ScheduledDate, p.Status })
                 .IncludeProperties(p => new { p.EventType })

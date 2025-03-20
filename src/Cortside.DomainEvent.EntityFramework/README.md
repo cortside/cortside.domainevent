@@ -18,9 +18,21 @@ OutboxHostedService": {
     "Interval": 5,
     "PurgePublished": true,
     "MaximumPublishCount": 10,
-    "PublishRetryInterval": 60
+    "PublishRetryInterval": 60,
+    "Overrides": [
+        {
+            "EventType": "MyEvent",
+            "MaximumPublishCount": 5
+        },
+        {
+            "EventType": "OtherEvent",
+            "MaximumPublishCount": 10
+        }
+    ]
 }
 ```
+
+The OutboxHostedService will publish outbox messages in batches.  It will retry messages that have failed up to the MaximumPublishCount.  Message publish count can be overridden for specific messages and will be used if found.
 
 ### sql to create table if not using migrations
 
@@ -36,10 +48,14 @@ OutboxHostedService": {
         [CreatedDate] datetime2 NOT NULL,
         [ScheduledDate] datetime2 NOT NULL,
         [PublishedDate] datetime2 NULL,
-        [LockId] nvarchar(36) NULL,
+        [LockId] uniqueidentifier NULL,
         [PublishCount] int NOT NULL DEFAULT 0,
+        [Key] nvarchar(50) NULL,
+        [RemainingAttempts] int NOT NULL DEFAULT 10
         CONSTRAINT [PK_Outbox] PRIMARY KEY ([MessageId])
     );
 
    CREATE INDEX [IX_ScheduleDate_Status] ON [dbo].[Outbox] ([ScheduledDate], [Status]) INCLUDE ([EventType]);
+
+   CREATE INDEX [IX_Status_LastModifiedDate] ON [dbo].[Outbox] ([Status], [LastModifiedDate]);
 ```

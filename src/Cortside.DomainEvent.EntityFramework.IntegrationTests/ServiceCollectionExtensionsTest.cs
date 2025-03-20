@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
 
-namespace Cortside.DomainEvent.Tests {
+namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
     public class ServiceCollectionExtensionsTest {
         [Fact]
         public void AddDomainEventOutboxPublisherLegacy() {

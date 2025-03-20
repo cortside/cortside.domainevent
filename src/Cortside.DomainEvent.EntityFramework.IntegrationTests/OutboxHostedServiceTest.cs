@@ -15,7 +15,7 @@ using Xunit;
 namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
     public class OutboxHostedServiceTest {
         private readonly ServiceCollection services;
-        private readonly Mock<IDomainEventPublisher> publisher;
+        private readonly Mock<IDomainEventPublisherSession> publisher;
         private readonly Outbox outbox;
         private readonly EntityContext context;
 
@@ -28,11 +28,12 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
                 .UseInMemoryDatabase($"OutboxHostedService-{Guid.NewGuid()}")
                 .Options;
             context = new EntityContext(options);
-            outbox = new Outbox() { EventType = "foo", Topic = "bar", RoutingKey = "baz", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = null };
+            outbox = new Outbox() { EventType = "foo", Topic = "bar", RoutingKey = "baz", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = null, RemainingAttempts = 3 };
             context.Set<Outbox>().Add(outbox);
             context.SaveChanges();
             services.AddSingleton(context);
-            publisher = new Mock<IDomainEventPublisher>();
+            publisher = new Mock<IDomainEventPublisherSession>();
+            publisher.Setup(x => x.BeginSession()).Returns(publisher.Object);
         }
 
         [Fact]
@@ -40,7 +41,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
             services.AddSingleton<IDomainEventPublisher>(publisher.Object);
             services.AddSingleton(new ReceiverHostedServiceSettings() { Enabled = true, MessageTypes = [] });
-            services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 1, BatchSize = 1000, PurgePublished = false });
+            services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 1, BatchSize = 1000, PurgePublished = false, MaximumPublishCount = 3 });
 
             var serviceProvider = services.BuildServiceProvider();
 
@@ -64,7 +65,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
         [Fact]
         public async Task ShouldSuccessfullyPublishKeyedMessageAsync() {
             var key = "connectionKey";
-            var keyedoutbox = new Outbox() { Key = key, EventType = "foo", Topic = "bar", RoutingKey = "baz", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = null };
+            var keyedoutbox = new Outbox() { Key = key, EventType = "foo", Topic = "bar", RoutingKey = "baz", Body = "{}", CorrelationId = Guid.NewGuid().ToString(), MessageId = Guid.NewGuid().ToString(), LockId = null, RemainingAttempts = 10 };
             context.Set<Outbox>().Add(keyedoutbox);
             await context.SaveChangesAsync();
             publisher.Setup(x => x.PublishAsync(outbox.Body, It.IsAny<EventProperties>()));
@@ -159,7 +160,6 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             services.AddSingleton(new OutboxHostedServiceConfiguration() { Enabled = true, Interval = 1, BatchSize = 1000, PurgePublished = false, MaximumPublishCount = 3 });
 
             var serviceProvider = services.BuildServiceProvider();
-
             var service = serviceProvider.GetService<IHostedService>() as OutboxHostedService<EntityContext>;
 
             using var source = new CancellationTokenSource();
