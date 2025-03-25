@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -43,8 +44,7 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         public DateTime? PublishedDate { get; set; }
 
-        [StringLength(36)]
-        public string LockId { get; set; }
+        public Guid? LockId { get; set; }
 
         [Required]
         public DateTime LastModifiedDate { get; set; } = DateTime.UtcNow;
@@ -53,5 +53,9 @@ namespace Cortside.DomainEvent.EntityFramework {
 
         [StringLength(50)]
         public string Key { get; set; }
+
+        [Required]
+        [DefaultValue(10)]
+        public int RemainingAttempts { get; set; }
     }
 }

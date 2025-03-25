@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cortside.DomainEvent.EntityFramework.Hosting;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Database;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Events;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
             services.AddSingleton(context);
 
             services.AddSingleton(new DomainEventPublisherSettings() { Topic = "topic." });
+            services.AddSingleton(new OutboxHostedServiceConfiguration() { MaximumPublishCount = 3 });
             services.AddTransient<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<EntityContext>>();
 
             provider = services.BuildServiceProvider();
@@ -273,9 +275,10 @@ namespace Cortside.DomainEvent.EntityFramework.IntegrationTests {
                     new StringEnumConverter(new SnakeCaseNamingStrategy())
                 }
             };
+            var outboxHostedServiceConfiguration = provider.GetService<OutboxHostedServiceConfiguration>();
 
             var db = provider.GetService<EntityContext>();
-            var publisher = new DomainEventOutboxPublisher<EntityContext>(settings, db, new NullLogger<DomainEventOutboxPublisher<EntityContext>>());
+            var publisher = new DomainEventOutboxPublisher<EntityContext>(settings, outboxHostedServiceConfiguration, db, new NullLogger<DomainEventOutboxPublisher<EntityContext>>());
 
             var correlationId = Guid.NewGuid().ToString();
             var messageId = Guid.NewGuid().ToString();

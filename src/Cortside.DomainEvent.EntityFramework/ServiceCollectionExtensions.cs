@@ -71,9 +71,8 @@ namespace Cortside.DomainEvent.EntityFramework {
             foreach (var settings in settingsList) {
                 var index = settingsList.IndexOf(settings);
                 Guard.From.NullOrWhitespace(settings.Key, nameof(settings.Key));
-                // tech debt
                 settings.Service = configuration[$"DomainEvent:Connections:{index}:Key"]; // needed for SenderLink
-                settings.AppName = configuration[$"DomainEvent:Connections:{index}:Key"];
+                var outboxConfiguration = configuration.GetSection($"DomainEvent:Connections:{index}:OutboxHostedService").Get<OutboxHostedServiceConfiguration>();
 
                 services.AddKeyedDomainEventPublisher(settings);
                 // register publisher
@@ -81,19 +80,15 @@ namespace Cortside.DomainEvent.EntityFramework {
                     var loggerFactory = sp.GetService<ILoggerFactory>();
                     var context = sp.GetService<T>();
                     Guard.From.Null(context, nameof(context));
-                    return new DomainEventOutboxPublisher<T>(settings, context, loggerFactory.CreateLogger<DomainEventOutboxPublisher<T>>());
+                    return new DomainEventOutboxPublisher<T>(settings, outboxConfiguration, context, loggerFactory.CreateLogger<DomainEventOutboxPublisher<T>>());
                 });
 
                 // outbox hosted service
-                var outboxConfiguration = configuration.GetSection($"DomainEvent:Connections:{index}:OutboxHostedService").Get<OutboxHostedServiceConfiguration>();
-                //services.AddKeyedSingleton(settings.Key, outboxConfiguration); // needed?
                 // do not use AddHostedService extension: https://github.com/dotnet/runtime/issues/38751#issuecomment-1967830195
                 services.AddSingleton<IHostedService, OutboxHostedService<T>>(sp => {
                     var loggerFactory = sp.GetService<ILoggerFactory>();
                     return new OutboxHostedService<T>(loggerFactory.CreateLogger<OutboxHostedService<T>>(), outboxConfiguration, sp, settings);
                 });
-
-
             }
 
             return services;

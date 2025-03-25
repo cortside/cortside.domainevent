@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
     public class OutboxHostedServiceConfiguration {
         public int BatchSize { get; set; }
@@ -6,5 +8,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         public bool PurgePublished { get; set; }
         public int MaximumPublishCount { get; set; } = 10;
         public int PublishRetryInterval { get; set; } = 60;
+
+        public List<EventTypeOverride> Overrides { get; set; }
     }
 }
