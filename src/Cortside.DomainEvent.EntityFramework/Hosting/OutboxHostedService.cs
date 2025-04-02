@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using UUIDNext;
 
 namespace Cortside.DomainEvent.EntityFramework.Hosting {
-    public class OutboxHostedService<T> : TimedHostedService where T : DbContext {
+    public class OutboxHostedService<T> : TimedHostedService, IMonitoredHostedService where T : DbContext {
         private readonly IServiceProvider serviceProvider;
         private readonly OutboxHostedServiceConfiguration config;
         private readonly string Key;
@@ -42,6 +42,8 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
                 if (messageCount == 0) {
                     break;
                 }
+
+                lastActivity = DateTime.UtcNow;
             } while (true);
         }
 
@@ -121,6 +123,7 @@ if (@rows > 0)
                 try {
                     List<Outbox> messages = await db.Set<Outbox>().Where(x => x.LockId == lockId).ToListAsync().ConfigureAwait(false);
                     logger.LogInformation("{Key} Messages claimed: {Count}", Key, messages.Count);
+                    lastActivity = DateTime.UtcNow;
 
                     logger.LogTrace("Getting IDomainEventPublisher instance");
                     var publisher = (!string.IsNullOrWhiteSpace(Key)) ? scope.ServiceProvider.GetKeyedService<IDomainEventPublisher>(Key) : scope.ServiceProvider.GetService<IDomainEventPublisher>();
@@ -148,6 +151,7 @@ if (@rows > 0)
 
                                 logger.LogTrace("Saving changes for message {message.MessageId}");
                                 await db.SaveChangesAsync().ConfigureAwait(false);
+                                lastActivity = DateTime.UtcNow;
                                 logger.LogTrace("Saved changes for message {message.MessageId}");
                             } catch (Exception ex) {
                                 // set message back to original locked state -- just in case the exception is from ef
@@ -180,6 +184,7 @@ if (@rows > 0)
                             await db.SaveChangesAsync().ConfigureAwait(false);
                         }
                         logger.LogTrace($"Purged published messages with batch size of {config.BatchSize}");
+                        lastActivity = DateTime.UtcNow;
                     } catch (Exception ex) {
                         logger.LogError(ex, "Exception attempting to purge published from outbox");
                     }
