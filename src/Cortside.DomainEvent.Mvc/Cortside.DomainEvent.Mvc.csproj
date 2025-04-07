@@ -7,12 +7,12 @@
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
     <PackageReference Include="Cortside.AspNetCore.Common" Version="8.0.317" />
-    <PackageReference Include="Cortside.Common.Correlation" Version="8.0.478">
+    <PackageReference Include="Cortside.Common.Correlation" Version="8.0.480">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
-    <PackageReference Include="Cortside.Common.Hosting" Version="8.0.478" />
-    <PackageReference Include="Cortside.Common.Logging" Version="8.0.478" />
-    <PackageReference Include="Cortside.Common.Validation" Version="8.0.478" />
+    <PackageReference Include="Cortside.Common.Hosting" Version="8.0.480" />
+    <PackageReference Include="Cortside.Common.Logging" Version="8.0.480" />
+    <PackageReference Include="Cortside.Common.Validation" Version="8.0.480" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.23.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
