@@ -39,7 +39,7 @@ namespace Cortside.DomainEvent.EntityFramework.Hosting {
         protected override async Task ExecuteIntervalAsync() {
             do {
                 var messageCount = await IntervalAsync();
-                if (messageCount == 0) {
+                if (messageCount <= 0) {
                     break;
                 }
 
