@@ -59,7 +59,6 @@ namespace Cortside.DomainEvent.Mvc.Controllers {
         /// Reset message attempts and status
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="input"></param>
         [HttpPost("{id}/reset")]
         [Authorize("ResetOutboxMessage")]
         [ProducesResponseType(typeof(Outbox), StatusCodes.Status200OK)]
@@ -86,7 +85,6 @@ namespace Cortside.DomainEvent.Mvc.Controllers {
         /// <summary>
         /// Delete message
         /// </summary>
-        /// <param name="resourceId"></param>
         [HttpDelete("{id}")]
         [Authorize("DeleteOutboxMessage")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

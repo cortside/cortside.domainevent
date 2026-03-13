@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Cortside.DomainEvent.EntityFramework;
 using Cortside.DomainEvent.EntityFramework.Hosting;
 using Cortside.DomainEvent.EntityFramework.IntegrationTests.Database;
 using Microsoft.EntityFrameworkCore;
