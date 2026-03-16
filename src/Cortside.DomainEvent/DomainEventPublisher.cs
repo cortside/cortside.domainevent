@@ -6,7 +6,7 @@ using Amqp.Framing;
 using Microsoft.Extensions.Logging;
 
 namespace Cortside.DomainEvent {
-    public class DomainEventPublisher : BaseDomainEventPublisher, IDomainEventPublisherSession, IDisposable {
+    public class DomainEventPublisher : BaseDomainEventPublisher, IDomainEventPublisherSession {
         private Connection conn;
         private Session sharedSession;
 

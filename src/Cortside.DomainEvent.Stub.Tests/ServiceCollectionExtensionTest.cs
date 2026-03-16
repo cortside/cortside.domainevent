@@ -1,7 +1,7 @@
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Tests;
-using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using Xunit;
 
 namespace Cortside.DomainEvent.Stub.Tests {

@@ -15,23 +15,27 @@
     <PackageIconUrl>https://avatars.githubusercontent.com/u/32287038?s=60</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.4.11" />
-    <PackageReference Include="AMQPNetLite.Serialization" Version="2.4.11" />
-    <PackageReference Include="Cortside.Common.Correlation" Version="8.0.480" />
-    <PackageReference Include="Cortside.Common.Validation" Version="8.0.480" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.61">
+    <PackageReference Include="AMQPNetLite.Core" Version="2.5.1" />
+    <PackageReference Include="AMQPNetLite.Serialization" Version="2.5.1" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="8.1.506" />
+    <PackageReference Include="Cortside.Common.Validation" Version="8.1.506" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.14" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.14" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.13.1">
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="ReferenceTrimmer" Version="3.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.7.0.110445">
+    <PackageReference Include="Roslynator.Analyzers" Version="4.15.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.20.0.135146">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

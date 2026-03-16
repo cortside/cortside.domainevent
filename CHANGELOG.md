@@ -1,3 +1,18 @@
+# Release 8.1
+
+|Commit|Date|Author|Message|
+|---|---|---|---|
+| 1a2062e | <span style="white-space:nowrap;">2025-03-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update version
+| b7f87cb | <span style="white-space:nowrap;">2025-03-17</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 8cd578e | <span style="white-space:nowrap;">2025-03-17</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 80c73d6 | <span style="white-space:nowrap;">2025-03-25</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge pull request #54 from cortside/SVC-3406
+| db18482 | <span style="white-space:nowrap;">2025-03-25</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 05d0b74 | <span style="white-space:nowrap;">2025-04-07</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  Merge branch 'master' into develop
+| 3c4e693 | <span style="white-space:nowrap;">2025-04-25</span> | <span style="white-space:nowrap;">=</span> |  Merge remote-tracking branch 'remotes/origin/master' into develop
+| 244b6c2 | <span style="white-space:nowrap;">2026-03-13</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  update nuget packages and scripts
+| 1b11591 | <span style="white-space:nowrap;">2026-03-16</span> | <span style="white-space:nowrap;">Cort Schaefer</span> |  (HEAD -> release/8.1, origin/develop, origin/HEAD, develop) update to latest cortside libraries
+****
+
 # Release 8.0
 
 * Updated powershell scripts to latest versions from coeus/shoppingcart-api
