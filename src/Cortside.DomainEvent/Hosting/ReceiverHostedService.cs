@@ -54,7 +54,7 @@ namespace Cortside.DomainEvent.Hosting {
                 logger.LogError("Configuration error:  No event types have been configured for the {ServiceKey} receiverhostedeservice", serviceKey);
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
-                    if (receiver == null || receiver.Link?.IsClosed != false) {
+                    if (receiver == null || receiver.Link == null || receiver.Link?.IsClosed != false) {
                         DisposeReceiver();
                         receiver ??= services.GetService<IDomainEventReceiver>();
                         logger.LogInformation("Starting receiver... {ServiceKey}", serviceKey);
@@ -86,6 +86,7 @@ namespace Cortside.DomainEvent.Hosting {
             } else {
                 logger.LogError("{ServiceKey} Handling OnReceiverClosed event with error: {Condition} - {Description}", serviceKey, error.Condition, error.Description);
             }
+            receiver?.Close();
         }
 
         private void DisposeReceiver() {

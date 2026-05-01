@@ -23,7 +23,7 @@ namespace Cortside.DomainEvent {
         }
 
         public void Connect() {
-            if (conn == null) {
+            if (conn == null || conn.ConnectionState == ConnectionState.End) {
                 conn = new Connection(new Address(ConnectionString));
             }
         }
@@ -48,10 +48,13 @@ namespace Cortside.DomainEvent {
                 Session session;
 
                 if (sharedSession == null) {
+
                     if (conn == null) {
+                        Logger.LogTrace("Using non shared session null connection. Creating new connection.");
                         Connect();
                         disconnectAfter = true;
                     }
+                    Logger.LogTrace("Using non shared session with connection state: {State}", conn?.ConnectionState);
 
                     session = new Session(conn);
                     attach = new Attach() {
@@ -59,6 +62,8 @@ namespace Cortside.DomainEvent {
                         Source = new Source()
                     };
                 } else {
+                    Logger.LogTrace("Using shared session.");
+
                     session = sharedSession;
                     attach = new Attach() {
                         Target = new Target() { Address = properties.Address, Durable = Settings.Durable },
@@ -72,10 +77,10 @@ namespace Cortside.DomainEvent {
                 try {
                     await sender.SendAsync(message).ConfigureAwait(false);
                     Statistics.Instance.Publish();
-                    Logger.LogInformation($"Published message {message.Properties.MessageId}");
+                    Logger.LogInformation("Published message {MessageId}", message.Properties.MessageId);
                 } catch (Exception ex) {
                     Statistics.Instance.Publish(false);
-                    Logger.LogError(ex, $"Error publishing message {message.Properties.MessageId}");
+                    Logger.LogError(ex, "Error publishing message {MessageId}", message.Properties.MessageId);
                     Error = new DomainEventError {
                         Condition = "Publish",
                         Description = ex.Message,
@@ -90,8 +95,15 @@ namespace Cortside.DomainEvent {
                             Description = sender.Error.Description
                         };
                         Closed?.Invoke(this, Error);
+                        if (Error != null) {
+                            Logger.LogTrace(
+                                "Publisher closed. Error description {Description}, Condition {Condition}, Exception {Exception}.",
+                                Error?.Description, Error?.Condition, Error?.Exception);
+                        }
                     }
 
+                    Logger.LogTrace("Send complete. disconnectAfter: {DisconnectAfter}, null shared session: {NullSharedSession}, sender State {SenderState}, sender is closed {IsClosed}",
+                        disconnectAfter, sharedSession == null, sender.LinkState, sender.IsClosed);
                     if (disconnectAfter && sharedSession != null) {
                         if (!sender.IsClosed) {
                             await sender.CloseAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
@@ -100,6 +112,8 @@ namespace Cortside.DomainEvent {
                         await session.Connection.CloseAsync().ConfigureAwait(false);
                         conn = null;
                     }
+
+                    Logger.LogTrace("End of SendAsync");
                 }
             }
         }
