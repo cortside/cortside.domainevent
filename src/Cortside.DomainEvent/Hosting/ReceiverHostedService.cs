@@ -99,6 +99,7 @@ namespace Cortside.DomainEvent.Hosting {
             DisposeReceiver();
             receiver = null;
             GC.SuppressFinalize(this);
+            base.Dispose();
         }
 
         /// <summary>
