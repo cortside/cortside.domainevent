@@ -96,9 +96,9 @@ namespace Cortside.DomainEvent {
                         };
                         Closed?.Invoke(this, Error);
                         if (Error != null) {
-                            Logger.LogTrace(
-                                "Publisher closed. Error description {Description}, Condition {Condition}, Exception {Exception}.",
-                                Error?.Description, Error?.Condition, Error?.Exception);
+                            Logger.LogTrace(Error.Exception,
+                                "Publisher closed. Error description {Description}, Condition {Condition}.",
+                                Error.Description, Error.Condition);
                         }
                     }
 
