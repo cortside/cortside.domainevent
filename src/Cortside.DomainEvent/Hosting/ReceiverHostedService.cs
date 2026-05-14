@@ -42,21 +42,23 @@ namespace Cortside.DomainEvent.Hosting {
         /// Interface method to start service
         /// </summary>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
-            if (stoppingToken.IsCancellationRequested) {
-                throw new OperationCanceledException(stoppingToken);
-            }
+            stoppingToken.ThrowIfCancellationRequested();
 
             await Task.Yield();
 
             if (!settings.Enabled) {
                 logger.LogInformation("{ServiceKey} ReceiverHostedService is not enabled", serviceKey);
             } else if (settings.MessageTypes == null) {
-                logger.LogError("Configuration error:  No event types have been configured for the {ServiceKey} receiverhostedeservice", serviceKey);
+                logger.LogError("Configuration error:  No event types have been configured for the {ServiceKey} ReceiverHostedService", serviceKey);
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
-                    if (receiver == null || receiver.Link == null || receiver.Link?.IsClosed != false) {
+                    if (receiver is not { Link.IsClosed: false }) {
                         DisposeReceiver();
-                        receiver ??= services.GetService<IDomainEventReceiver>();
+                        if (receiver is null) {
+                            receiver ??= services.GetService<IDomainEventReceiver>();
+                            receiver.Closed += OnReceiverClosed;
+                        }
+
                         logger.LogInformation("Starting receiver... {ServiceKey}", serviceKey);
                         try {
                             receiver.StartAndListen(settings.MessageTypes);
@@ -64,7 +66,7 @@ namespace Cortside.DomainEvent.Hosting {
                         } catch (Exception e) {
                             logger.LogCritical(e, "Unable to start receiver {ServiceKey}. \n {E}", serviceKey, e);
                         }
-                        receiver.Closed += OnReceiverClosed;
+
                     }
                     await Task.Delay(TimeSpan.FromSeconds(settings.TimedInterval), stoppingToken).ConfigureAwait(false);
                 }
@@ -95,6 +97,9 @@ namespace Cortside.DomainEvent.Hosting {
 
         public override void Dispose() {
             DisposeReceiver();
+            receiver = null;
+            GC.SuppressFinalize(this);
+            base.Dispose();
         }
 
         /// <summary>
