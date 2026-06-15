@@ -47,14 +47,16 @@ namespace Cortside.DomainEvent.Hosting {
             await Task.Yield();
 
             if (!settings.Enabled) {
-                logger.LogInformation("{ServiceKey} ReceiverHostedService is not enabled", serviceKey);
+                logger.LogInformation("[{ServiceKey}] ReceiverHostedService is not enabled", serviceKey);
             } else if (settings.MessageTypes == null) {
-                logger.LogError("Configuration error:  No event types have been configured for the {ServiceKey} ReceiverHostedService", serviceKey);
+                logger.LogError("Configuration error:  No event types have been configured for the [{ServiceKey}] ReceiverHostedService", serviceKey);
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
                     if (receiver is not { Link.IsClosed: false }) {
+                        LogLocalState("receiver is null or link is NOT closed");
                         DisposeReceiver();
                         if (receiver is null) {
+                            logger.LogDebug("Receiver is null, creating a new instance.");
                             receiver ??= services.GetService<IDomainEventReceiver>();
                             receiver.Closed += OnReceiverClosed;
                         }
@@ -82,22 +84,36 @@ namespace Cortside.DomainEvent.Hosting {
             return Task.CompletedTask;
         }
 
-        private void OnReceiverClosed(IDomainEventReceiver receiver, DomainEventError error) {
+        private void LogLocalState(string prefix = "") {
+            logger?.LogDebug("{Prefix} ReceiverId: {ReceiverId}, LinkId: {LinkId}, LinkState: {LinkState}, Link.IsClosed: {IsClosed}",
+                prefix, receiver?.GetHashCode() ?? -1, receiver?.Link?.GetHashCode() ?? -1, receiver?.Link?.LinkState, receiver?.Link?.IsClosed);
+        }
+
+        private void OnReceiverClosed(IDomainEventReceiver closingReceiver, DomainEventError error) {
             if (error == null) {
                 logger.LogError("{ServiceKey} Handling OnReceiverClosed event with no error information", serviceKey);
             } else {
                 logger.LogError("{ServiceKey} Handling OnReceiverClosed event with error: {Condition} - {Description}", serviceKey, error.Condition, error.Description);
             }
-            receiver?.Close();
+
+            if (closingReceiver == null) {
+                logger.LogDebug("closingReceiver is null");
+                return;
+            }
+
+            //*jwS* not yet - closingReceiver.Closed -= OnReceiverClosed
+            LogLocalState("calling closingReceiver.Close");
+            closingReceiver?.Close();
         }
 
         private void DisposeReceiver() {
+            LogLocalState("DisposeReceiver called.");
             receiver?.Close();
+            //*jwS* not yet - receiver = null
         }
 
         public override void Dispose() {
             DisposeReceiver();
-            receiver = null;
             GC.SuppressFinalize(this);
             base.Dispose();
         }

@@ -85,10 +85,19 @@ namespace Cortside.DomainEvent {
 
         protected void OnClosed(IAmqpObject sender, Error error) {
             if (sender.Error != null) {
+                Logger.LogDebug("Receiver link closed: {Condition} - {Description}", sender.Error.Condition, sender.Error.Description);
                 Error = new DomainEventError {
                     Condition = sender.Error.Condition.ToString(),
                     Description = sender.Error.Description
                 };
+            } else {
+                Logger.LogDebug("Receiver link close with no error info.");
+            }
+
+            if (error != null) {
+                Logger.LogDebug("Receiver link closed, additional error info: {Condition} - {Description}", error.Condition, error.Description);
+            } else {
+                Logger.LogDebug("Receiver link closed with no additional error info");
             }
             Closed?.Invoke(this, Error);
         }
