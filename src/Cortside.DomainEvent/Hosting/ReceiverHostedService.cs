@@ -52,6 +52,7 @@ namespace Cortside.DomainEvent.Hosting {
                 logger.LogError("Configuration error:  No event types have been configured for the [{ServiceKey}] ReceiverHostedService", serviceKey);
             } else {
                 while (!stoppingToken.IsCancellationRequested) {
+                    LogLocalState("Top of loop");
                     if (receiver is not { Link.IsClosed: false }) {
                         LogLocalState("receiver is null or link is NOT closed");
                         DisposeReceiver();
@@ -84,9 +85,24 @@ namespace Cortside.DomainEvent.Hosting {
             return Task.CompletedTask;
         }
 
-        private void LogLocalState(string prefix = "") {
-            logger?.LogDebug("{Prefix} ReceiverId: {ReceiverId}, LinkId: {LinkId}, LinkState: {LinkState}, Link.IsClosed: {IsClosed}",
-                prefix, receiver?.GetHashCode() ?? -1, receiver?.Link?.GetHashCode() ?? -1, receiver?.Link?.LinkState, receiver?.Link?.IsClosed);
+        private void LogLocalState(string prefix = "", IDomainEventReceiver receiverToLog = null) {
+            receiverToLog ??= receiver;
+            logger?.LogDebug("{Prefix} ReceiverId: {ReceiverId}, Receiver.Error [{ReceiverError}]\nLinkId: {LinkId}, LinkState: [{LinkState}], Link.IsClosed: [{IsClosed}], Link.Error [{LinkError}]\n" +
+                             "Link.Session.SessionState: [{SessionState}], Link.Session.IsClosed: [{SessionIsClosed}], Link.Session.Error: [{SessionError}]\n" +
+                             "Link.Session.Connection.IsClosed: [{ConnectionIsClosed}], Link.Session.Connection.ConnectionState: [{ConnectionState}], Link.Session.Connection.Error: [{ConnectionError}]",
+                prefix,
+                receiverToLog?.GetHashCode() ?? -1,
+                receiverToLog?.Error,
+                receiverToLog?.Link?.GetHashCode() ?? -1,
+                receiverToLog?.Link?.LinkState,
+                receiverToLog?.Link?.IsClosed,
+                receiverToLog?.Link?.Error,
+                receiverToLog?.Link?.Session?.SessionState,
+                receiverToLog?.Link?.Session?.IsClosed,
+                receiverToLog?.Link?.Session?.Error,
+                receiverToLog?.Link?.Session?.Connection?.IsClosed,
+                receiverToLog?.Link?.Session?.Connection?.ConnectionState,
+                receiverToLog?.Link?.Session?.Connection?.Error);
         }
 
         private void OnReceiverClosed(IDomainEventReceiver closingReceiver, DomainEventError error) {
@@ -102,7 +118,7 @@ namespace Cortside.DomainEvent.Hosting {
             }
 
             //*jwS* not yet - closingReceiver.Closed -= OnReceiverClosed
-            LogLocalState("calling closingReceiver.Close");
+            LogLocalState("calling closingReceiver.Close. closingReceiver State => ", closingReceiver);
             closingReceiver?.Close();
         }
 
